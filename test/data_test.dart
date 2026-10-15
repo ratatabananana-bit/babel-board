@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vale_helper/data/loaders.dart';
-import 'package:vale_helper/models/card.dart';
-import 'package:vale_helper/models/rules.dart';
+import 'package:vale_helper/games/vale/data/loaders.dart';
+import 'package:vale_helper/games/vale/models/card.dart';
+import 'package:vale_helper/core/flow/flow_rules.dart';
 
 void main() {
   final cards = parseCards(File('assets/cards.json').readAsStringSync());

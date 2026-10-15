@@ -1,9 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vale_helper/models/zone.dart';
-import 'package:vale_helper/state/phase_state.dart';
-import 'package:vale_helper/state/settings.dart';
-import 'package:vale_helper/state/tracker.dart';
+import 'package:vale_helper/games/vale/models/zone.dart';
+import 'package:vale_helper/core/flow/flow_state.dart';
+import 'package:vale_helper/core/app_state.dart';
+import 'package:vale_helper/core/migrate.dart';
+import 'package:vale_helper/core/settings.dart';
+import 'package:vale_helper/games/vale/state/tracker.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -50,10 +52,10 @@ void main() {
     });
   });
 
-  group('PhaseState', () {
+  group('FlowState', () {
     test('next wraps around and clears ticks of the phase left', () async {
       final prefs = await SharedPreferences.getInstance();
-      final p = PhaseState(prefs, phaseCount: 4);
+      final p = FlowState(prefs, prefix: 'vale.', phaseCount: 4);
       p.toggle('hunting.markers');
       p.toggle('action.stones');
       p.next(['hunting.markers']);
@@ -69,12 +71,36 @@ void main() {
 
     test('survives a restart', () async {
       final prefs = await SharedPreferences.getInstance();
-      PhaseState(prefs, phaseCount: 4)
+      FlowState(prefs, prefix: 'vale.', phaseCount: 4)
         ..goTo(2)
         ..toggle('x');
-      final reloaded = PhaseState(prefs, phaseCount: 4);
+      final reloaded = FlowState(prefs, prefix: 'vale.', phaseCount: 4);
       expect(reloaded.index, 2);
       expect(reloaded.isChecked('x'), isTrue);
+    });
+  });
+
+  group('migrateLegacyPrefs', () {
+    test('moves old single-game Vale keys under vale. and reopens Vale', () async {
+      SharedPreferences.setMockInitialValues({
+        'tracker.zones': '{"imp":"hand"}',
+        'phase.index': 2,
+        'phase.checked': ['x'],
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await migrateLegacyPrefs(prefs);
+      expect(prefs.containsKey('tracker.zones'), isFalse);
+      expect(Tracker(prefs, prefix: 'vale.').zoneOf('imp'), Zone.hand);
+      final flow = FlowState(prefs, prefix: 'vale.', phaseCount: 4);
+      expect(flow.index, 2);
+      expect(flow.isChecked('x'), isTrue);
+      expect(prefs.getString(AppState.lastGameKey), 'vale');
+    });
+
+    test('does nothing on a fresh install', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await migrateLegacyPrefs(prefs);
+      expect(prefs.getKeys(), isEmpty);
     });
   });
 

@@ -1,5 +1,7 @@
 {
   "source": "Official Vale of Eternity rulebook (Renegade Game Studios, VoE_Rulebook_WEB.pdf)",
+  "title": "Round",
+  "cyclic": true,
   "reminders": [
     "Max 4 magic stones each. If you end up with more, keep 4 and discard the rest right away.",
     "Areas you have = current round number. Remove cost = current round number.",
@@ -66,6 +68,7 @@
       "title": "Resolution",
       "summary": "Use every Active effect in your Field once, in any order.",
       "listTitle": "Your Active cards",
+      "emptyText": "No Active cards in your Field. Nothing to resolve.",
       "steps": [
         "Players resolve in turn order, starting with the first player.",
         "Every Active effect must be used, once per round.",
@@ -89,7 +92,7 @@
         { "id": "end.gameover", "text": "Check for game end", "sub": "Anyone at 60+ points, or was this round 10?" },
         { "id": "end.round", "text": "Move the round marker" },
         { "id": "end.first", "text": "Pass the first-player marker to the left" },
-        { "id": "end.table", "text": "Clear Table in the app", "sub": "Removes the cards you tracked on Table", "action": "clearTable" }
+        { "id": "end.table", "text": "Clear Table in the app", "sub": "Removes the cards you tracked on Table", "action": "clearTable", "actionLabel": "Clear" }
       ]
     }
   ]

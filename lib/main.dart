@@ -1,57 +1,79 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:quick_actions/quick_actions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'data/loaders.dart';
-import 'models/card.dart';
-import 'models/rules.dart';
-import 'screens/cards_screen.dart';
-import 'screens/my_cards_screen.dart';
-import 'screens/phase_screen.dart';
-import 'state/nav.dart';
-import 'state/phase_state.dart';
-import 'state/settings.dart';
-import 'state/tracker.dart';
-import 'theme.dart';
+import 'core/app_state.dart';
+import 'core/game_module.dart';
+import 'core/game_switcher.dart';
+import 'core/migrate.dart';
+import 'core/settings.dart';
+import 'core/theme.dart';
+import 'games/magical_athlete/magical_athlete_game.dart';
+import 'games/vale/vale_game.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ValeApp());
+  runApp(const HelperApp());
 }
 
 class AppData {
-  const AppData(this.cards, this.rules, this.prefs);
-  final List<GameCard> cards;
-  final Rules rules;
+  const AppData(this.prefs, this.games);
   final SharedPreferences prefs;
+  final List<GameModule> games;
 }
 
-Future<AppData> loadAppData() async => AppData(
-      await loadCards(rootBundle),
-      await loadRules(rootBundle),
-      await SharedPreferences.getInstance(),
-    );
+List<GameModule> createGames() => [ValeGame(), MagicalAthleteGame()];
 
-class ValeApp extends StatefulWidget {
-  const ValeApp({super.key, this.loader = loadAppData});
+Future<AppData> loadAppData() async {
+  final prefs = await SharedPreferences.getInstance();
+  await migrateLegacyPrefs(prefs);
+  final games = createGames();
+  for (final g in games) {
+    await g.load(rootBundle, prefs);
+  }
+  return AppData(prefs, games);
+}
+
+class HelperApp extends StatefulWidget {
+  const HelperApp({super.key, this.loader = loadAppData});
 
   final Future<AppData> Function() loader;
 
   @override
-  State<ValeApp> createState() => _ValeAppState();
+  State<HelperApp> createState() => _HelperAppState();
 }
 
-class _ValeAppState extends State<ValeApp> {
+class _HelperAppState extends State<HelperApp> {
   late final Future<AppData> _data = widget.loader();
+  AppState? _app;
 
-  static Widget _app(Widget home) => MaterialApp(
-        title: 'Vale Helper',
+  static Widget _material({required Widget home, TransitionBuilder? builder}) => MaterialApp(
+        title: 'Table Helper',
         debugShowCheckedModeBanner: false,
         theme: buildTheme(Palette.light, Brightness.light),
         darkTheme: buildTheme(Palette.dark, Brightness.dark),
+        builder: builder,
         home: home,
       );
+
+  /// Long-press the app icon to jump straight into a game (Android only).
+  Future<void> _setUpShortcuts(AppState app) async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    const actions = QuickActions();
+    try {
+      await actions.initialize(app.open);
+      await actions.setShortcutItems([
+        for (final g in app.games) ShortcutItem(type: g.id, localizedTitle: g.title),
+      ]);
+    } on MissingPluginException {
+      // Not available here (e.g. in tests); shortcuts are a nice-to-have.
+    } on PlatformException {
+      // Launcher doesn't support shortcuts.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,85 +81,88 @@ class _ValeAppState extends State<ValeApp> {
       future: _data,
       builder: (context, snap) {
         if (snap.hasError) {
-          return _app(Scaffold(
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text('Could not load card data:\n${snap.error}', textAlign: TextAlign.center),
+          return _material(
+            home: Scaffold(
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text('Could not load game data:\n${snap.error}', textAlign: TextAlign.center),
+                ),
               ),
             ),
-          ));
+          );
         }
         final d = snap.data;
-        if (d == null) return _app(const Scaffold(body: Center(child: CircularProgressIndicator())));
-        // Providers sit above MaterialApp so pushed routes (card detail) can read them.
+        if (d == null) return _material(home: const Scaffold(body: Center(child: CircularProgressIndicator())));
+        if (_app == null) {
+          _app = AppState(d.prefs, d.games);
+          _setUpShortcuts(_app!);
+        }
+        // Shared providers sit above MaterialApp; the active game's providers wrap the Navigator
+        // (via builder) so its sheets and dialogs can read them too.
         return MultiProvider(
           providers: [
-            Provider.value(value: d.cards),
-            Provider.value(value: d.rules),
-            ChangeNotifierProvider(create: (_) => Tracker(d.prefs)),
-            ChangeNotifierProvider(create: (_) => Nav()),
+            ChangeNotifierProvider.value(value: _app!),
             ChangeNotifierProvider(create: (_) => Settings(d.prefs)),
-            ChangeNotifierProvider(
-                create: (_) => PhaseState(d.prefs, phaseCount: d.rules.phases.length)),
           ],
-          child: _app(const HomeShell()),
+          child: Consumer<AppState>(
+            builder: (context, app, _) => _material(
+              builder: (context, child) => app.active?.wrap(child!) ?? child!,
+              home: const _Home(),
+            ),
+          ),
         );
       },
     );
   }
 }
 
-class HomeShell extends StatefulWidget {
-  const HomeShell({super.key});
+class _Home extends StatelessWidget {
+  const _Home();
 
   @override
-  State<HomeShell> createState() => _HomeShellState();
+  Widget build(BuildContext context) {
+    final game = context.watch<AppState>().active;
+    if (game == null) return const GamePickerScreen();
+    return GameShell(key: ValueKey(game.id), game: game);
+  }
 }
 
-class _HomeShellState extends State<HomeShell> {
-  late final Nav _nav = context.read<Nav>();
-  late final PageController _pages = PageController(initialPage: _nav.tab);
+/// A game's tabs: swipe between them or use the bottom bar.
+class GameShell extends StatefulWidget {
+  const GameShell({super.key, required this.game});
+  final GameModule game;
 
   @override
-  void initState() {
-    super.initState();
-    _nav.addListener(_syncPage);
-  }
+  State<GameShell> createState() => _GameShellState();
+}
+
+class _GameShellState extends State<GameShell> {
+  final _pages = PageController();
+  int _tab = 0;
 
   @override
   void dispose() {
-    _nav.removeListener(_syncPage);
     _pages.dispose();
     super.dispose();
   }
 
-  /// Follows tab changes requested elsewhere (nav bar, card detail's My Cards button).
-  void _syncPage() {
-    if (_pages.hasClients && _pages.page?.round() != _nav.tab) {
-      _pages.animateToPage(_nav.tab,
-          duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
-    }
+  void _goTo(int i) {
+    setState(() => _tab = i);
+    _pages.animateToPage(i, duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
   }
 
   @override
   Widget build(BuildContext context) {
-    final tracker = context.watch<Tracker>();
-    final tab = context.watch<Nav>().tab;
-    final tracked = tracker.total;
     final p = context.pal;
+    final tabs = widget.game.tabs;
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        // Swipe left/right to move between tabs.
         child: PageView(
           controller: _pages,
-          onPageChanged: _nav.goTo,
-          children: const [
-            _KeepAlive(CardsScreen()),
-            _KeepAlive(MyCardsScreen()),
-            _KeepAlive(PhaseScreen()),
-          ],
+          onPageChanged: (i) => setState(() => _tab = i),
+          children: [for (final t in tabs) _KeepAlive(Builder(builder: t.builder))],
         ),
       ),
       bottomNavigationBar: Container(
@@ -157,21 +182,23 @@ class _HomeShellState extends State<HomeShell> {
             backgroundColor: Color.lerp(p.bg, p.surface, 0.45),
             indicatorColor: p.surface2,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            selectedIndex: tab,
-            onDestinationSelected: _nav.goTo,
+            selectedIndex: _tab,
+            onDestinationSelected: _goTo,
             destinations: [
-              const NavigationDestination(icon: Icon(Icons.style_rounded), label: 'Cards'),
-              NavigationDestination(
-                icon: Badge(
-                  isLabelVisible: tracked > 0,
-                  backgroundColor: p.badge,
-                  textColor: p.onAccent,
-                  label: Text('$tracked', style: const TextStyle(fontWeight: FontWeight.w800)),
-                  child: const Icon(Icons.back_hand_rounded),
+              for (final t in tabs)
+                NavigationDestination(
+                  label: t.label,
+                  icon: Builder(builder: (context) {
+                    final n = t.badge?.call(context) ?? 0;
+                    return Badge(
+                      isLabelVisible: n > 0,
+                      backgroundColor: p.badge,
+                      textColor: p.onAccent,
+                      label: Text('$n', style: const TextStyle(fontWeight: FontWeight.w800)),
+                      child: Icon(t.icon),
+                    );
+                  }),
                 ),
-                label: 'My cards',
-              ),
-              const NavigationDestination(icon: Icon(Icons.flag_rounded), label: 'Round'),
             ],
           ),
         ),

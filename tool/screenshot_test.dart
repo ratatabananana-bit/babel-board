@@ -53,7 +53,7 @@ Future<void> _shot(WidgetTester tester, String name, {bool settle = true}) async
 Finder _nav(String label) =>
     find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
 
-Future<void> _pumpApp(WidgetTester tester, Brightness brightness) async {
+Future<void> _pumpApp(WidgetTester tester, Brightness brightness, {String game = 'vale'}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 2.75;
   tester.platformDispatcher.platformBrightnessTestValue = brightness;
@@ -62,7 +62,9 @@ Future<void> _pumpApp(WidgetTester tester, Brightness brightness) async {
   // This is a test, it just lives outside test/ so `flutter test` doesn't run it by default.
   // ignore: invalid_use_of_visible_for_testing_member
   SharedPreferences.setMockInitialValues({
-    'tracker.zones': jsonEncode({
+    'app.lastGame': game,
+    'ma.lineup': ['banana', 'baba_yaga', 'suckerfish'],
+    'vale.tracker.zones': jsonEncode({
       'sea_spirit': 'table',
       'balog': 'table',
       'imp': 'hand',
@@ -72,10 +74,12 @@ Future<void> _pumpApp(WidgetTester tester, Brightness brightness) async {
       'undine': 'field',
       'ifrit': 'field',
     }),
-    'phase.checked': ['hunting.reveal'],
+    'vale.phase.checked': ['hunting.reveal'],
+    'ma.phase.index': 2,
+    'ma.phase.checked': ['race2.reveal', 'race2.start'],
   });
   final data = await tester.runAsync(loadAppData);
-  await tester.pumpWidget(RepaintBoundary(key: _shotKey, child: ValeApp(loader: () async => data!)));
+  await tester.pumpWidget(RepaintBoundary(key: _shotKey, child: HelperApp(loader: () async => data!)));
 }
 
 void main() {
@@ -146,5 +150,24 @@ void main() {
     await _shot(tester, '15_light_my_cards');
     await tester.tap(_nav('Round'));
     await _shot(tester, '16_light_round');
+  });
+
+  testWidgets('magical athlete screenshots', (tester) async {
+    await _pumpApp(tester, Brightness.dark, game: 'ma');
+    await _shot(tester, '17_ma_racers');
+    await tester.tap(find.byKey(const Key('density2')));
+    await _shot(tester, '18_ma_racers_2_per_row');
+    await tester.tap(find.byKey(const Key('density4')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Baba Yaga, in this race'));
+    await _shot(tester, '19_ma_racer_sheet');
+    await tester.tapAt(const Offset(200, 60));
+    await tester.pumpAndSettle();
+    await tester.tap(_nav('This race'));
+    await _shot(tester, '20_ma_this_race');
+    await tester.tap(_nav('Game'));
+    await _shot(tester, '21_ma_game_race2');
+    await tester.tap(find.byKey(const Key('gameSwitcher')).last);
+    await _shot(tester, '22_game_switcher');
   });
 }

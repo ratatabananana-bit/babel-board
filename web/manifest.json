@@ -1,11 +1,11 @@
 {
-    "name": "vale_helper",
-    "short_name": "vale_helper",
+    "name": "Table Helper",
+    "short_name": "Table Helper",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFFFFF",
+    "theme_color": "#1F6F78",
+    "description": "English card lookup, tracking and rules checklists for board games.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -6,18 +6,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vale_helper/main.dart';
-import 'package:vale_helper/models/zone.dart';
-import 'package:vale_helper/screens/cards_screen.dart';
-import 'package:vale_helper/state/settings.dart';
-import 'package:vale_helper/state/tracker.dart';
+import 'package:vale_helper/games/vale/models/zone.dart';
+import 'package:vale_helper/games/vale/screens/cards_screen.dart';
+import 'package:vale_helper/core/settings.dart';
+import 'package:vale_helper/games/vale/state/tracker.dart';
 
 Future<void> pumpApp(WidgetTester tester, {Map<String, String> zones = const {}}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 2.75;
   addTearDown(tester.view.reset);
-  SharedPreferences.setMockInitialValues({'tracker.zones': jsonEncode(zones)});
+  SharedPreferences.setMockInitialValues({'app.lastGame': 'vale', 'vale.tracker.zones': jsonEncode(zones)});
   final data = await tester.runAsync(loadAppData);
-  await tester.pumpWidget(ValeApp(loader: () async => data!));
+  await tester.pumpWidget(HelperApp(loader: () async => data!));
   await tester.pumpAndSettle();
 }
 
