@@ -3,7 +3,7 @@
     "short_name": "Table Helper",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#FFFFFF",
+    "background_color": "#F4EFE8",
     "theme_color": "#1F6F78",
     "description": "English card lookup, tracking and rules checklists for board games.",
     "orientation": "portrait-primary",
