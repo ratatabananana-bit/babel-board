@@ -193,7 +193,7 @@ void main() {
     await pumpApp(tester);
     await tester.tap(navLabel('Round'));
     await tester.pumpAndSettle();
-    for (final t in ['Reveal 4 cards', 'First picks: clockwise', 'Second picks: counterclockwise']) {
+    for (final t in ['Reveal 2 cards per player', 'First picks: clockwise', 'Second picks: counterclockwise']) {
       await tester.tap(find.text(t));
       await tester.pump();
     }

@@ -22,7 +22,7 @@
     "checklist": [
       { "id": "setup.first", "text": "Pick the first player", "sub": "Whoever most recently saw a reptile. They take the first-player marker." },
       { "id": "setup.round", "text": "Round marker on space 1" },
-      { "id": "setup.score", "text": "Set starting scores", "sub": "First player 1 point, second player 2 points." },
+      { "id": "setup.score", "text": "Set starting scores", "sub": "Turn order: first player 1 point, second 2, third 3, fourth 4." },
       { "id": "setup.app", "text": "Start a new game in the app", "sub": "Clears your tracked cards", "action": "newGame" }
     ]
   },
@@ -30,16 +30,16 @@
     {
       "id": "hunting",
       "title": "Hunting",
-      "summary": "Reveal 4 cards and draft 2 each.",
+      "summary": "Reveal 2 cards per player, then everyone drafts 2.",
       "listTitle": "Hunting",
       "steps": [
-        "Reveal 4 cards (2 × players) from the draw pile and sort them by family around the board. If the pile runs out, shuffle the discards into a new pile.",
+        "Reveal 2 cards per player (4 / 6 / 8 for 2 / 3 / 4 players) from the draw pile and sort them by family around the board. If the pile runs out, shuffle the discards into a new pile.",
         "First pick goes CLOCKWISE from the first player: put a player marker on a card.",
         "Second pick goes COUNTERCLOCKWISE from the last player, so the last player picks two in a row.",
         "You can't pick a card that already has a marker on it."
       ],
       "checklist": [
-        { "id": "hunting.reveal", "text": "Reveal 4 cards", "sub": "Optional: add them to Table in the app" },
+        { "id": "hunting.reveal", "text": "Reveal 2 cards per player", "sub": "4 / 6 / 8 cards. Optional: add them to Table in the app" },
         { "id": "hunting.first", "text": "First picks: clockwise", "sub": "Starting with the first player" },
         { "id": "hunting.second", "text": "Second picks: counterclockwise", "sub": "Starting with the last player, who picks twice in a row" }
       ]
