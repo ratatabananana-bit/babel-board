@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0" rel="stylesheet">
+<style>
+body{margin:0;background:#E7E2D8;font-family:Figtree,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#6B4FD1}a:hover{color:#1E1B16}
+*{box-sizing:border-box}
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</helmet>
+<div style="padding:72px 72px 120px;display:flex;flex-direction:column;gap:96px;color:#1E1B16;font-family:Figtree,system-ui,sans-serif;min-width:1400px">
+
+<header style="display:flex;flex-direction:column;gap:28px;max-width:1300px">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font-size:14px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#6B6458">Vale Helper · UI redesign</div>
+    <h1 style="margin:0;font-size:56px;line-height:1.05;font-weight:800;letter-spacing:-.02em;text-wrap:pretty">Art first, thumb reach, one sheet for every card.</h1>
+    <p style="margin:0;font-size:19px;line-height:1.5;color:#4A443B;max-width:820px;text-wrap:pretty">Phones are 393×851 dp and interactive: filter, jump by cost, tap a card, move it between zones, undo, tick the checklist. Zone state is shared, so a move made in one phone shows up in all of them.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px">
+    <div style="background:#FFFDF8;border-radius:16px;padding:22px 24px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6B6458">Find a card · 2 taps</div>
+      <div style="font-size:17px;line-height:1.5">1. Tap the family in the bottom dock.<br>2. Tap the cost on the right-edge rail. The card's art is now on screen. Tap it to read the English effect.</div>
+    </div>
+    <div style="background:#FFFDF8;border-radius:16px;padding:22px 24px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6B6458">Move a card · 1 tap</div>
+      <div style="font-size:17px;line-height:1.5">Press and drag any card into Table, Hand or Field. In the card sheet, the zone buttons toggle: tap the active zone again to untrack. No undo is needed.</div>
+    </div>
+    <div style="background:#FFFDF8;border-radius:16px;padding:22px 24px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6B6458">Cleanup stands out</div>
+      <div style="font-size:17px;line-height:1.5">The checklist is the only light, parchment-colored block on a dark screen, with a progress count. Next shows how many steps are left. No warning dialog.</div>
+    </div>
+  </div>
+</header>
+
+<section style="display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:15px;font-weight:800;color:#6B6458">01</span><h2 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-.01em">Cards and card detail</h2></div>
+  <div style="display:flex;gap:64px;flex-wrap:wrap;align-items:flex-start">
+  <sc-for list="{{ cardFrames }}" as="f" hint-placeholder-count="2">
+    <div style="display:flex;flex-direction:column;gap:24px;width:393px">
+      <div style="width:393px;height:851px;border-radius:44px;overflow:hidden;position:relative;background:#121315;display:flex;flex-direction:column;box-shadow:0 0 0 10px #050506,0 30px 60px rgba(0,0,0,.3);color:#F2EDE4">
+        <div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:600"><span>21:14</span><span style="font-family:'Material Symbols Rounded';font-size:16px;letter-spacing:2px">wifi battery_full</span></div>
+        <div style="flex:none;display:flex;gap:8px;padding:6px 12px 8px 16px;align-items:center">
+          <div style="flex:1;height:48px;border-radius:24px;background:#1C1D21;display:flex;align-items:center;gap:10px;padding:0 16px;color:#8E8A82;font-size:16px"><span style="font-family:'Material Symbols Rounded';font-size:22px">search</span>Search name or effect</div>
+          <div style="display:flex;background:#1C1D21;border-radius:24px;padding:4px;gap:2px">
+            <sc-for list="{{ f.dens }}" as="d" hint-placeholder-count="2">
+              <div onClick="{{ d.onClick }}" style="width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:{{ d.bg }};color:{{ d.fg }}"><span style="font-family:'Material Symbols Rounded';font-size:22px">{{ d.icon }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex:1;min-height:0;display:flex">
+          <div ref="{{ f.scrollRef }}" onScroll="{{ f.onScroll }}" style="flex:1;min-width:0;overflow-y:auto;position:relative;padding:0 {{ f.padR }} 16px 16px">
+            <sc-if value="{{ f.empty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:80px 24px;text-align:center;color:#B9B4AA;font-size:15px;line-height:1.5">This mockup only includes the 20 cards from the screenshot. Try Fire or Water.</div>
+            </sc-if>
+            <sc-for list="{{ f.sections }}" as="s" hint-placeholder-count="3">
+              <div data-cost="{{ s.cost }}">
+                <sc-if value="{{ s.hasHeader }}" hint-placeholder-val="{{ true }}"><div style="position:sticky;top:0;z-index:2;background:#121315;padding:10px 0 8px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B9B4AA">{{ s.label }}<span style="flex:1;height:1px;background:#26282D"></span></div></sc-if><sc-if value="{{ s.noHeader }}" hint-placeholder-val="{{ false }}"><div style="height:8px"></div></sc-if>
+                <div style="display:grid;gap:10px 8px;grid-template-columns:{{ f.gridCols }}">
+                  <sc-for list="{{ s.cards }}" as="c" hint-placeholder-count="3">
+                    <div onClick="{{ c.onOpen }}" style="display:flex;flex-direction:column;gap:6px;cursor:pointer;min-width:0">
+                      <div style="position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:#26282D;box-shadow:{{ c.ring }}">
+                        <img src="{{ c.img }}" alt="" style="position:absolute;width:122%;left:-11%;top:-5%;display:block">
+                        <sc-if value="{{ c.tracked }}" hint-placeholder-val="{{ false }}">
+                          <div style="position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#121315;background:{{ c.zColor }}"><span style="font-family:'Material Symbols Rounded';font-size:15px;font-variation-settings:'FILL' 1">{{ c.zIcon }}</span>{{ c.zLabel }}</div>
+                        </sc-if>
+                      </div>
+                      <div style="font-size:13.5px;font-weight:600;line-height:1.2;color:#F2EDE4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ f.hasRail }}" hint-placeholder-val="{{ true }}"><div style="width:34px;flex:none;display:flex;flex-direction:column;padding:8px 4px 12px">
+            <sc-for list="{{ f.rail }}" as="r" hint-placeholder-count="13">
+              <div onClick="{{ r.onClick }}" style="flex:1;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;border-radius:13px;color:{{ r.color }};background:{{ r.bg }}">{{ r.n }}</div>
+            </sc-for>
+          </div></sc-if>
+        </div>
+        <div style="flex:none;border-top:1px solid #26282D;background:#17181B;padding:10px 12px 8px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0 4px;font-size:12.5px"><span style="font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8E8A82">Family</span><span style="color:#B9B4AA;font-weight:500">{{ f.summary }}</span></div>
+          <div style="display:flex;justify-content:space-between">
+            <sc-for list="{{ f.fams }}" as="m" hint-placeholder-count="6">
+              <div onClick="{{ m.onClick }}" style="width:56px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer">
+                <div style="width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;background:#26282D;box-shadow:{{ m.ring }}">
+                  <sc-if value="{{ m.isAll }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Material Symbols Rounded';font-size:22px;color:#F2EDE4">apps</span></sc-if>
+                  <sc-if value="{{ m.hasIcon }}" hint-placeholder-val="{{ true }}"><img src="{{ m.icon }}" alt="" style="width:40px;height:40px;border-radius:20px;display:block"></sc-if>
+                </div>
+                <span style="font-size:12px;color:{{ m.lc }};font-weight:{{ m.lw }}">{{ m.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex:none;height:72px;display:flex;background:#17181B;border-top:1px solid #222327">
+          <sc-for list="{{ f.nav }}" as="n" hint-placeholder-count="3">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+              <div style="position:relative;width:60px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:{{ n.pill }}">
+                <span style="font-family:'Material Symbols Rounded';font-size:23px;font-variation-settings:'FILL' 1;color:{{ n.color }}">{{ n.icon }}</span>
+                <sc-if value="{{ n.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-2px;right:6px;min-width:18px;height:18px;border-radius:9px;background:#5ED6B4;color:#121315;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px">{{ n.badge }}</span></sc-if>
+              </div>
+              <span style="font-size:12.5px;font-weight:600;color:{{ n.color }}">{{ n.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+                <sc-if value="{{ f.hasSheet }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;inset:0;z-index:10;display:flex;flex-direction:column">
+            <div onClick="{{ f.sheet.close }}" style="flex:1;background:rgba(5,5,6,.6)"></div>
+            <div style="background:#1C1D21;border-radius:28px 28px 0 0;padding:10px 16px 20px;display:flex;flex-direction:column;gap:18px;box-shadow:0 -10px 30px rgba(0,0,0,.4)">
+              <div style="width:36px;height:4px;border-radius:2px;background:#4A4C52;align-self:center"></div>
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <div style="position:relative;width:88px;flex:none;aspect-ratio:5/7;border-radius:8px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.4)"><img src="{{ f.sheet.img }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"><span style="position:absolute;right:4px;bottom:4px;width:26px;height:26px;border-radius:13px;background:rgba(18,19,21,.8);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:17px;color:#F2EDE4">open_in_full</span></div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;padding-top:2px">
+                  <div style="display:flex;align-items:flex-start;gap:8px"><div style="flex:1;font-size:26px;font-weight:800;line-height:1.1;letter-spacing:-.01em">{{ f.sheet.name }}</div><span onClick="{{ f.sheet.close }}" style="width:40px;height:40px;margin:-6px -6px 0 0;border-radius:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Material Symbols Rounded';font-size:22px;color:#B9B4AA">close</span></div>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:14px;font-weight:600;color:#F2EDE4">
+                    <span style="display:flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 4px;border-radius:15px;background:#26282D"><img src="{{ f.sheet.famIcon }}" alt="" style="width:22px;height:22px;border-radius:11px">{{ f.sheet.famLabel }}</span>
+                    <span style="display:flex;align-items:center;height:30px;padding:0 10px;border-radius:15px;background:#26282D">Cost {{ f.sheet.cost }}</span>
+                    <span style="display:flex;align-items:center;gap:3px;height:30px;padding:0 6px 0 10px;border-radius:15px;background:#26282D">Sells
+                      <sc-for list="{{ f.sheet.stones }}" as="st" hint-placeholder-count="1"><sc-if value="{{ st.red }}" hint-placeholder-val="{{ true }}"><img src="assets/icons/stone-red.png" alt="" style="width:20px;height:20px;border-radius:10px"></sc-if><sc-if value="{{ st.blue }}" hint-placeholder-val="{{ false }}"><span style="width:20px;height:20px;border-radius:10px;background:#3C8FE0;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)">3</span></sc-if></sc-for>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <sc-for list="{{ f.sheet.fx }}" as="x" hint-placeholder-count="2">
+                  <div style="display:flex;gap:12px;align-items:flex-start">
+                    <img src="{{ x.icon }}" alt="{{ x.label }}" style="width:38px;height:38px;border-radius:19px;flex:none">
+                    <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B9B4AA">{{ x.label }}</span><span style="font-size:19px;line-height:1.35;font-weight:500;text-wrap:pretty">{{ x.text }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+                            <div style="display:flex;gap:6px">
+                <sc-for list="{{ f.sheet.segs }}" as="g" hint-placeholder-count="3">
+                  <div onClick="{{ g.onClick }}" style="flex:1;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:16px;font-weight:700;cursor:pointer;background:{{ g.bg }};color:{{ g.fg }}"><span style="font-family:'Material Symbols Rounded';font-size:21px;font-variation-settings:'FILL' 1;color:{{ g.ic }}">{{ g.icon }}</span>{{ g.label }}</div>
+                </sc-for>
+                <div onClick="{{ f.sheet.untrack }}" style="width:56px;height:56px;border-radius:16px;flex:none;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1.5px solid #34363C;color:{{ f.sheet.untrackColor }}"><span style="font-family:'Material Symbols Rounded';font-size:22px">remove_done</span></div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:20px;font-weight:800">{{ f.title }}</div>
+        <sc-for list="{{ f.notes }}" as="t" hint-placeholder-count="3"><div style="font-size:15.5px;line-height:1.5;color:#3A352D;text-wrap:pretty;display:flex;gap:10px"><span style="width:6px;height:6px;border-radius:3px;background:#1E1B16;flex:none;margin-top:9px"></span><span>{{ t }}</span></div></sc-for>
+      </div>
+    </div>
+  </sc-for>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:15px;font-weight:800;color:#6B6458">02</span><h2 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-.01em">My cards: a board, not a list</h2></div>
+  <div style="display:flex;gap:64px;flex-wrap:wrap;align-items:flex-start">
+  <sc-for list="{{ mcFrames }}" as="f" hint-placeholder-count="2">
+    <div style="display:flex;flex-direction:column;gap:24px;width:393px">
+      <div data-phone="1" style="width:393px;height:851px;border-radius:44px;overflow:hidden;position:relative;background:#121315;display:flex;flex-direction:column;box-shadow:0 0 0 10px #050506,0 30px 60px rgba(0,0,0,.3);color:#F2EDE4;user-select:none;-webkit-user-select:none">
+        <div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:600"><span>21:14</span><span style="font-family:'Material Symbols Rounded';font-size:16px;letter-spacing:2px">wifi battery_full</span></div>
+        <sc-if value="{{ f.notDragging }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:none;height:56px;display:flex;align-items:center;padding:0 8px 0 20px;gap:10px"><span style="font-size:24px;font-weight:800;letter-spacing:-.01em">My cards</span><span style="font-size:15px;color:#B9B4AA;font-weight:500;flex:1">{{ f.total }} tracked</span><span style="width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:#B9B4AA">more_vert</span></div>
+        </sc-if>
+        <sc-if value="{{ f.dragging }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;height:56px;display:flex;gap:6px;padding:4px 10px">
+            <sc-for list="{{ f.dock }}" as="d" hint-placeholder-count="4">
+              <div data-zone="{{ d.key }}" style="flex:1;min-width:0;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:13.5px;font-weight:800;border:{{ d.border }};background:{{ d.bg }};color:{{ d.fg }}"><span style="font-family:'Material Symbols Rounded';font-size:19px;font-variation-settings:'FILL' 1">{{ d.icon }}</span>{{ d.label }}</div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div data-mc-scroll="1" style="flex:1;min-height:0;overflow-y:auto;padding:4px 8px 12px;display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ f.lanes }}" as="l" hint-placeholder-count="3">
+            <div data-zone="{{ l.key }}" style="flex:none;border-radius:18px;padding:0 6px 6px;background:{{ l.bg }};border:{{ l.border }}">
+              <div onClick="{{ l.toggle }}" style="height:42px;display:flex;align-items:center;gap:8px;padding:0 4px 0 8px;cursor:pointer">
+                <span style="font-family:'Material Symbols Rounded';font-size:19px;font-variation-settings:'FILL' 1;color:{{ l.c }}">{{ l.icon }}</span>
+                <span style="font-size:15.5px;font-weight:800">{{ l.label }}</span>
+                <span style="font-size:12.5px;font-weight:800;color:#121315;height:20px;padding:0 7px;border-radius:10px;display:flex;align-items:center;font-variant-numeric:tabular-nums;background:{{ l.c }}">{{ l.countText }}</span>
+                <span style="flex:1;text-align:right;font-size:12.5px;font-weight:600;color:{{ l.hintColor }}">{{ l.hint }}</span>
+                <span style="font-family:'Material Symbols Rounded';font-size:22px;color:#8E8A82">{{ l.chev }}</span>
+              </div>
+              <sc-if value="{{ l.open }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ l.empty }}" hint-placeholder-val="{{ false }}"><div style="height:64px;border-radius:12px;border:1.5px dashed #3A3C42;display:flex;align-items:center;justify-content:center;color:#8E8A82;font-size:14px">Drag cards here</div></sc-if>
+                <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px">
+                  <sc-for list="{{ l.cards }}" as="c" hint-placeholder-count="2">
+                    <div style="display:flex;min-width:0">
+                      <sc-if value="{{ c.ghost }}" hint-placeholder-val="{{ false }}"><div style="flex:1;min-height:84px;border-radius:12px;border:2px dashed #4A4C52"></div></sc-if>
+                      <sc-if value="{{ c.notGhost }}" hint-placeholder-val="{{ true }}">
+                        <div onPointerDown="{{ c.onDown }}" style="flex:1;min-width:0;border-radius:12px;background:#1C1D21;padding:7px 8px 9px;display:flex;flex-direction:column;gap:6px;cursor:grab;touch-action:pan-y">
+                          <div style="display:flex;gap:8px;align-items:center"><div style="width:40px;height:40px;border-radius:8px;overflow:hidden;position:relative;flex:none;background:#26282D"><img src="{{ c.img }}" alt="" draggable="false" style="position:absolute;width:122%;left:-11%;top:-5%"></div><span style="flex:1;min-width:0;font-size:14px;font-weight:700;line-height:1.2">{{ c.name }}</span></div>
+                          <sc-for list="{{ c.fx }}" as="x" hint-placeholder-count="1"><div style="display:flex;gap:5px;font-size:13px;line-height:17px;color:#E2DCD1;text-wrap:pretty"><img src="{{ x.icon }}" alt="" style="width:16px;height:16px;border-radius:8px;flex:none;margin-top:0.5px"><span>{{ x.text }}</span></div></sc-for>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex:none;height:72px;display:flex;background:#17181B;border-top:1px solid #222327">
+          <sc-for list="{{ f.nav }}" as="n" hint-placeholder-count="3">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+              <div style="position:relative;width:60px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:{{ n.pill }}">
+                <span style="font-family:'Material Symbols Rounded';font-size:23px;font-variation-settings:'FILL' 1;color:{{ n.color }}">{{ n.icon }}</span>
+                <sc-if value="{{ n.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-2px;right:6px;min-width:18px;height:18px;border-radius:9px;background:#5ED6B4;color:#121315;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px">{{ n.badge }}</span></sc-if>
+              </div>
+              <span style="font-size:12.5px;font-weight:600;color:{{ n.color }}">{{ n.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ f.hasGhost }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;width:176px;border-radius:12px;background:#1C1D21;padding:7px 8px 9px;display:flex;flex-direction:column;gap:6px;transform:rotate(-4deg) scale(1.05);box-shadow:0 24px 48px rgba(0,0,0,.7),0 0 0 2px {{ f.ghostRing }};z-index:8;pointer-events:none;left:{{ f.gx }};top:{{ f.gy }}">
+            <div style="display:flex;gap:8px;align-items:center"><div style="width:40px;height:40px;border-radius:8px;overflow:hidden;position:relative;flex:none"><img src="{{ f.ghost.img }}" alt="" style="position:absolute;width:122%;left:-11%;top:-5%"></div><span style="font-size:14px;font-weight:700">{{ f.ghost.name }}</span></div>
+            <sc-for list="{{ f.ghost.fx }}" as="x" hint-placeholder-count="1"><div style="display:flex;gap:5px;font-size:13px;line-height:17px;color:#E2DCD1"><img src="{{ x.icon }}" alt="" style="width:16px;height:16px;border-radius:8px;flex:none"><span>{{ x.text }}</span></div></sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ f.hasFinger }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:262px;top:612px;width:44px;height:44px;border-radius:22px;background:rgba(242,237,228,.25);border:2px solid rgba(242,237,228,.6);z-index:9;pointer-events:none"></div></sc-if>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:20px;font-weight:800">{{ f.title }}</div>
+        <sc-for list="{{ f.notes }}" as="t" hint-placeholder-count="3"><div style="font-size:15.5px;line-height:1.5;color:#3A352D;text-wrap:pretty;display:flex;gap:10px"><span style="width:6px;height:6px;border-radius:3px;background:#1E1B16;flex:none;margin-top:9px"></span><span>{{ t }}</span></div></sc-for>
+      </div>
+    </div>
+  </sc-for>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:15px;font-weight:800;color:#6B6458">03</span><h2 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-.01em">Round: the checklist comes first</h2></div>
+  <div style="display:flex;gap:64px;flex-wrap:wrap;align-items:flex-start">
+  <sc-for list="{{ phFrames }}" as="f" hint-placeholder-count="2">
+    <div style="display:flex;flex-direction:column;gap:24px;width:393px">
+      <div style="width:393px;height:851px;border-radius:44px;overflow:hidden;position:relative;background:#121315;display:flex;flex-direction:column;box-shadow:0 0 0 10px #050506,0 30px 60px rgba(0,0,0,.3);color:#F2EDE4">
+        <div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:600"><span>21:14</span><span style="font-family:'Material Symbols Rounded';font-size:16px;letter-spacing:2px">wifi battery_full</span></div>
+        <div style="flex:none;height:56px;display:flex;align-items:center;padding:0 8px 0 20px;gap:4px"><span style="font-size:24px;font-weight:800;flex:1;letter-spacing:-.01em">Round</span>
+          <span style="height:40px;padding:0 14px;border-radius:20px;background:#1C1D21;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:20px">menu_book</span>Rules</span>
+          <span style="width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:#B9B4AA">more_vert</span></div>
+        <div style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:4px 16px 0">
+          <sc-for list="{{ f.steps }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:8px;min-height:44px">
+              <div style="height:6px;border-radius:3px;background:{{ s.bar }}"></div>
+              <span style="font-size:13px;line-height:1.2;color:{{ s.color }};font-weight:{{ s.weight }}">{{ s.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:20px 16px 16px;display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:6px;padding:0 4px"><div style="font-size:30px;font-weight:800;letter-spacing:-.015em;line-height:1.1">{{ f.title }}</div><div style="font-size:16.5px;line-height:1.4;color:#B9B4AA;text-wrap:pretty">{{ f.summary }}</div></div>
+          <div style="background:#F3E9D6;color:#1E1B16;border-radius:20px;padding:16px 8px 8px;display:flex;flex-direction:column;gap:4px;box-shadow:0 10px 30px rgba(0,0,0,.35)">
+            <div style="display:flex;align-items:center;gap:8px;padding:0 10px"><span style="font-family:'Material Symbols Rounded';font-size:21px;font-variation-settings:'FILL' 1">checklist</span><span style="font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;flex:1">{{ f.listTitle }}</span><span style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums">{{ f.done }} / {{ f.total }}</span></div>
+            <div style="height:6px;border-radius:3px;background:rgba(30,27,22,.12);margin:8px 10px 6px;overflow:hidden"><div style="height:100%;border-radius:3px;background:#1E1B16;width:{{ f.pct }}"></div></div>
+            <sc-if value="{{ f.noItems }}" hint-placeholder-val="{{ false }}"><div style="padding:12px;font-size:15px;color:#5B544A">No Active cards in your Field. Nothing to resolve.</div></sc-if>
+            <sc-for list="{{ f.items }}" as="i" hint-placeholder-count="3">
+              <div onClick="{{ i.onToggle }}" style="min-height:56px;display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:14px;cursor:pointer">
+                <div style="width:28px;height:28px;border-radius:9px;border:2.5px solid #1E1B16;flex:none;display:flex;align-items:center;justify-content:center;background:{{ i.boxBg }}"><sc-if value="{{ i.on }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:#F3E9D6;font-weight:700">check</span></sc-if></div>
+                <sc-if value="{{ i.hasImg }}" hint-placeholder-val="{{ false }}"><div style="width:40px;height:40px;border-radius:10px;overflow:hidden;position:relative;flex:none"><img src="{{ i.img }}" alt="" style="position:absolute;width:122%;left:-11%;top:-5%"></div></sc-if>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:16.5px;font-weight:700;line-height:1.3;color:{{ i.textColor }};text-decoration:{{ i.deco }}">{{ i.text }}</span><sc-if value="{{ i.hasSub }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;line-height:1.35;color:#5B544A">{{ i.sub }}</span></sc-if></div>
+                <sc-if value="{{ i.hasAction }}" hint-placeholder-val="{{ false }}"><span onClick="{{ i.onAction }}" style="height:40px;padding:0 14px;border-radius:20px;background:#1E1B16;color:#F3E9D6;font-size:14px;font-weight:800;display:flex;align-items:center;flex:none">{{ i.action }}</span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div onClick="{{ f.toggleRules }}" style="border-radius:16px;background:#1C1D21;padding:4px 16px;cursor:pointer">
+            <div style="height:48px;display:flex;align-items:center;gap:10px;font-size:15.5px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:21px;color:#B9B4AA">info</span><span style="flex:1">How this phase works</span><span style="font-family:'Material Symbols Rounded';font-size:24px;color:#B9B4AA">{{ f.chev }}</span></div>
+            <sc-if value="{{ f.rulesOpen }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:8px;padding:0 0 14px 31px"><sc-for list="{{ f.rules }}" as="r" hint-placeholder-count="2"><div style="font-size:15px;line-height:1.45;color:#D9D3C8;text-wrap:pretty">{{ r }}</div></sc-for></div></sc-if>
+          </div>
+        </div>
+        <div style="flex:none;padding:8px 16px 12px">
+          <div onClick="{{ f.onNext }}" style="height:60px;border-radius:30px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:{{ f.nextBg }};color:{{ f.nextFg }};border:{{ f.nextBorder }}"><span style="font-size:17px;font-weight:800;display:flex;align-items:center;gap:6px">{{ f.nextLabel }}<span style="font-family:'Material Symbols Rounded';font-size:21px">arrow_forward</span></span><sc-if value="{{ f.hasRem }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;font-weight:600;color:#F2B544">{{ f.remText }}</span></sc-if></div>
+        </div>
+        <div style="flex:none;height:72px;display:flex;background:#17181B;border-top:1px solid #222327">
+          <sc-for list="{{ f.nav }}" as="n" hint-placeholder-count="3">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+              <div style="position:relative;width:60px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:{{ n.pill }}">
+                <span style="font-family:'Material Symbols Rounded';font-size:23px;font-variation-settings:'FILL' 1;color:{{ n.color }}">{{ n.icon }}</span>
+                <sc-if value="{{ n.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-2px;right:6px;min-width:18px;height:18px;border-radius:9px;background:#5ED6B4;color:#121315;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px">{{ n.badge }}</span></sc-if>
+              </div>
+              <span style="font-size:12.5px;font-weight:600;color:{{ n.color }}">{{ n.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:20px;font-weight:800">{{ f.noteTitle }}</div>
+        <sc-for list="{{ f.notes }}" as="t" hint-placeholder-count="3"><div style="font-size:15.5px;line-height:1.5;color:#3A352D;text-wrap:pretty;display:flex;gap:10px"><span style="width:6px;height:6px;border-radius:3px;background:#1E1B16;flex:none;margin-top:9px"></span><span>{{ t }}</span></div></sc-for>
+      </div>
+    </div>
+  </sc-for>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:32px;max-width:1300px">
+  <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:15px;font-weight:800;color:#6B6458">04</span><h2 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-.01em">Visual system</h2></div>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px">
+    <div style="background:#121315;color:#F2EDE4;border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:18px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#B9B4AA">Dark · default at the table</div>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+        <sc-for list="{{ darkSw }}" as="s" hint-placeholder-count="8"><div style="display:flex;flex-direction:column;gap:6px"><div style="height:56px;border-radius:12px;border:1px solid #34363C;background:{{ s.hex }}"></div><span style="font-size:13px;font-weight:700">{{ s.name }}</span><span style="font-size:12px;color:#B9B4AA;font-variant-numeric:tabular-nums">{{ s.hex }}</span></div></sc-for>
+      </div>
+    </div>
+    <div style="background:#F5EFE3;color:#1E1B16;border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:18px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5B544A">Light · daylight / parchment</div>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+        <sc-for list="{{ lightSw }}" as="s" hint-placeholder-count="8"><div style="display:flex;flex-direction:column;gap:6px"><div style="height:56px;border-radius:12px;border:1px solid #DDD3C1;background:{{ s.hex }}"></div><span style="font-size:13px;font-weight:700">{{ s.name }}</span><span style="font-size:12px;color:#5B544A;font-variant-numeric:tabular-nums">{{ s.hex }}</span></div></sc-for>
+      </div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px">
+    <div style="background:#FFFDF8;border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:14px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5B544A">Type · Figtree, tabular numbers</div>
+      <div style="display:flex;align-items:baseline;gap:20px;border-bottom:1px solid #EEE6D8;padding-bottom:10px"><span style="width:120px;font-size:13px;color:#5B544A;flex:none">Display 30/33 · 800</span><span style="font-size:30px;font-weight:800;letter-spacing:-.015em">End of round</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;border-bottom:1px solid #EEE6D8;padding-bottom:10px"><span style="width:120px;font-size:13px;color:#5B544A;flex:none">Title 24/28 · 800</span><span style="font-size:24px;font-weight:800">My cards</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;border-bottom:1px solid #EEE6D8;padding-bottom:10px"><span style="width:120px;font-size:13px;color:#5B544A;flex:none">Effect 19/26 · 500</span><span style="font-size:19px;font-weight:500">Earn 2 red stones.</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;border-bottom:1px solid #EEE6D8;padding-bottom:10px"><span style="width:120px;font-size:13px;color:#5B544A;flex:none">Body 16/22 · 500</span><span style="font-size:16px;font-weight:500">Move the round marker</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px;border-bottom:1px solid #EEE6D8;padding-bottom:10px"><span style="width:120px;font-size:13px;color:#5B544A;flex:none">Label 13/16 · 700</span><span style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Cost 2 · Family</span></div>
+      <div style="display:flex;align-items:baseline;gap:20px"><span style="width:120px;font-size:13px;color:#5B544A;flex:none">Caption 12.5 · 600</span><span style="font-size:12.5px;font-weight:600">Revealed this round</span></div>
+    </div>
+    <div style="background:#FFFDF8;border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5B544A">Spacing · 4 dp grid</div>
+      <div style="display:flex;align-items:flex-end;gap:14px">
+        <sc-for list="{{ spacing }}" as="s" hint-placeholder-count="6"><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="background:#6B4FD1;border-radius:3px;width:{{ s.px }};height:{{ s.px }}"></div><span style="font-size:12px;font-weight:700">{{ s.n }}</span></div></sc-for>
+      </div>
+      <div style="font-size:14.5px;line-height:1.5;color:#3A352D">Screen edge 16 · lane inset 8 · tile gap 8 · section gap 18. Corner radius: 8 thumbnail, 12 card tile, 16 control, 20 panel, 28 sheet. Hit targets are at least 48 dp; zone buttons are 56.</div>
+    </div>
+  </div>
+  <div style="background:#121315;color:#F2EDE4;border-radius:20px;padding:28px;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:40px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#B9B4AA">Card tile</div>
+      <div style="display:flex;gap:10px">
+        <sc-for list="{{ tileDemo }}" as="c" hint-placeholder-count="3">
+          <div style="width:104px;display:flex;flex-direction:column;gap:6px">
+            <div style="position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:#26282D;box-shadow:{{ c.ring }}"><img src="{{ c.img }}" alt="" style="position:absolute;width:122%;left:-11%;top:-5%">
+              <sc-if value="{{ c.tracked }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:800;text-transform:uppercase;color:#121315;background:{{ c.zColor }}"><span style="font-family:'Material Symbols Rounded';font-size:15px;font-variation-settings:'FILL' 1">{{ c.zIcon }}</span>{{ c.zLabel }}</div></sc-if>
+            </div>
+            <span style="font-size:13.5px;font-weight:600">{{ c.name }}</span>
+            <span style="font-size:12px;color:#B9B4AA">{{ c.state }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#B9B4AA">Zones</div>
+      <sc-for list="{{ zoneDemo }}" as="z" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;border-radius:14px;background:{{ z.tint }}"><span style="font-family:'Material Symbols Rounded';font-size:20px;font-variation-settings:'FILL' 1;color:{{ z.c }}">{{ z.icon }}</span><span style="font-size:15px;font-weight:800;width:52px">{{ z.label }}</span><span style="font-size:13px;color:#B9B4AA">{{ z.desc }}</span></div>
+      </sc-for>
+      <div style="font-size:13px;line-height:1.5;color:#B9B4AA;max-width:300px">Zone colors are used only for zone state and never for families, and each one always comes with an icon and a label.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#B9B4AA">Checklist</div>
+      <div style="background:#F3E9D6;color:#1E1B16;border-radius:20px;padding:8px;display:flex;flex-direction:column">
+        <div style="min-height:56px;display:flex;align-items:center;gap:12px;padding:8px 10px"><div style="width:28px;height:28px;border-radius:9px;border:2.5px solid #1E1B16;background:#1E1B16;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:#F3E9D6">check</span></div><span style="font-size:16.5px;font-weight:700;color:#7A7368;text-decoration:line-through">Done item</span></div>
+        <div style="min-height:56px;display:flex;align-items:center;gap:12px;padding:8px 10px"><div style="width:28px;height:28px;border-radius:9px;border:2.5px solid #1E1B16"></div><span style="font-size:16.5px;font-weight:700;flex:1">Open item</span></div>
+        <div style="min-height:56px;display:flex;align-items:center;gap:12px;padding:8px 10px"><div style="width:28px;height:28px;border-radius:9px;border:2.5px solid #1E1B16"></div><span style="font-size:16.5px;font-weight:700;flex:1">Item with an app action</span><span style="height:40px;padding:0 14px;border-radius:20px;background:#1E1B16;color:#F3E9D6;font-size:14px;font-weight:800;display:flex;align-items:center">Clear</span></div>
+      </div>
+      <div style="font-size:13px;line-height:1.5;color:#B9B4AA">The whole row is the tap target. Parchment is used only for the checklist.</div>
+    </div>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:24px;max-width:1300px">
+  <div style="display:flex;align-items:baseline;gap:16px"><span style="font-size:15px;font-weight:800;color:#6B6458">05</span><h2 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-.01em">Removed or merged</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 40px">
+    <sc-for list="{{ cuts }}" as="c" hint-placeholder-count="8">
+      <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid #CFC8BB;font-size:16px;line-height:1.45"><span style="width:200px;flex:none;font-weight:800;text-decoration:line-through;text-decoration-color:#B0A796;color:#5B544A">{{ c.old }}</span><span style="text-wrap:pretty">{{ c.now }}</span></div>
+    </sc-for>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const Z={
+  table:{key:'table',label:'Table',icon:'table_restaurant',c:'#F2B544',tint:'rgba(242,181,68,0.07)',hot:'rgba(242,181,68,0.2)',hint:'Revealed this round',desc:'Shared hunting area',max:8},
+  hand:{key:'hand',label:'Hand',icon:'back_hand',c:'#5ED6B4',tint:'rgba(94,214,180,0.07)',hot:'rgba(94,214,180,0.2)',hint:'Taken, not summoned',desc:'Cards you took',max:null},
+  field:{key:'field',label:'Field',icon:'grid_view',c:'#B79CFF',tint:'rgba(183,156,255,0.08)',hot:'rgba(183,156,255,0.22)',hint:'Summoned',desc:'Cards you summoned',max:9}
+};
+const FXI={instant:'assets/icons/fx-instant.png',active:'assets/icons/fx-active.png',permanent:'assets/icons/fx-permanent.png'};
+const FXL={instant:'Instant',active:'Active',permanent:'Permanent'};
+const FAMS=[{key:'all',label:'All'},{key:'fire',label:'Fire'},{key:'water',label:'Water'},{key:'earth',label:'Earth'},{key:'wind',label:'Wind'},{key:'dragon',label:'Dragon'}];
+const FAM_ORDER=['fire','water','earth','wind','dragon'];
+const C=(id,name,fam,cost,...fx)=>({id,name,fam,cost,fx:fx.map(([t,text])=>({t,text,icon:FXI[t],label:FXL[t]})),img:'assets/cards/'+id+'.png',famIcon:'assets/icons/fam-'+fam+'.png'});
+const CARDS=[
+  C('hestia','Hestia','fire',0,['permanent','You can keep two more stones.']),
+  C('imp','Imp','fire',0,['instant','Earn 2 red stones.'],['active','Recover.']),
+  C('succubus','Succubus','fire',0,['instant','If cards with written cost 1, 2, 3 and 4 are all in your area, earn 10 points.']),
+  C('firefox','Firefox','fire',1,['instant','Earn 1 point for each card in your hand.']),
+  C('salamander','Salamander','fire',1,['active','Earn 1 red stone and 1 point.']),
+  C('horned-salamander','Horned Salamander','fire',2,['active','Earn 4 red stones.']),
+  C('ifrit','Ifrit','fire',2,['instant','Earn 1 point for each card in your area.']),
+  C('incubus','Incubus','fire',2,['instant','Earn 2 points for each card with written cost 2 or less in your area.']),
+  C('burning-skull','Burning Skull','fire',3,['active','Discard one of your red stones, then earn 3 points.']),
+  C('lava-giant','Lava Giant','fire',3,['instant','Earn 2 points for each Fire card in your area.']),
+  C('phoenix','Phoenix','fire',3,['permanent','Whenever you summon a card, earn 1 point for each red stone used.']),
+  C('agni','Agni','fire',4,['permanent','The value of your red stones is increased by 1.']),
+  C('asmodeus','Asmodeus','fire',4,['active','Recover one of your Instant cards with written cost 2 or less.']),
+  C('balog','Balog','fire',4,['active','Recover one of your Fire cards with an Instant effect.']),
+  C('surtr','Surtr','fire',4,['instant','Earn 2 points for each card family in your area.']),
+  C('yuki-onna','Yuki Onna','water',0,['instant','Discard all your stones and earn points equal to their total value.']),
+  C('kappa','Kappa','water',1,['permanent','Whenever you summon a card using a blue stone, earn 2 points.']),
+  C('sea-spirit','Sea Spirit','water',1,['active','Earn 1 point for each of your blue stones.']),
+  C('undine','Undine','water',1,['instant','Earn 1 blue stone.'],['active','Recover.']),
+  C('nessie','Nessie','water',2,['active','If there is no Dragon card in your area, earn 2 points.'])
+];
+const byId=id=>CARDS.find(c=>c.id===id);
+
+class Component extends DCLogic {
+  state={
+    zones:{'sea-spirit':'table',balog:'table',imp:'hand',succubus:'hand',nessie:'hand','horned-salamander':'field',undine:'field',ifrit:'field'},
+    cf:{A:{fam:'all',cols:4,open:null,active:0},B:{fam:'fire',cols:3,open:'imp',active:0}},
+    checks:{res:{'horned-salamander':true},end:{round:true}},
+    rulesOpen:{},phaseNext:{},collapsed:{},drag:null
+  };
+  scrollEls={};
+  scrollRefs={A:el=>{this.scrollEls.A=el},B:el=>{this.scrollEls.B=el}};
+  scrollFns={A:()=>this.onScroll('A'),B:()=>this.onScroll('B')};
+
+  move(id,z){this.setState(s=>{const zones={...s.zones};if(z)zones[id]=z;else delete zones[id];return{zones}})}
+  clearTable(){
+    const zones={...this.state.zones};for(const k in zones)if(zones[k]==='table')delete zones[k];
+    this.setState(s=>({zones,checks:{...s.checks,end:{...s.checks.end,clear:true}}}));
+  }
+  setCF(k,p){this.setState(s=>({cf:{...s.cf,[k]:{...s.cf[k],...p}}}))}
+  jump(k,n){const el=this.scrollEls[k];if(!el)return;const t=el.querySelector('[data-cost="'+n+'"]');if(t)el.scrollTop=t.offsetTop;this.setCF(k,{active:n})}
+  onScroll(k){
+    if(this.state.cf[k].fam==='all')return;
+    const el=this.scrollEls[k];if(!el)return;let a=null;
+    el.querySelectorAll('[data-cost]').forEach(s=>{if(s.offsetTop<=el.scrollTop+4)a=+s.dataset.cost});
+    if(a==null){const f=el.querySelector('[data-cost]');a=f?+f.dataset.cost:0}
+    if(a!==this.state.cf[k].active)this.setCF(k,{active:a});
+  }
+
+  // free drag in My cards
+  down(e,id){
+    if(e.button>0)return;
+    const phone=e.currentTarget.closest('[data-phone]');
+    this.dr={id,phone,scroller:phone.querySelector('[data-mc-scroll]'),sx:e.clientX,sy:e.clientY,started:false,mouse:e.pointerType==='mouse'};
+    if(!this.dr.mouse)this.dr.timer=setTimeout(()=>this.begin(this.dr.sx,this.dr.sy),220);
+    window.addEventListener('pointermove',this.pmove,{passive:false});
+    window.addEventListener('pointerup',this.pup);
+    window.addEventListener('pointercancel',this.pcancel);
+  }
+  local(cx,cy){const r=this.dr.phone.getBoundingClientRect();const s=r.width/393;return{x:(cx-r.left)/s,y:(cy-r.top)/s}}
+  zoneAt(cx,cy){const el=document.elementFromPoint(cx,cy);const z=el&&el.closest('[data-zone]');return z&&this.dr.phone.contains(z)?z.getAttribute('data-zone'):null}
+  begin(cx,cy){if(!this.dr)return;this.dr.started=true;this.setState({drag:{id:this.dr.id,...this.local(cx,cy),over:null}})}
+  pmove=e=>{
+    const d=this.dr;if(!d)return;
+    if(!d.started){
+      if(Math.hypot(e.clientX-d.sx,e.clientY-d.sy)>6){if(d.mouse)this.begin(e.clientX,e.clientY);else return this.cleanup()}
+      return;
+    }
+    e.preventDefault();
+    const p=this.local(e.clientX,e.clientY);
+    const sr=d.scroller.getBoundingClientRect();
+    if(e.clientY>sr.bottom-50)d.scroller.scrollTop+=12;else if(e.clientY<sr.top+30)d.scroller.scrollTop-=12;
+    this.setState({drag:{id:d.id,...p,over:this.zoneAt(e.clientX,e.clientY)}});
+  };
+  pup=()=>{
+    const d=this.dr,dg=this.state.drag;
+    if(d&&d.started&&dg&&dg.over){if(dg.over==='remove')this.move(d.id,null);else if(dg.over!==this.state.zones[d.id])this.move(d.id,dg.over)}
+    this.cleanup();
+  };
+  pcancel=()=>this.cleanup();
+  cleanup(){
+    if(this.dr&&this.dr.timer)clearTimeout(this.dr.timer);
+    this.dr=null;
+    window.removeEventListener('pointermove',this.pmove);window.removeEventListener('pointerup',this.pup);window.removeEventListener('pointercancel',this.pcancel);
+    if(this.state.drag)this.setState({drag:null});
+  }
+  componentWillUnmount(){this.cleanup()}
+
+  nav(active){
+    const n=Object.keys(this.state.zones).length;
+    return [{label:'Cards',icon:'style'},{label:'My cards',icon:'back_hand',badge:n},{label:'Round',icon:'flag'}].map((it,i)=>({...it,hasBadge:!!it.badge,pill:i===active?'#2C2E33':'transparent',color:i===active?'#F2EDE4':'#8E8A82'}));
+  }
+  tile(c){const z=this.state.zones[c.id]?Z[this.state.zones[c.id]]:null;return{...c,tracked:!!z,zLabel:z?z.label:'',zIcon:z?z.icon:'',zColor:z?z.c:'transparent',ring:z?`0 0 0 2.5px ${z.c}`:'none'}}
+
+  cardsFrame(k,title,notes){
+    const f=this.state.cf[k],zones=this.state.zones,all=f.fam==='all';
+    const list=CARDS.filter(c=>all||c.fam===f.fam).sort((a,b)=>FAM_ORDER.indexOf(a.fam)-FAM_ORDER.indexOf(b.fam)||a.cost-b.cost);
+    const deco=c=>({...this.tile(c),onOpen:()=>this.setCF(k,{open:c.id})});
+    const costs=[...new Set(list.map(c=>c.cost))].sort((a,b)=>a-b);
+    const sections=all
+      ?[{cost:'all',hasHeader:false,noHeader:true,label:'',cards:list.map(deco)}]
+      :costs.map(cost=>({cost,hasHeader:true,noHeader:false,label:'Cost '+cost,cards:list.filter(c=>c.cost===cost).map(deco)}));
+    const active=costs.includes(f.active)?f.active:costs[0];
+    const rail=Array.from({length:13},(_,n)=>{const has=costs.includes(n),act=n===active;return{n,color:act?'#121315':has?'#F2EDE4':'#4F5157',bg:act?'#F2EDE4':'transparent',onClick:()=>has&&this.jump(k,n)}});
+    const famLabel=all?'All families':FAMS.find(m=>m.key===f.fam).label;
+    const fams=FAMS.map(m=>{const sel=f.fam===m.key;return{...m,isAll:m.key==='all',hasIcon:m.key!=='all',icon:'assets/icons/fam-'+m.key+'.png',ring:sel?'0 0 0 3px #121315, 0 0 0 5.5px #F2EDE4':'none',lc:sel?'#F2EDE4':'#8E8A82',lw:sel?800:500,
+      onClick:()=>{const el=this.scrollEls[k];if(el)el.scrollTop=0;this.setCF(k,{fam:sel&&m.key!=='all'?'all':m.key,active:0})}}});
+    const dens=[{n:4,icon:'apps'},{n:3,icon:'grid_on'},{n:2,icon:'grid_view'}].map(d=>({...d,bg:f.cols===d.n?'#F2EDE4':'transparent',fg:f.cols===d.n?'#121315':'#B9B4AA',onClick:()=>this.setCF(k,{cols:d.n})}));
+    let sheet=null;
+    if(f.open){
+      const c=byId(f.open);const cur=zones[c.id];
+      sheet={...c,famLabel:FAMS.find(m=>m.key===c.fam).label,close:()=>this.setCF(k,{open:null}),
+        stones:c.fam==='fire'?[{red:true},{red:true},{red:true}]:[{blue:true}],
+        segs:['table','hand','field'].map(z=>({label:Z[z].label,icon:Z[z].icon,bg:cur===z?Z[z].c:'#26282D',fg:cur===z?'#121315':'#F2EDE4',ic:cur===z?'#121315':Z[z].c,onClick:()=>this.move(c.id,cur===z?null:z)})),
+        untrack:()=>cur&&this.move(c.id,null),untrackColor:cur?'#F2EDE4':'#4F5157'};
+    }
+    return{k,title,notes,sections,rail,fams,dens,hasRail:!all,padR:all?'16px':'4px',empty:list.length===0,summary:`${famLabel} · ${list.length} cards`,gridCols:`repeat(${f.cols},minmax(0,1fr))`,
+      scrollRef:this.scrollRefs[k],onScroll:this.scrollFns[k],hasSheet:!!sheet,sheet:sheet||{},nav:this.nav(0)};
+  }
+
+  mcFrame(k,title,notes){
+    const zones=this.state.zones;
+    let drag=null;
+    if(k==='A'&&this.state.drag)drag=this.state.drag;
+    if(k==='B')drag={id:'imp',x:278,y:620,over:'field',demo:true};
+    if(drag&&!zones[drag.id]&&!drag.demo)drag=null;
+    const dragging=!!drag&&!!zones[drag.id];
+    const src=dragging?zones[drag.id]:null,over=dragging?drag.over:null;
+    const lanes=['table','hand','field'].map(z=>{
+      const m=Z[z];const open=!this.state.collapsed[z]||dragging;
+      const cards=CARDS.filter(c=>zones[c.id]===z).map(c=>{const g=dragging&&c.id===drag.id;return{...c,ghost:g,notGhost:!g,onDown:k==='A'?(e=>this.down(e,c.id)):null}});
+      const hot=dragging&&over===z&&z!==src,target=dragging&&z!==src;
+      return{...m,cards,open,chev:open?'expand_less':'expand_more',toggle:()=>this.setState(s=>({collapsed:{...s.collapsed,[z]:!s.collapsed[z]}})),
+        countText:m.max?`${cards.length} / ${m.max}`:`${cards.length}`,empty:cards.length===0,
+        bg:hot?m.hot:m.tint,border:hot?`2px solid ${m.c}`:target?`2px dashed ${m.c}`:'2px solid transparent',
+        hint:hot?'Release to drop here':target?'Drop here':m.hint,hintColor:target?m.c:'#8E8A82'};
+    });
+    const dock=[...['table','hand','field'].map(z=>({key:z,label:Z[z].label,icon:Z[z].icon,c:Z[z].c})),{key:'remove',label:'Remove',icon:'delete',c:'#FF8A7A'}].map(d=>{
+      const hot=over===d.key,isSrc=d.key===src;
+      return{...d,bg:hot?d.c:isSrc?'transparent':'rgba(255,255,255,0.04)',fg:hot?'#121315':isSrc?'#55575E':d.c,border:isSrc?'2px solid #26282D':`2px dashed ${d.c}`};
+    });
+    const ring=over&&Z[over]?Z[over].c:over==='remove'?'#FF8A7A':'#F2EDE4';
+    return{k,title,notes,lanes,dock,dragging,notDragging:!dragging,hasGhost:dragging,ghost:dragging?byId(drag.id):{fx:[]},ghostRing:ring,
+      gx:dragging?(drag.x-92)+'px':'0px',gy:dragging?(drag.y-36)+'px':'0px',hasFinger:k==='B',total:Object.keys(zones).length,nav:this.nav(1)};
+  }
+
+  phFrame(k,cfg){
+    const ch=this.state.checks[k]||{};
+    let items=k==='res'
+      ?CARDS.filter(c=>this.state.zones[c.id]==='field'&&c.fx.some(x=>x.t==='active')).map(c=>({id:c.id,text:c.name,sub:c.fx.find(x=>x.t==='active').text,img:c.img,hasImg:true}))
+      :cfg.items;
+    items=items.map(it=>{const on=!!ch[it.id];return{...it,on,hasImg:!!it.hasImg,hasSub:!!it.sub,hasAction:!!it.action&&!on,textColor:on?'#7A7368':'#1E1B16',deco:on?'line-through':'none',boxBg:on?'#1E1B16':'transparent',
+      onToggle:()=>this.setState(s=>({checks:{...s.checks,[k]:{...s.checks[k],[it.id]:!on}}})),
+      onAction:e=>{e.stopPropagation();this.clearTable()}}});
+    const done=items.filter(i=>i.on).length,rem=items.length-done,armed=this.state.phaseNext[k];
+    const steps=['Hunting','Action','Resolution','End of round'].map((label,i)=>({label,bar:i<=cfg.idx?'#F2EDE4':'#34363C',color:i===cfg.idx?'#F2EDE4':'#8E8A82',weight:i===cfg.idx?800:500}));
+    const ro=!!this.state.rulesOpen[k];
+    return{...cfg,steps,items,noItems:items.length===0,done,total:items.length,pct:items.length?`${done/items.length*100}%`:'100%',
+      rulesOpen:ro,chev:ro?'expand_less':'expand_more',toggleRules:()=>this.setState(s=>({rulesOpen:{...s.rulesOpen,[k]:!ro}})),
+      hasRem:rem>0,remText:armed?'Tap again to skip them':`${rem} step${rem>1?'s':''} left`,
+      nextBg:rem>0?'transparent':'#F2EDE4',nextFg:rem>0?'#F2EDE4':'#121315',nextBorder:rem>0?'2px solid #F2B544':'2px solid #F2EDE4',
+      onNext:()=>this.setState(s=>({phaseNext:{...s.phaseNext,[k]:rem>0&&!armed}})),nav:this.nav(2)};
+  }
+
+  renderVals(){
+    return{
+      cardFrames:[
+        this.cardsFrame('A','Cards',[
+          'With All selected, cards form one continuous grid ordered by family, then cost, with no separators. The cost rail hides and 4 columns fit about 24 cards on screen for scanning.',
+          'Pick a family and the grid groups by cost, and the right-edge rail (0–12, always visible) jumps to a cost.',
+          'Tiles show only the art, with the English name below. Tracked cards get a ring and a TABLE, HAND or FIELD band.',
+          'The density toggle (4 / 3 / 2 columns) replaces the unlabeled 2–8 slider.'
+        ]),
+        this.cardsFrame('B','Card detail: a sheet, not a page',[
+          'Opens over the grid, so you never lose your place. Swipe down or tap outside to close.',
+          'The card image shrinks to a thumbnail (tap to see it full size). Family, cost and sell value share one row of chips.',
+          'Effects use the game icon and a short label, with no explanation text. The English line is the largest text on the sheet.',
+          'Table / Hand / Field sit at the bottom, in thumb reach, and toggle: tap a zone to move the card there, tap it again to untrack. No undo needed.'
+        ])
+      ],
+      mcFrames:[
+        this.mcFrame('A','My cards',[
+          'Each zone is a 2-column grid showing every ability in full, so 8 on Table, 9 in Field and any number in Hand all fit without hidden text.',
+          'Press and drag any card to another zone. On a phone, long-press first so normal scrolling still works.',
+          'Table and Field show their limits (2 / 8, 3 / 9). Tap a zone header to collapse it when you only care about the others.',
+          'No Clear or Summon buttons. Clearing lives in the ⋯ menu and the end-of-round checklist.'
+        ]),
+        this.mcFrame('B','Dragging',[
+          'The lifted card tilts and its slot stays open, like picking up a real card.',
+          'All zones become dashed drop targets, and the one under your finger fills in.',
+          'A drop bar appears at the top (Table, Hand, Field, Remove), so you can reach a zone that has scrolled off screen. The list also scrolls when you hold the card near an edge.'
+        ])
+      ],
+      phFrames:[
+        this.phFrame('res',{idx:2,title:'Resolution',summary:'Use each Active effect in your Field once, or skip it.',listTitle:'Your Active cards',noteTitle:'Phase: Resolution',
+          rules:['Players resolve in turn order, starting with the first player.','Each Active effect can be used once per round.'],nextLabel:'Next: End of round',
+          notes:['Full-width phase bar with full names that can wrap, so labels are never cut off, with room for Chinese strings later.','In this phase, your Field cards with Active effects are the checklist, with the art and the English effect for each.','"What happens" is collapsed into one row. Setup, Rules and New game moved to the header and ⋯ menu.']}),
+        this.phFrame('end',{idx:3,title:'End of round',summary:'Clean up, then start the next round.',listTitle:'Cleanup',noteTitle:'End of round',
+          items:[{id:'clear',text:'Clear Table in the app',sub:'Removes the cards you tracked on Table',action:'Clear'},{id:'discard',text:'Discard unpicked cards from the board'},{id:'round',text:'Move the round marker'},{id:'first',text:'Pass the first-player marker'}],
+          rules:['Unpicked revealed cards go to the discard pile.','The first-player marker passes clockwise.'],nextLabel:'Start next round',
+          notes:['Cleanup is a parchment card with a progress bar, the brightest thing on screen.','Items that touch app state do it inline: Clear empties your tracked Table cards and ticks the item.','If steps are unchecked, Next turns amber and shows how many are left. A second tap skips them, with no dialog. New game is only in ⋯, behind a confirm.']})
+      ],
+      darkSw:[{name:'Background',hex:'#121315'},{name:'Surface',hex:'#1C1D21'},{name:'Surface 2',hex:'#26282D'},{name:'Text',hex:'#F2EDE4'},{name:'Text 2',hex:'#B9B4AA'},{name:'Table',hex:'#F2B544'},{name:'Hand',hex:'#5ED6B4'},{name:'Field',hex:'#B79CFF'}],
+      lightSw:[{name:'Background',hex:'#F5EFE3'},{name:'Surface',hex:'#FFFDF8'},{name:'Surface 2',hex:'#EDE4D3'},{name:'Text',hex:'#1E1B16'},{name:'Text 2',hex:'#5B544A'},{name:'Table',hex:'#A86A00'},{name:'Hand',hex:'#0E8A68'},{name:'Field',hex:'#6B4FD1'}],
+      spacing:[4,8,12,16,24,32].map(n=>({n,px:n+'px'})),
+      tileDemo:[{...this.tile(byId('phoenix')),tracked:false,ring:'none',state:'Untracked'},{...this.tile(byId('nessie')),tracked:true,zLabel:'Hand',zIcon:'back_hand',zColor:Z.hand.c,ring:`0 0 0 2.5px ${Z.hand.c}`,state:'In Hand'},{...this.tile(byId('undine')),tracked:true,zLabel:'Field',zIcon:'grid_view',zColor:Z.field.c,ring:`0 0 0 2.5px ${Z.field.c}`,state:'In Field'}],
+      zoneDemo:Object.values(Z),
+      cuts:[
+        {old:'Cost button row',now:'Became a cost rail that jumps instead of filtering. It appears only when a family is picked.'},
+        {old:'2–8 per-row slider',now:'Became a 4 / 3 / 2 column toggle.'},
+        {old:'Full-page card detail',now:'Became a bottom sheet over the grid. The "My Cards" header button is no longer needed.'},
+        {old:'Effect-type explanations',now:'Removed. Long-press an effect icon to see what it means.'},
+        {old:'Drop bar + row menu',now:'Replaced by free drag between zones, with a drop bar at the top only while dragging.'},
+        {old:'Per-zone Clear buttons',now:'Moved to the ⋯ menu and the end-of-round checklist.'},
+        {old:'Undo',now:'Not needed. The zone buttons toggle, so a wrong tap is fixed with another tap.'},
+        {old:'What happens bullets',now:'Collapsed into "How this phase works". The checklist leads instead.'},
+        {old:'Unchecked-items dialog',now:'Replaced by an inline "n steps left" on Next. Tap again to skip.'},
+        {old:'Setup / Key rules / New game',now:'Rules in the header, Setup and New game in ⋯. New game is last, in red, behind a confirm.'}
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
