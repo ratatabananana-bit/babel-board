@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vale_helper/module_format/validator.dart';
 
 import 'manifest_test.dart' show minimalManifest;
 
 /// A manifest with every block type in use, so each rule has something to check.
-Map<String, dynamic> fullManifest() => {
+Map<String, dynamic> fullManifest() => fixture();
+
+Map<String, dynamic> fixture() => {
   'format': 1,
   'id': 'mini',
   'name': 'Mini',
@@ -221,6 +225,98 @@ void main() {
     final m = fullManifest();
     (m['zones'] as List)[0]['accent'] = 'red';
     expect(check(m), fatalAt('zones[0].accent'));
+  });
+
+  group('review: block settings the app reads are type-checked', () {
+    // A JSON round trip gives untyped maps, so tests can put any value anywhere.
+    Map<String, dynamic> fullManifest() => jsonDecode(jsonEncode(fixture())) as Map<String, dynamic>;
+    Map<String, dynamic> block(Map<String, dynamic> m, int tab) => (m['tabs'] as List)[tab]['block'] as Map<String, dynamic>;
+    Map<String, dynamic> step0(Map<String, dynamic> m) =>
+        (block(m, 2)['children'] as List)[0] as Map<String, dynamic>;
+
+    test('checklist rows need an id and text', () {
+      final m = fullManifest();
+      ((step0(m)['checklist'] as List)[0] as Map).remove('id');
+      expect(check(m), fatalAt('tabs[2].block.children[0].checklist[0].id'));
+      final m2 = fullManifest();
+      ((step0(m2)['checklist'] as List)[0] as Map)['text'] = 5;
+      expect(check(m2), fatalAt('tabs[2].block.children[0].checklist[0].text'));
+    });
+
+    test('checklist ids are unique across the whole flow', () {
+      final m = fullManifest();
+      ((block(m, 2)['children'] as List)[1]['checklist'] as List)[0]['id'] = 's1.a';
+      expect(check(m), fatalAt('tabs[2].block.children[1].checklist[0].id'));
+    });
+
+    test('text lists must be lists of text', () {
+      final m = fullManifest();
+      block(m, 3)['bullets'] = 'one line';
+      expect(check(m), fatalAt('tabs[3].block.bullets'));
+      final m2 = fullManifest();
+      step0(m2)['how'] = [1, 2];
+      expect(check(m2), fatalAt('tabs[2].block.children[0].how'));
+    });
+
+    test('gallery filters need a path and object options', () {
+      final m = fullManifest();
+      block(m, 0)['filters'] = [
+        {'label': 'Family', 'options': []},
+      ];
+      expect(check(m), fatalAt('tabs[0].block.filters[0].path'));
+      final m2 = fullManifest();
+      block(m2, 0)['filters'] = [
+        {
+          'path': 'family',
+          'options': ['fire'],
+        },
+      ];
+      expect(check(m2), fatalAt('tabs[0].block.filters[0].options[0]'));
+      final m3 = fullManifest();
+      block(m3, 0)['sections'] = {'label': 'x'};
+      expect(check(m3), fatalAt('tabs[0].block.sections.path'));
+    });
+
+    test('card list style is one of mini, rows, thumbs', () {
+      final m = fullManifest();
+      ((block(m, 1)['children'] as List)[0]['list'] as Map)['style'] = 'grid';
+      expect(check(m), fatalAt('tabs[1].block.children[0].list.style'));
+    });
+
+    test('sheet zones name declared zones', () {
+      final m = fullManifest();
+      (m['collections'] as Map)['items'] = {
+        'items': 'data/items.json',
+        'sheet': {
+          'zones': ['a', 'nope'],
+        },
+      };
+      expect(check(m), fatalAt('collections.items.sheet.zones[1]'));
+      final m2 = fullManifest();
+      (m2['collections'] as Map)['items'] = {
+        'items': 'data/items.json',
+        'sheet': {
+          'chips': ['Cost'],
+        },
+      };
+      expect(check(m2), fatalAt('collections.items.sheet.chips[0]'));
+    });
+
+    test('only one flow per module', () {
+      final m = fullManifest();
+      (m['tabs'] as List).add({'label': 'Again', 'icon': 'flag', 'block': block(fullManifest(), 2)});
+      expect(check(m), fatalAt('tabs[4].block'));
+    });
+
+    test('filter rules need a path', () {
+      final m = fullManifest();
+      ((block(m, 1)['children'] as List)[0]['list'] as Map)['filter'] = {
+        'where': [
+          {'has': 'x'},
+        ],
+      };
+      expect(check(m), fatalAt('tabs[1].block.children[0].list.filter.where[0].path'));
+    });
   });
 
   test('unverified items are reported once, not fatal', () {

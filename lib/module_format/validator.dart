@@ -144,7 +144,54 @@ List<ValidationIssue> validateModule(
     }
   }
 
-  void requireCollection(String path, Map<String, dynamic> settings) {
+  // Typed checks for every setting a block or sheet reads, so a module that passes here
+  // never fails while a tab is drawn.
+  bool isText(Object? v) => v is String;
+  void optText(String path, Object? v) {
+    if (v != null && v is! String) fatal(path, 'Should be text');
+  }
+
+  void optBool(String path, Object? v) {
+    if (v != null && v is! bool) fatal(path, 'Should be true or false');
+  }
+
+  void optInt(String path, Object? v) {
+    if (v != null && v is! int) fatal(path, 'Should be a whole number');
+  }
+
+  void optTextList(String path, Object? v) {
+    if (v == null) return;
+    if (v is! List || !v.every(isText)) fatal(path, 'Should be a list of text');
+  }
+
+  /// Checks [v] is a list of objects (or absent); returns the objects with their paths.
+  List<(String, Map)> optMapList(String path, Object? v) {
+    if (v == null) return const [];
+    if (v is! List) {
+      fatal(path, 'Should be a list');
+      return const [];
+    }
+    final out = <(String, Map)>[];
+    for (var i = 0; i < v.length; i++) {
+      if (v[i] is Map) {
+        out.add(('$path[$i]', v[i] as Map));
+      } else {
+        fatal('$path[$i]', 'Should be an object');
+      }
+    }
+    return out;
+  }
+
+  Map? optMap(String path, Object? v) {
+    if (v == null) return null;
+    if (v is! Map) {
+      fatal(path, 'Should be an object');
+      return null;
+    }
+    return v;
+  }
+
+  void requireCollection(String path, Map settings) {
     final c = settings['collection'];
     if (c is! String) {
       fatal('$path.collection', 'Missing "collection"');
@@ -153,26 +200,90 @@ List<ValidationIssue> validateModule(
     }
   }
 
-  void checkChecklist(String path, Object? list) {
-    if (list is! List) return;
-    for (var i = 0; i < list.length; i++) {
-      final row = list[i];
-      if (row is! Map) continue;
-      final action = row['action'];
-      if (action == null) continue;
-      if (action is! Map) {
-        fatal('$path[$i].action', 'Action should be {"type": ...}');
-        continue;
+  void checkFilter(String path, Object? v) {
+    final f = optMap(path, v);
+    if (f == null) return;
+    final zone = f['zone'];
+    if (zone != null && !zoneIds.contains(zone)) fatal('$path.zone', 'Unknown zone "$zone"');
+    for (final (p, rule) in optMapList('$path.where', f['where'])) {
+      if (rule['path'] is! String) fatal('$p.path', 'Every rule needs a "path"');
+    }
+  }
+
+  // Item sheets.
+  for (final e in m.collections.entries) {
+    final p = 'collections.${e.key}.sheet';
+    final sheet = e.value.sheet;
+    for (final (cp, chip) in optMapList('$p.chips', sheet['chips'])) {
+      for (final k in ['symbol', 'text', 'symbols', 'label']) {
+        optText('$cp.$k', chip[k]);
       }
-      final type = action['type'];
-      if (!kChecklistActions.contains(type)) {
-        fatal('$path[$i].action.type', 'Action must be one of ${kChecklistActions.join(', ')}: "$type"');
-      } else if (type == 'clearZone' && !zoneIds.contains(action['zone'])) {
-        fatal('$path[$i].action.zone', 'Unknown zone "${action['zone']}"');
+    }
+    final effects = optMap('$p.effects', sheet['effects']);
+    if (effects != null) {
+      optText('$p.effects.path', effects['path']);
+      for (final k in ['typeLabels', 'typeSymbols', 'typeHelp']) {
+        final map = optMap('$p.effects.$k', effects[k]);
+        if (map != null && !map.values.every(isText)) fatal('$p.effects.$k', 'Values should be text');
+      }
+    }
+    for (final (sp, section) in optMapList('$p.sections', sheet['sections'])) {
+      if (section['path'] is! String) fatal('$sp.path', 'Every section needs a "path"');
+      optText('$sp.label', section['label']);
+    }
+    optText('$p.secondary', sheet['secondary']);
+    optText('$p.verifiedPath', sheet['verifiedPath']);
+    final zones = sheet['zones'];
+    if (zones != null) {
+      if (zones is! List) {
+        fatal('$p.zones', 'Should be a list of zone ids');
+      } else {
+        for (var i = 0; i < zones.length; i++) {
+          if (!zoneIds.contains(zones[i])) fatal('$p.zones[$i]', 'Unknown zone "${zones[i]}"');
+        }
       }
     }
   }
 
+  /// A step's settings (also the flow's `setup`). [rowIds] collects checklist ids across
+  /// the whole flow, since ticks are saved per id.
+  void checkStepSettings(String path, Map s, Set<String> rowIds) {
+    for (final k in ['title', 'short', 'tag', 'summary', 'listTitle', 'nextLabel', 'emptyText']) {
+      optText('$path.$k', s[k]);
+    }
+    optTextList('$path.how', s['how']);
+    for (final (rp, row) in optMapList('$path.checklist', s['checklist'])) {
+      final id = row['id'];
+      if (id is! String || id.isEmpty) {
+        fatal('$rp.id', 'Every checklist row needs a text "id"');
+      } else if (!rowIds.add(id)) {
+        fatal('$rp.id', 'Checklist id "$id" is used twice in this flow');
+      }
+      if (row['text'] is! String) fatal('$rp.text', 'Every checklist row needs "text"');
+      optText('$rp.sub', row['sub']);
+      optText('$rp.actionLabel', row['actionLabel']);
+      final action = row['action'];
+      if (action == null) continue;
+      if (action is! Map) {
+        fatal('$rp.action', 'Action should be {"type": ...}');
+        continue;
+      }
+      final type = action['type'];
+      if (!kChecklistActions.contains(type)) {
+        fatal('$rp.action.type', 'Action must be one of ${kChecklistActions.join(', ')}: "$type"');
+      } else if (type == 'clearZone' && !zoneIds.contains(action['zone'])) {
+        fatal('$rp.action.zone', 'Unknown zone "${action['zone']}"');
+      }
+    }
+    final cc = optMap('$path.cardChecklist', s['cardChecklist']);
+    if (cc != null) {
+      requireCollection('$path.cardChecklist', cc);
+      checkFilter('$path.cardChecklist.filter', cc['filter']);
+      optText('$path.cardChecklist.sub', cc['sub']);
+    }
+  }
+
+  var flows = 0;
   void checkBlock(String path, BlockSpec b) {
     if (!kBlockTypes.contains(b.type)) {
       fatal(path, "Unknown block '${b.type}' — this game needs a newer Table Helper");
@@ -182,7 +293,33 @@ List<ValidationIssue> validateModule(
     switch (b.type) {
       case 'gallery':
         requireCollection(path, s);
+        optTextList('$path.search', s['search']);
+        optBool('$path.tileName', s['tileName']);
+        optText('$path.noun', s['noun']);
+        optText('$path.searchHint', s['searchHint']);
+        for (final (fp, f) in optMapList('$path.filters', s['filters'])) {
+          if (f['path'] is! String) fatal('$fp.path', 'Every filter needs a "path"');
+          optText('$fp.label', f['label']);
+          optText('$fp.allLabel', f['allLabel']);
+          for (final (op, o) in optMapList('$fp.options', f['options'])) {
+            optText('$op.label', o['label']);
+            optText('$op.symbol', o['symbol']);
+          }
+        }
+        final sections = optMap('$path.sections', s['sections']);
+        if (sections != null) {
+          if (sections['path'] is! String) fatal('$path.sections.path', 'Sections need a "path"');
+          optText('$path.sections.label', sections['label']);
+          optBool('$path.sections.onlyWhenFiltered', sections['onlyWhenFiltered']);
+          optBool('$path.sections.rail', sections['rail']);
+          final range = sections['railRange'];
+          if (range != null && !(range is List && range.length == 2 && range.every((n) => n is int))) {
+            fatal('$path.sections.railRange', 'Should be two whole numbers, e.g. [0, 12]');
+          }
+        }
       case 'board':
+        optText('$path.title', s['title']);
+        optText('$path.countLabel', s['countLabel']);
         for (var i = 0; i < b.children.length; i++) {
           if (b.children[i].type != 'zone') {
             fatal('$path.children[$i]', 'A board holds only zones, not "${b.children[i].type}"');
@@ -190,36 +327,60 @@ List<ValidationIssue> validateModule(
         }
       case 'zone':
         if (!zoneIds.contains(s['zone'])) fatal('$path.zone', 'Unknown zone "${s['zone']}"');
-        final list = s['list'];
-        if (list is Map) {
-          checkBlock('$path.list', BlockSpec.fromJson(list.cast<String, dynamic>(), '$path.list'));
+        final list = optMap('$path.list', s['list']);
+        if (list != null) {
+          try {
+            checkBlock('$path.list', BlockSpec.fromJson(list.cast<String, dynamic>(), '$path.list'));
+          } on FormatException catch (e) {
+            fatal('$path.list', e.message);
+          }
         }
       case 'cardList':
         requireCollection(path, s);
+        final style = s['style'];
+        if (style != null && !const {'mini', 'rows', 'thumbs'}.contains(style)) {
+          fatal('$path.style', 'Style must be mini, rows or thumbs: "$style"');
+        }
+        optInt('$path.columns', s['columns']);
+        optBool('$path.removable', s['removable']);
+        optText('$path.emptyText', s['emptyText']);
+        checkFilter('$path.filter', s['filter']);
       case 'flow':
+        flows++;
+        if (flows > 1) fatal(path, 'A module can have only one flow');
+        optText('$path.title', s['title']);
+        optBool('$path.cyclic', s['cyclic']);
+        optTextList('$path.reminders', s['reminders']);
+        optText('$path.newGameText', s['newGameText']);
         if (b.children.isEmpty) fatal('$path.children', 'A flow needs at least one step');
         final stepIds = <String>{};
+        final rowIds = <String>{};
+        final setup = optMap('$path.setup', s['setup']);
+        if (setup != null) checkStepSettings('$path.setup', setup, rowIds);
         for (var i = 0; i < b.children.length; i++) {
           final c = b.children[i];
+          final cp = '$path.children[$i]';
           if (c.type != 'step') {
-            fatal('$path.children[$i]', 'A flow holds only steps, not "${c.type}"');
+            fatal(cp, 'A flow holds only steps, not "${c.type}"');
             continue;
           }
           final id = c.settings['id'];
           if (id is! String) {
-            fatal('$path.children[$i].id', 'Every step needs an id');
+            fatal('$cp.id', 'Every step needs an id');
           } else if (!stepIds.add(id)) {
-            fatal('$path.children[$i].id', 'Duplicate step id "$id"');
+            fatal('$cp.id', 'Duplicate step id "$id"');
           }
+          checkStepSettings(cp, c.settings, rowIds);
         }
-        final setup = s['setup'];
-        if (setup is Map) checkChecklist('$path.setup.checklist', setup['checklist']);
+        // Steps were checked above with the flow's shared id set.
+        return;
       case 'step':
-        checkChecklist('$path.checklist', s['checklist']);
-        final cc = s['cardChecklist'];
-        if (cc is Map) requireCollection('$path.cardChecklist', cc.cast<String, dynamic>());
+        // A step outside a flow does nothing; checked here only for its own settings.
+        checkStepSettings(path, s, <String>{});
       case 'text':
-        break;
+        optText('$path.title', s['title']);
+        optTextList('$path.paragraphs', s['paragraphs']);
+        optTextList('$path.bullets', s['bullets']);
     }
     for (var i = 0; i < b.children.length; i++) {
       checkBlock('$path.children[$i]', b.children[i]);
