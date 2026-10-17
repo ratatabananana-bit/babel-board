@@ -52,3 +52,6 @@ app.*.map.json
 
 # superpowers plan-execution scratch (ledger, briefs)
 .superpowers/
+
+# Gradle output inside the android project
+/android/build/

@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'blocks/icons.dart';
 import 'blocks/registry.dart';
 import 'core/app_state.dart';
-import 'core/migrate.dart';
+import 'library/migration.dart';
 import 'core/settings.dart';
 import 'core/theme.dart';
 import 'library/install_sources.dart';
@@ -20,6 +20,7 @@ import 'library/library_controller.dart';
 import 'library/library_screen.dart';
 import 'library/module_store.dart';
 import 'library/repository.dart';
+import 'library/startup.dart';
 import 'modules/loaded_module.dart';
 import 'modules/module_files.dart';
 import 'modules/module_state.dart';
@@ -84,13 +85,14 @@ class AppData {
   }
 }
 
-/// Startup on a phone: the module store lives in the app's support folder.
+/// Startup. On a phone the module store lives in the app's support folder; the web
+/// preview shows the modules published next to it and has no install sources.
 Future<AppData> loadAppData() async {
   final prefs = await SharedPreferences.getInstance();
   await migrateLegacyPrefs(prefs);
-  if (kIsWeb) return AppData(prefs, const []);
+  if (kIsWeb) return AppData(prefs, await loadWebModules(Uri.base));
   final support = await getApplicationSupportDirectory();
-  final store = ModuleStore(Directory('${support.path}${Platform.pathSeparator}modules'));
+  final store = createModuleStore(Directory('${support.path}${Platform.pathSeparator}modules'), prefs);
   const secure = FlutterSecureStorage();
   final repoConfigStore = RepoConfigStore(
     prefs,

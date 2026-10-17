@@ -1,7 +1,7 @@
 name: vale_helper
-description: "Vale of Eternity helper: English card lookup, card tracking, phase checklist."
+description: "Table Helper: plays data-only game modules for board games you can't read."
 publish_to: 'none'
-version: 0.1.0+1
+version: 3.0.0+3
 
 environment:
   sdk: ^3.11.5
@@ -27,14 +27,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/cards.json
-    - assets/rules_en.json
-    - assets/cards/
-    - assets/symbols/
-    - assets/games/magical_athlete/racers.json
-    - assets/games/magical_athlete/rules_en.json
-    - assets/games/magical_athlete/racers/
   fonts:
     - family: Figtree
       fonts:

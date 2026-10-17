@@ -1,5 +1,7 @@
-// One-off converter: turns the bundled Vale of Eternity and Magical Athlete assets into
-// data-only modules under modules/. Run from the project root:
+// One-off converter: turned the bundled Vale of Eternity and Magical Athlete assets into
+// data-only modules under modules/. Kept for the record: its inputs (assets/cards*,
+// assets/rules_en.json, assets/symbols/, assets/games/) were removed when the app began
+// shipping empty; restore them from git (commit 46b7075) to run it again:
 //   dart run tool/convert_legacy.dart
 import 'dart:convert';
 import 'dart:io';
