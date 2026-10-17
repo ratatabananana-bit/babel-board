@@ -142,7 +142,7 @@ void main() {
     Future<void> installAndLoad(Uint8List b, String folder) async {
       final store = ModuleStore(Directory('${tmp.path}/$folder'));
       final installed = await store.installBytes(b);
-      final loaded = await loadModule(DirectoryModuleFiles(installed.dir));
+      final loaded = await loadModule(DirectoryModuleFiles(installed.dir!));
       expect(loaded.manifest.id, 'mini');
       expect(loaded.items('items'), hasLength(4));
     }

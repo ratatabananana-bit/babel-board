@@ -4,11 +4,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vale_helper/library/module_store.dart';
+import 'package:vale_helper/library/repository.dart';
 import 'package:vale_helper/main.dart';
 import 'package:vale_helper/modules/loaded_module.dart';
 import 'package:vale_helper/modules/module_files.dart';
@@ -183,5 +188,103 @@ void main() {
     await _shot(tester, '21_ma_game_race2');
     await tester.tap(find.byKey(const Key('gameSwitcher')).last);
     await _shot(tester, '22_game_switcher');
+  });
+
+  testWidgets('library screenshots', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 2.75;
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+
+    // First launch after the update: nothing installed, no repository yet.
+    // ignore: invalid_use_of_visible_for_testing_member
+    SharedPreferences.setMockInitialValues({});
+    final tmp = (await tester.runAsync(() => Directory.systemTemp.createTemp('shots_')))!;
+    addTearDown(() {
+      try {
+        tmp.deleteSync(recursive: true);
+      } on FileSystemException {
+        // Disposable.
+      }
+    });
+    final empty = await tester.runAsync(
+      () async => AppData.fromStore(await SharedPreferences.getInstance(), ModuleStore(Directory('${tmp.path}/empty'))),
+    );
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: _shotKey,
+        child: HelperApp(key: UniqueKey(), loader: () async => empty!),
+      ),
+    );
+    await _shot(tester, '23_library_empty');
+
+    // Vale installed; the repository offers Magical Athlete and a game for a newer app.
+    final indexUrl = Uri.parse('https://raw.githubusercontent.com/owner/games/main/index.json');
+    final client = MockClient((req) async {
+      if (req.url != indexUrl) return http.Response('', 404);
+      return http.Response(
+        jsonEncode({
+          'name': "Benny's games",
+          'modules': [
+            {
+              'id': _vale,
+              'name': 'Vale of Eternity',
+              'version': '1.0.0',
+              'minAppVersion': '3.0.0',
+              'zip': 'v.zip',
+              'size': 1531506,
+            },
+            {
+              'id': _ma,
+              'name': 'Magical Athlete',
+              'version': '1.0.0',
+              'minAppVersion': '3.0.0',
+              'zip': 'm.zip',
+              'size': 396436,
+            },
+            {
+              'id': 'heat',
+              'name': 'Heat: Pedal to the Metal',
+              'version': '1.0.0',
+              'minAppVersion': '3.1.0',
+              'zip': 'h.zip',
+              'size': 2048000,
+            },
+          ],
+        }),
+        200,
+      );
+    });
+    // ignore: invalid_use_of_visible_for_testing_member
+    SharedPreferences.setMockInitialValues({'repo.indexUrl': indexUrl.toString()});
+    final withRepo = await tester.runAsync(() async {
+      final prefs = await SharedPreferences.getInstance();
+      final store = ModuleStore(Directory('${tmp.path}/repo'));
+      final archive = Archive();
+      final dir = Directory('modules/$_vale');
+      for (final f in dir.listSync(recursive: true).whereType<File>()) {
+        final bytes = f.readAsBytesSync();
+        archive.addFile(ArchiveFile(f.path.substring(dir.path.length + 1).replaceAll(r'\', '/'), bytes.length, bytes));
+      }
+      await store.installBytes(Uint8List.fromList(ZipEncoder().encode(archive)));
+      return AppData.fromStore(
+        prefs,
+        store,
+        repoConfigStore: RepoConfigStore(prefs, readSecret: (_) async => 'token', writeSecret: (_, _) async {}),
+        repoClientFactory: (c) => RepoClient(c, client: client),
+      );
+    });
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: _shotKey,
+        child: HelperApp(key: UniqueKey(), loader: () async => withRepo!),
+      ),
+    );
+    for (var i = 0; i < 10; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump();
+    }
+    await _shot(tester, '24_library_repository');
   });
 }

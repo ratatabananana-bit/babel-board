@@ -67,10 +67,10 @@ void main() {
     expect(m.name, 'Mini Game');
     expect(m.version, '1.0.0');
     expect(m.broken, isFalse);
-    expect(File('${m.dir.path}/module.json').existsSync(), isTrue);
+    expect(File('${m.dir!.path}/module.json').existsSync(), isTrue);
     final listed = await store.list();
     expect(listed.map((i) => i.id), ['mini']);
-    final loaded = await loadModule(DirectoryModuleFiles(m.dir));
+    final loaded = await loadModule(DirectoryModuleFiles(m.dir!));
     expect(loaded.items('items'), hasLength(4));
     expect(root.listSync().where((e) => e.path.contains('.staging')), isEmpty, reason: 'staging cleaned up');
   });
@@ -78,13 +78,13 @@ void main() {
   test('installs a single-JSON module: inline collections written, image links downloaded', () async {
     final store = ModuleStore(root, client: imageServer(), imageTimeout: const Duration(milliseconds: 300));
     final m = await store.installBytes(jsonBytes(singleJsonMini()));
-    expect(File('${m.dir.path}/data/items.json').existsSync(), isTrue);
-    final loaded = await loadModule(DirectoryModuleFiles(m.dir));
+    expect(File('${m.dir!.path}/data/items.json').existsSync(), isTrue);
+    final loaded = await loadModule(DirectoryModuleFiles(m.dir!));
     final spec = loaded.manifest.collections['items']!;
     final ref = loaded.item('items', 'imp')!.imageRef(spec)!;
     expect(ref, startsWith('images/remote/'));
     expect(ref, endsWith('.webp'));
-    expect(File('${m.dir.path}/$ref').existsSync(), isTrue);
+    expect(File('${m.dir!.path}/$ref').existsSync(), isTrue);
     expect(loaded.manifest.icon, startsWith('images/remote/'));
     expect(loaded.manifest.symbols['fire'], startsWith('images/remote/'));
     expect(loaded.files.image(ref), isNotNull);
@@ -97,7 +97,7 @@ void main() {
       imageTimeout: const Duration(milliseconds: 300),
     );
     final m = await store.installBytes(jsonBytes(singleJsonMini()));
-    final loaded = await loadModule(DirectoryModuleFiles(m.dir));
+    final loaded = await loadModule(DirectoryModuleFiles(m.dir!));
     final spec = loaded.manifest.collections['items']!;
     expect(loaded.item('items', 'imp')!.imageRef(spec), isNotNull);
     expect(loaded.item('items', 'nessie')!.imageRef(spec), isNull);
@@ -128,7 +128,7 @@ void main() {
     final store = ModuleStore(root);
     final m = await store.installBytes(zipOf(miniFiles()));
     await store.uninstall('mini');
-    expect(m.dir.existsSync(), isFalse);
+    expect(m.dir!.existsSync(), isFalse);
     expect(await store.list(), isEmpty);
   });
 

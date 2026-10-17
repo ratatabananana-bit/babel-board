@@ -68,7 +68,7 @@ class AppData {
     for (final i in installed) {
       if (i.broken) continue;
       try {
-        modules.add(await loadModule(DirectoryModuleFiles(i.dir)));
+        modules.add(await loadModule(DirectoryModuleFiles(i.dir!)));
       } catch (_) {
         // Listed as broken by the Library.
       }

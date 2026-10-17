@@ -25,7 +25,7 @@ Future<LoadedModule> installOffline(String json) async {
     imageTimeout: const Duration(seconds: 2),
   );
   final m = await store.installBytes(Uint8List.fromList(utf8.encode(json)));
-  return loadModule(DirectoryModuleFiles(m.dir));
+  return loadModule(DirectoryModuleFiles(m.dir!));
 }
 
 void main() {

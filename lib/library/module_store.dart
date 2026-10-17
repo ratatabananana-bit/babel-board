@@ -24,14 +24,15 @@ class InstalledModule {
     required this.id,
     required this.name,
     required this.version,
-    required this.dir,
+    this.dir,
     this.broken = false,
     this.error,
   });
   final String id;
   final String name;
   final String version;
-  final Directory dir;
+  /// The installed folder; null for a game that wasn't installed through a store (web preview).
+  final Directory? dir;
   final bool broken;
   final String? error;
 }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,7 +55,7 @@ class LibraryController extends ChangeNotifier {
       ? installed
       : [
           for (final g in app.games)
-            InstalledModule(id: g.id, name: g.title, version: g.module.manifest.version, dir: Directory.current),
+            InstalledModule(id: g.id, name: g.title, version: g.module.manifest.version),
         ];
 
   InstalledModule? installedById(String id) => installed.where((i) => i.id == id).firstOrNull;
@@ -81,7 +80,7 @@ class LibraryController extends ChangeNotifier {
     for (final i in installed) {
       if (i.broken) continue;
       try {
-        games.add(OpenGame.load(prefs, await loadModule(DirectoryModuleFiles(i.dir))));
+        games.add(OpenGame.load(prefs, await loadModule(DirectoryModuleFiles(i.dir!))));
       } catch (e) {
         // list() already marked it broken; a race here just leaves it out.
       }
