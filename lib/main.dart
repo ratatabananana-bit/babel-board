@@ -5,14 +5,15 @@ import 'package:provider/provider.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'blocks/icons.dart';
+import 'blocks/registry.dart';
 import 'core/app_state.dart';
-import 'core/game_module.dart';
 import 'core/game_switcher.dart';
 import 'core/migrate.dart';
 import 'core/settings.dart';
 import 'core/theme.dart';
-import 'games/magical_athlete/magical_athlete_game.dart';
-import 'games/vale/vale_game.dart';
+import 'modules/loaded_module.dart';
+import 'modules/module_state.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,21 +21,17 @@ void main() {
 }
 
 class AppData {
-  const AppData(this.prefs, this.games);
+  const AppData(this.prefs, this.modules);
   final SharedPreferences prefs;
-  final List<GameModule> games;
+  final List<LoadedModule> modules;
 }
 
-List<GameModule> createGames() => [ValeGame(), MagicalAthleteGame()];
-
+/// Startup data. Installed modules come from the module store (a later task); until then
+/// the app starts with no games.
 Future<AppData> loadAppData() async {
   final prefs = await SharedPreferences.getInstance();
   await migrateLegacyPrefs(prefs);
-  final games = createGames();
-  for (final g in games) {
-    await g.load(rootBundle, prefs);
-  }
-  return AppData(prefs, games);
+  return AppData(prefs, const []);
 }
 
 class HelperApp extends StatefulWidget {
@@ -95,11 +92,11 @@ class _HelperAppState extends State<HelperApp> {
         final d = snap.data;
         if (d == null) return _material(home: const Scaffold(body: Center(child: CircularProgressIndicator())));
         if (_app == null) {
-          _app = AppState(d.prefs, d.games);
+          _app = AppState(d.prefs, [for (final m in d.modules) OpenGame.load(d.prefs, m)]);
           _setUpShortcuts(_app!);
         }
-        // Shared providers sit above MaterialApp; the active game's providers wrap the Navigator
-        // (via builder) so its sheets and dialogs can read them too.
+        // Shared providers sit above MaterialApp; the active module's scope wraps the
+        // Navigator (via builder) so its sheets and dialogs can read it too.
         return MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: _app!),
@@ -107,7 +104,11 @@ class _HelperAppState extends State<HelperApp> {
           ],
           child: Consumer<AppState>(
             builder: (context, app, _) => _material(
-              builder: (context, child) => app.active?.wrap(child!) ?? child!,
+              builder: (context, child) {
+                final g = app.active;
+                if (g == null) return child!;
+                return ModuleScope(module: g.module, zones: g.zones, flow: g.flow, child: child!);
+              },
               home: const _Home(),
             ),
           ),
@@ -128,10 +129,10 @@ class _Home extends StatelessWidget {
   }
 }
 
-/// A game's tabs: swipe between them or use the bottom bar.
+/// A game's tabs, one block tree each: swipe between them or use the bottom bar.
 class GameShell extends StatefulWidget {
   const GameShell({super.key, required this.game});
-  final GameModule game;
+  final OpenGame game;
 
   @override
   State<GameShell> createState() => _GameShellState();
@@ -155,14 +156,16 @@ class _GameShellState extends State<GameShell> {
   @override
   Widget build(BuildContext context) {
     final p = context.pal;
-    final tabs = widget.game.tabs;
+    final tabs = widget.game.module.manifest.tabs;
     return Scaffold(
       body: SafeArea(
         bottom: false,
         child: PageView(
           controller: _pages,
           onPageChanged: (i) => setState(() => _tab = i),
-          children: [for (final t in tabs) _KeepAlive(Builder(builder: t.builder))],
+          children: [
+            for (final t in tabs) _KeepAlive(Builder(builder: (context) => buildBlock(context, t.block))),
+          ],
         ),
       ),
       bottomNavigationBar: Container(
@@ -189,13 +192,13 @@ class _GameShellState extends State<GameShell> {
                 NavigationDestination(
                   label: t.label,
                   icon: Builder(builder: (context) {
-                    final n = t.badge?.call(context) ?? 0;
+                    final n = t.badge == 'zoneCount' ? context.watch<ZoneState>().total : 0;
                     return Badge(
                       isLabelVisible: n > 0,
                       backgroundColor: p.badge,
                       textColor: p.onAccent,
                       label: Text('$n', style: const TextStyle(fontWeight: FontWeight.w800)),
-                      child: Icon(t.icon),
+                      child: Icon(moduleIcon(t.icon)),
                     );
                   }),
                 ),

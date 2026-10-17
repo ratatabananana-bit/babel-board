@@ -1,4 +1,7 @@
-﻿import 'dart:convert';
+@Skip('App-level tests of the old code games; re-expressed against modules in test/games (Task 9), deleted in Task 13')
+library;
+
+import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
