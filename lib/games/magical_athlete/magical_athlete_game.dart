@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/flow/flow_rules.dart';
 import '../../core/flow/flow_screen.dart';
-import '../../core/flow/flow_state.dart';
+import '../../blocks/flow/flow_state.dart';
 import '../../core/game_module.dart';
 import '../../core/theme.dart';
 import 'models/racer.dart';

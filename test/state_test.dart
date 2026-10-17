@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vale_helper/games/vale/models/zone.dart';
-import 'package:vale_helper/core/flow/flow_state.dart';
+import 'package:vale_helper/blocks/flow/flow_state.dart';
 import 'package:vale_helper/core/app_state.dart';
 import 'package:vale_helper/core/migrate.dart';
 import 'package:vale_helper/core/settings.dart';

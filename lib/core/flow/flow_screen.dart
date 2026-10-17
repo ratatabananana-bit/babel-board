@@ -5,7 +5,7 @@ import '../game_switcher.dart';
 import '../theme.dart';
 import '../widgets/confirm.dart';
 import 'flow_rules.dart';
-import 'flow_state.dart';
+import '../../blocks/flow/flow_state.dart';
 
 /// One checklist row as shown on the parchment card.
 class FlowItem {
