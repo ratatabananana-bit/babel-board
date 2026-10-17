@@ -49,3 +49,6 @@ app.*.map.json
 
 # Local Claude Code preview config (points at a temp folder)
 .claude/
+
+# superpowers plan-execution scratch (ledger, briefs)
+.superpowers/
