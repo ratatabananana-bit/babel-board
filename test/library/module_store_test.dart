@@ -174,6 +174,29 @@ void main() {
     );
   });
 
+  test('review: wrongly shaped module JSON is rejected with a readable InstallException', () async {
+    final store = ModuleStore(root, client: imageServer(), imageTimeout: const Duration(milliseconds: 300));
+    final shapes = <String, void Function(Map<String, dynamic>)>{
+      'symbol value is a number': (m) => m['symbols'] = {'fire': 3},
+      'zones are strings': (m) => m['zones'] = ['table'],
+      'icon is a number': (m) => m['icon'] = 5,
+      'collection is a string': (m) => m['collections'] = {'items': 'data/items.json'},
+      'children are strings': (m) => (m['tabs'] as List)[1]['block']['children'] = ['a', 'b'],
+      'tabs is an object': (m) => m['tabs'] = {'a': 1},
+      'item is a string': (m) => (m['collections']['items']['items'] as List).add('oops'),
+    };
+    for (final e in shapes.entries) {
+      final m = singleJsonMini();
+      e.value(m);
+      await expectLater(
+        store.installBytes(jsonBytes(m)),
+        throwsA(isA<InstallException>().having((x) => x.message, 'message', isNotEmpty)),
+        reason: e.key,
+      );
+    }
+    expect(await store.list(), isEmpty);
+  });
+
   test('an invalid module is rejected with its validation issues', () async {
     final store = ModuleStore(root);
     final files = miniFiles();

@@ -12,7 +12,25 @@ T _req<T>(Map<String, dynamic> j, String key, String where) {
 List<Map<String, dynamic>> _mapList(Object? v, String where) {
   if (v == null) return const [];
   if (v is! List) throw FormatException('$where should be a list');
-  return [for (final e in v) (e as Map).cast<String, dynamic>()];
+  return [
+    for (var i = 0; i < v.length; i++)
+      if (v[i] is Map)
+        (v[i] as Map).cast<String, dynamic>()
+      else
+        throw FormatException('$where[$i] should be an object'),
+  ];
+}
+
+/// Runs [parse] and turns a wrong-typed value (a cast failure) into a [FormatException]
+/// naming where it is, so a slightly wrong module gets a readable error, not a crash.
+T _guard<T>(String where, T Function() parse) {
+  try {
+    return parse();
+  } on FormatException {
+    rethrow;
+  } on TypeError {
+    throw FormatException('$where has a value of the wrong type');
+  }
 }
 
 class ModuleManifest {
@@ -50,9 +68,11 @@ class ModuleManifest {
     final rawCollections = j['collections'];
     if (rawCollections is Map) {
       for (final e in rawCollections.entries) {
-        collections[e.key as String] = CollectionSpec.fromJson(
-          (e.value as Map).cast<String, dynamic>(),
-          'collections.${e.key}',
+        final where = 'collections.${e.key}';
+        if (e.value is! Map) throw FormatException('$where should be an object');
+        collections['${e.key}'] = _guard(
+          where,
+          () => CollectionSpec.fromJson((e.value as Map).cast<String, dynamic>(), where),
         );
       }
     }
@@ -60,7 +80,8 @@ class ModuleManifest {
     final rawSymbols = j['symbols'];
     if (rawSymbols is Map) {
       for (final e in rawSymbols.entries) {
-        symbols[e.key as String] = e.value as String;
+        if (e.value is! String) throw FormatException('symbols.${e.key} should be text (an image path or link)');
+        symbols['${e.key}'] = e.value as String;
       }
     }
     final zones = _mapList(j['zones'], 'zones');
@@ -71,13 +92,15 @@ class ModuleManifest {
       name: _req<String>(j, 'name', w),
       version: _req<String>(j, 'version', w),
       minAppVersion: _req<String>(j, 'minAppVersion', w),
-      icon: j['icon'] as String?,
-      players: j['players'] as String?,
-      source: j['source'] as String?,
+      icon: _guard('icon', () => j['icon'] as String?),
+      players: _guard('players', () => j['players'] as String?),
+      source: _guard('source', () => j['source'] as String?),
       collections: collections,
       symbols: symbols,
-      zones: [for (var i = 0; i < zones.length; i++) ZoneSpec.fromJson(zones[i], 'zones[$i]')],
-      tabs: [for (var i = 0; i < tabs.length; i++) TabSpec.fromJson(tabs[i], 'tabs[$i]')],
+      zones: [
+        for (var i = 0; i < zones.length; i++) _guard('zones[$i]', () => ZoneSpec.fromJson(zones[i], 'zones[$i]')),
+      ],
+      tabs: [for (var i = 0; i < tabs.length; i++) _guard('tabs[$i]', () => TabSpec.fromJson(tabs[i], 'tabs[$i]'))],
     );
   }
 }

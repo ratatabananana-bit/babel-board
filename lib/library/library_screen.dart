@@ -208,6 +208,8 @@ Future<void> installFromFile(BuildContext context, LibraryController lib) async 
     await lib.installFromFile();
   } on InstallException catch (e) {
     if (context.mounted) _snack(context, e.message);
+  } catch (e) {
+    if (context.mounted) _snack(context, 'Could not install: $e');
   }
 }
 
@@ -245,6 +247,8 @@ Future<void> _showLinkDialog(BuildContext context, LibraryController lib) async 
     await lib.installLink(url);
   } on InstallException catch (e) {
     if (context.mounted) _snack(context, e.message);
+  } catch (e) {
+    if (context.mounted) _snack(context, 'Could not install: $e');
   }
 }
 
@@ -485,6 +489,8 @@ class _RepoRow extends StatelessWidget {
       if (context.mounted) _snack(context, e.message);
     } on RepoException catch (e) {
       if (context.mounted) _snack(context, e.message);
+    } catch (e) {
+      if (context.mounted) _snack(context, 'Could not install: $e');
     }
   }
 }

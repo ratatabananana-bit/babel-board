@@ -53,10 +53,7 @@ class LibraryController extends ChangeNotifier {
   /// What the Library lists: the store's modules, or (web preview, tests) the loaded games.
   List<InstalledModule> get shown => store != null
       ? installed
-      : [
-          for (final g in app.games)
-            InstalledModule(id: g.id, name: g.title, version: g.module.manifest.version),
-        ];
+      : [for (final g in app.games) InstalledModule(id: g.id, name: g.title, version: g.module.manifest.version)];
 
   InstalledModule? installedById(String id) => installed.where((i) => i.id == id).firstOrNull;
 
@@ -178,6 +175,8 @@ class LibraryController extends ChangeNotifier {
         await installBytes(bytes, open: true);
       } on InstallException catch (e) {
         messages.add(e.message);
+      } catch (e) {
+        messages.add('Could not install: $e');
       }
     });
   }

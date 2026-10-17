@@ -95,6 +95,10 @@ Future<LoadedModule> loadModule(ModuleFiles files) async {
             readIssues.add(ValidationIssue('collections.$name', '"$src" should contain {"items": [...]}'));
             continue;
           }
+          if (items.any((i) => i is! Map)) {
+            readIssues.add(ValidationIssue('collections.$name', 'Every item in "$src" should be an object'));
+            continue;
+          }
           lists[name] = [for (final i in items) (i as Map).cast<String, dynamic>()];
         } on ModuleLoadException catch (e) {
           readIssues.addAll(e.issues);
@@ -102,6 +106,10 @@ Future<LoadedModule> loadModule(ModuleFiles files) async {
           readIssues.add(ValidationIssue('collections.$name', 'Could not read "$src": $e'));
         }
       } else if (src is List) {
+        if (src.any((i) => i is! Map)) {
+          readIssues.add(ValidationIssue('collections.$name', 'Every item should be an object'));
+          continue;
+        }
         lists[name] = [for (final i in src) (i as Map).cast<String, dynamic>()];
       }
     }

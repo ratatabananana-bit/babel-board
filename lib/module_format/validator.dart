@@ -68,6 +68,9 @@ List<ValidationIssue> validateModule(
   } on FormatException catch (e) {
     fatal('module.json', e.message);
     return issues;
+  } on TypeError {
+    fatal('module.json', 'A value has the wrong type (e.g. a number where text belongs)');
+    return issues;
   }
 
   if (m.format > kModuleFormat) {

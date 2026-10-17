@@ -43,10 +43,14 @@ Uint8List miniZip({String id = 'mini', String name = 'Mini Game', String version
 final indexUrl = Uri.parse('https://repo.example/games/index.json');
 
 class FakeSources extends InstallSources {
-  FakeSources({this.picked});
+  FakeSources({this.picked, this.pickError});
   Uint8List? picked;
+  Object? pickError;
   @override
-  Future<Uint8List?> pickModuleFile() async => picked;
+  Future<Uint8List?> pickModuleFile() async {
+    if (pickError != null) throw pickError!;
+    return picked;
+  }
 }
 
 late Directory tempRoot;
@@ -244,6 +248,13 @@ void main() {
     await settleAsync(tester);
     expect(find.text('No games yet'), findsOneWidget);
     expect(library(tester).installed, isEmpty);
+  });
+
+  testWidgets('review: an unexpected error while installing is shown, not swallowed', (tester) async {
+    await pumpLibrary(tester, sources: FakeSources(pickError: StateError('picker exploded')));
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Install from file'));
+    await settleAsync(tester);
+    expect(find.textContaining('picker exploded'), findsOneWidget);
   });
 
   testWidgets('Install from file installs the picked module and opens it', (tester) async {

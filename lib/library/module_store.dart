@@ -31,6 +31,7 @@ class InstalledModule {
   final String id;
   final String name;
   final String version;
+
   /// The installed folder; null for a game that wasn't installed through a store (web preview).
   final Directory? dir;
   final bool broken;
@@ -122,6 +123,12 @@ class ModuleStore {
       if (old.existsSync()) await old.delete(recursive: true);
       await onInstalled?.call(id);
       return InstalledModule(id: id, name: loaded.manifest.name, version: loaded.manifest.version, dir: target);
+    } on InstallException {
+      rethrow;
+    } catch (e) {
+      // Anything else (a broken zip, a value of the wrong type, a disk error) still reaches
+      // the person as a message, never as a silent failure.
+      throw InstallException('This module file is broken and was not installed ($e)');
     } finally {
       if (staging.existsSync()) await staging.delete(recursive: true);
       if (stagingRoot.existsSync() && stagingRoot.listSync().isEmpty) await stagingRoot.delete();
