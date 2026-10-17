@@ -40,8 +40,16 @@ class AppState extends ChangeNotifier {
   static const lastGameKey = 'app.lastGame';
 
   final SharedPreferences _prefs;
-  final List<OpenGame> games;
+  List<OpenGame> games;
   String? _activeId;
+
+  /// Replaces the installed games (after an install, update or uninstall). The open game
+  /// stays open when its id is still present, now backed by the new module.
+  void setGames(List<OpenGame> next) {
+    games = List.unmodifiable(next);
+    if (_activeId != null && games.every((g) => g.id != _activeId)) _activeId = null;
+    notifyListeners();
+  }
 
   /// Null while the Library (or first-launch picker) is showing.
   OpenGame? get active => games.where((g) => g.id == _activeId).firstOrNull;

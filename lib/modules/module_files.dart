@@ -36,7 +36,9 @@ class DirectoryModuleFiles implements ModuleFiles {
   Future<String> readText(String path) async {
     final f = _file(path);
     if (f == null) throw FileSystemException('Refused path', path);
-    return f.readAsString();
+    // Synchronous: module files are small, and an async read's open handle would stall under
+    // the test binding's fake async (and block renames on Windows).
+    return f.readAsStringSync();
   }
 
   @override

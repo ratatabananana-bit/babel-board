@@ -41,9 +41,9 @@ void main() {
     });
   });
 
-  testWidgets('first launch shows the picker; picking a game opens it and is remembered', (tester) async {
+  testWidgets('first launch shows the Library; picking a game opens it and is remembered', (tester) async {
     await pumpGames(tester);
-    expect(find.text('Which game?'), findsOneWidget);
+    expect(find.text('Library'), findsOneWidget);
     await tester.tap(find.text('Magical Athlete'));
     await tester.pumpAndSettle();
     expect(navLabel('Racers'), findsOneWidget);

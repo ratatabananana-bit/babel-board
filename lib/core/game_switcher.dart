@@ -163,32 +163,3 @@ class GameList extends StatelessWidget {
     );
   }
 }
-
-/// Shown while no game is open. Becomes the Library in a later task.
-class GamePickerScreen extends StatelessWidget {
-  const GamePickerScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final app = context.watch<AppState>();
-    return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
-          children: [
-            const Text('Which game?', style: T.display),
-            const SizedBox(height: 8),
-            Text(
-              app.games.isEmpty
-                  ? 'No games yet.'
-                  : 'The app opens straight into the last game you played. Switch any time from the top bar.',
-              style: T.body.copyWith(color: context.pal.text2),
-            ),
-            const SizedBox(height: 24),
-            const GameList(),
-          ],
-        ),
-      ),
-    );
-  }
-}

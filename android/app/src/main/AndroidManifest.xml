@@ -24,6 +24,26 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Open a module (.zip or .json) from a file manager or browser download. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="content" android:mimeType="application/zip"/>
+                <data android:scheme="content" android:mimeType="application/json"/>
+                <data android:scheme="content" android:mimeType="application/octet-stream"/>
+                <data android:scheme="file" android:mimeType="application/zip"/>
+                <data android:scheme="file" android:mimeType="application/json"/>
+                <data android:scheme="file" android:mimeType="application/octet-stream"/>
+            </intent-filter>
+            <!-- Share a module file to the app (e.g. from an AI chat's download). -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/zip"/>
+                <data android:mimeType="application/json"/>
+                <data android:mimeType="application/octet-stream"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

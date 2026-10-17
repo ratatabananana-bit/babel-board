@@ -79,7 +79,7 @@ void main() {
     expect(find.byType(NavigationBar), findsNothing);
   });
 
-  testWidgets('no last game opens the picker; picking a game remembers it', (tester) async {
+  testWidgets('no last game opens the Library; picking a game remembers it', (tester) async {
     await pumpMini(tester, prefs: {});
     expect(find.byType(NavigationBar), findsNothing);
     await tester.tap(find.text('Mini Game'));

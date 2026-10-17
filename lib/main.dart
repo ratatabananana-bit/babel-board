@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,11 +12,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'blocks/icons.dart';
 import 'blocks/registry.dart';
 import 'core/app_state.dart';
-import 'core/game_switcher.dart';
 import 'core/migrate.dart';
 import 'core/settings.dart';
 import 'core/theme.dart';
+import 'library/install_sources.dart';
+import 'library/library_controller.dart';
+import 'library/library_screen.dart';
+import 'library/module_store.dart';
+import 'library/repository.dart';
 import 'modules/loaded_module.dart';
+import 'modules/module_files.dart';
 import 'modules/module_state.dart';
 
 void main() {
@@ -20,18 +29,75 @@ void main() {
   runApp(const HelperApp());
 }
 
+/// Everything the app needs before its first frame.
 class AppData {
-  const AppData(this.prefs, this.modules);
+  const AppData(
+    this.prefs,
+    this.modules, {
+    this.installed = const [],
+    this.store,
+    this.repoConfigStore,
+    this.repoClientFactory,
+    this.installSources,
+  });
+
   final SharedPreferences prefs;
   final List<LoadedModule> modules;
+
+  /// What the store listed at startup, including broken modules.
+  final List<InstalledModule> installed;
+
+  /// Null on the web preview: nothing can be installed there.
+  final ModuleStore? store;
+  final RepoConfigStore? repoConfigStore;
+  final RepoClient Function(RepoConfig config)? repoClientFactory;
+  final InstallSources? installSources;
+
+  /// Loads every installed module from [store]; broken ones are left out (the Library
+  /// still lists them from the store).
+  static Future<AppData> fromStore(
+    SharedPreferences prefs,
+    ModuleStore store, {
+    RepoConfigStore? repoConfigStore,
+    RepoClient Function(RepoConfig config)? repoClientFactory,
+    InstallSources? installSources,
+  }) async {
+    final modules = <LoadedModule>[];
+    final installed = await store.list();
+    for (final i in installed) {
+      if (i.broken) continue;
+      try {
+        modules.add(await loadModule(DirectoryModuleFiles(i.dir)));
+      } catch (_) {
+        // Listed as broken by the Library.
+      }
+    }
+    return AppData(
+      prefs,
+      modules,
+      installed: installed,
+      store: store,
+      repoConfigStore: repoConfigStore,
+      repoClientFactory: repoClientFactory,
+      installSources: installSources,
+    );
+  }
 }
 
-/// Startup data. Installed modules come from the module store (a later task); until then
-/// the app starts with no games.
+/// Startup on a phone: the module store lives in the app's support folder.
 Future<AppData> loadAppData() async {
   final prefs = await SharedPreferences.getInstance();
   await migrateLegacyPrefs(prefs);
-  return AppData(prefs, const []);
+  if (kIsWeb) return AppData(prefs, const []);
+  final support = await getApplicationSupportDirectory();
+  final store = ModuleStore(Directory('${support.path}${Platform.pathSeparator}modules'));
+  const secure = FlutterSecureStorage();
+  final repoConfigStore = RepoConfigStore(
+    prefs,
+    readSecret: (k) => secure.read(key: k),
+    writeSecret: (k, v) => v == null ? secure.delete(key: k) : secure.write(key: k, value: v),
+  );
+  return AppData.fromStore(prefs, store, repoConfigStore: repoConfigStore);
 }
 
 class HelperApp extends StatefulWidget {
@@ -45,11 +111,15 @@ class HelperApp extends StatefulWidget {
 
 class _HelperAppState extends State<HelperApp> {
   late final Future<AppData> _data = widget.loader();
+  final _messenger = GlobalKey<ScaffoldMessengerState>();
   AppState? _app;
+  LibraryController? _library;
+  List<String> _shortcutIds = const [];
 
-  static Widget _material({required Widget home, TransitionBuilder? builder}) => MaterialApp(
+  Widget _material({required Widget home, TransitionBuilder? builder}) => MaterialApp(
     title: 'Table Helper',
     debugShowCheckedModeBanner: false,
+    scaffoldMessengerKey: _messenger,
     theme: buildTheme(Palette.light, Brightness.light),
     darkTheme: buildTheme(Palette.dark, Brightness.dark),
     builder: builder,
@@ -59,6 +129,9 @@ class _HelperAppState extends State<HelperApp> {
   /// Long-press the app icon to jump straight into a game (Android only).
   Future<void> _setUpShortcuts(AppState app) async {
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    final ids = [for (final g in app.games) g.id];
+    if (listEquals(ids, _shortcutIds)) return;
+    _shortcutIds = ids;
     const actions = QuickActions();
     try {
       await actions.initialize(app.open);
@@ -68,6 +141,33 @@ class _HelperAppState extends State<HelperApp> {
     } on PlatformException {
       // Launcher doesn't support shortcuts.
     }
+  }
+
+  void _start(AppData d) {
+    final app = AppState(d.prefs, [for (final m in d.modules) OpenGame.load(d.prefs, m)]);
+    final library = LibraryController(
+      prefs: d.prefs,
+      app: app,
+      store: d.store,
+      repoConfigStore: d.repoConfigStore,
+      repoClientFactory: d.repoClientFactory,
+      sources: d.installSources,
+      installed: d.installed,
+    );
+    _app = app;
+    _library = library;
+    app.addListener(() => _setUpShortcuts(app));
+    _setUpShortcuts(app);
+    library.messages.stream.listen((m) => _messenger.currentState?.showSnackBar(SnackBar(content: Text(m))));
+    // The games and installed list are already loaded; init() picks up the repository.
+    library.init();
+    library.listenForSharedFiles();
+  }
+
+  @override
+  void dispose() {
+    _library?.dispose();
+    super.dispose();
   }
 
   @override
@@ -93,15 +193,13 @@ class _HelperAppState extends State<HelperApp> {
             home: const Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
-        if (_app == null) {
-          _app = AppState(d.prefs, [for (final m in d.modules) OpenGame.load(d.prefs, m)]);
-          _setUpShortcuts(_app!);
-        }
+        if (_app == null) _start(d);
         // Shared providers sit above MaterialApp; the active module's scope wraps the
         // Navigator (via builder) so its sheets and dialogs can read it too.
         return MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: _app!),
+            ChangeNotifierProvider.value(value: _library!),
             ChangeNotifierProvider(create: (_) => Settings(d.prefs)),
           ],
           child: Consumer<AppState>(
@@ -126,7 +224,7 @@ class _Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final game = context.watch<AppState>().active;
-    if (game == null) return const GamePickerScreen();
+    if (game == null) return const LibraryScreen();
     return GameShell(key: ValueKey(game.id), game: game);
   }
 }
@@ -159,6 +257,7 @@ class _GameShellState extends State<GameShell> {
   Widget build(BuildContext context) {
     final p = context.pal;
     final tabs = widget.game.module.manifest.tabs;
+    final tab = _tab.clamp(0, tabs.length - 1);
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -190,7 +289,7 @@ class _GameShellState extends State<GameShell> {
             backgroundColor: Color.lerp(p.bg, p.surface, 0.45),
             indicatorColor: p.surface2,
             labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            selectedIndex: _tab,
+            selectedIndex: tab,
             onDestinationSelected: _goTo,
             destinations: [
               for (final t in tabs)
