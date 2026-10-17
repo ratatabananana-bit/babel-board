@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vale_helper/blocks/flow/flow_state.dart';
 import 'package:vale_helper/blocks/item_view.dart';
+import 'package:vale_helper/modules/loaded_module.dart';
 import 'package:vale_helper/modules/module_state.dart';
 
 import '../helpers.dart';
@@ -128,6 +129,40 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('COST 4'), findsOneWidget);
     expect(find.text('COST 0'), findsNothing);
+  });
+
+  testWidgets('on a tablet the gallery shows more than 4 cards per row', (tester) async {
+    await pumpGames(tester, prefs: valePrefs());
+    // A 10-inch tablet in portrait: 800 x 1280 logical pixels.
+    tester.view.physicalSize = const Size(1600, 2560);
+    tester.view.devicePixelRatio = 2;
+    await tester.pumpAndSettle();
+    int firstRow() =>
+        tester.widgetList<AnimatedPositioned>(find.byType(AnimatedPositioned)).where((p) => p.top == 0).length;
+    expect(firstRow(), 8);
+    await tester.tap(find.byKey(const Key('density2')));
+    await tester.pumpAndSettle();
+    expect(firstRow(), 4);
+  });
+
+  testWidgets('flowing layout: the cost rail scrolls to that cost and highlights its cards', (tester) async {
+    await pumpGames(tester, prefs: {...valePrefs(), 'settings.flowingSections': true});
+    await tester.tap(find.bySemanticsLabel('Family Fire'));
+    await tester.pumpAndSettle();
+    expect(find.text('COST 4'), findsNothing, reason: 'flowing: no group headers');
+    final m = scoped<LoadedModule>(tester);
+    final fire = m.items('cards').where((c) => c.data['family'] == 'fire').toList();
+    final cost4 = fire.where((c) => c.data['cost'] == 4).map((c) => c.id).toList();
+    expect(cost4, isNotEmpty);
+    final scroll = tester.widget<CustomScrollView>(find.byType(CustomScrollView)).controller!;
+    expect(scroll.offset, 0);
+    await tester.tap(find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text('4')));
+    await tester.pumpAndSettle();
+    expect(scroll.offset, greaterThan(0), reason: 'scrolled down to the cost-4 row');
+    for (final id in cost4) {
+      expect(find.byKey(Key('hl-$id'), skipOffstage: false), findsOneWidget, reason: id);
+    }
+    expect(find.byKey(Key('hl-${fire.first.id}'), skipOffstage: false), findsNothing);
   });
 
   testWidgets('density toggle sets cards per row', (tester) async {

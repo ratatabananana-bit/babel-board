@@ -107,6 +107,58 @@ void main() {
     expect(find.textContaining('Nothing in Lane B yet'), findsOneWidget);
   });
 
+  testWidgets('each lane has a one-tap Clear, and Undo brings its cards back', (tester) async {
+    await pumpModules(tester, tab: 'Board', prefs: prefsWith({'imp': 'a', 'nessie': 'a', 'undine': 'b'}));
+    final zones = scoped<ZoneState>(tester);
+    expect(find.byKey(const Key('clear-a')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('clear-a')));
+    await tester.pump();
+    expect(zones.count('a'), 0);
+    expect(zones.zoneOf('undine'), 'b');
+    expect(find.text('Cleared Lane A'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 500)); // let the snackbar slide in
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(zones.idsIn('a'), ['imp', 'nessie']);
+    // Snackbars with an action must still go away by themselves.
+    await tester.tap(find.byKey(const Key('clear-b')));
+    for (var i = 0; i < 8; i++) {
+      await tester.pump(const Duration(seconds: 1)); // slide in, start the 4 s timer, slide out
+    }
+    expect(find.text('Cleared Lane B'), findsNothing);
+    expect(find.byKey(const Key('clear-b')), findsNothing, reason: 'no Clear on an empty lane');
+  });
+
+  testWidgets('a one-lane board has a Clear button in its header instead of the ⋮ menu', (tester) async {
+    await pumpModules(
+      tester,
+      tab: 'Board',
+      prefs: prefsWith({'nessie': 'b'}),
+      edit: (m) => (m['tabs'] as List)[1]['block']['children'] = [
+        {
+          'type': 'zone',
+          'zone': 'b',
+          'list': {'type': 'cardList', 'collection': 'items', 'style': 'rows', 'removable': true},
+        },
+      ],
+    );
+    expect(find.byTooltip('More'), findsNothing);
+    await tester.tap(find.widgetWithText(TextButton, 'Clear'));
+    await tester.pump();
+    expect(scoped<ZoneState>(tester).total, 0);
+    await tester.pump(const Duration(milliseconds: 500)); // let the snackbar slide in
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(scoped<ZoneState>(tester).zoneOf('nessie'), 'b');
+  });
+
+  testWidgets('the header ⋮ menu sits at the top right', (tester) async {
+    await pumpModules(tester, tab: 'Board', prefs: prefsWith({'imp': 'a'}));
+    final screenWidth = tester.view.physicalSize.width / tester.view.devicePixelRatio;
+    final menuRight = tester.getTopRight(find.byTooltip('More')).dx;
+    expect(menuRight, greaterThan(screenWidth - 12), reason: 'menu right edge $menuRight of $screenWidth');
+  });
+
   testWidgets('menu clears one lane directly and everything behind a confirm', (tester) async {
     await pumpModules(tester, tab: 'Board', prefs: prefsWith({'imp': 'a', 'nessie': 'b'}));
     final zones = scoped<ZoneState>(tester);

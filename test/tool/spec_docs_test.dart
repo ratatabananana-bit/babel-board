@@ -50,7 +50,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(LibraryScreen), findsOneWidget);
 
-    await tester.tap(find.byTooltip('More'));
+    await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Copy instructions for AI'));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));

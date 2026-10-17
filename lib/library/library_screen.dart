@@ -11,6 +11,7 @@ import '../module_format/validator.dart' show compareVersions;
 import 'library_controller.dart';
 import 'module_store.dart';
 import 'repository.dart';
+import 'settings_screen.dart';
 
 /// The installed games, like a console's home screen, plus what the repository offers.
 class LibraryScreen extends StatelessWidget {
@@ -33,7 +34,12 @@ class LibraryScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     const Expanded(child: Text('Library', style: T.title)),
-                    _Menu(lib: lib),
+                    IconButton(
+                      tooltip: 'Settings',
+                      icon: Icon(Icons.settings_rounded, color: p.text2),
+                      onPressed: () =>
+                          Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen())),
+                    ),
                   ],
                 ),
               ),
@@ -162,40 +168,6 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-class _Menu extends StatelessWidget {
-  const _Menu({required this.lib});
-  final LibraryController lib;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.pal;
-    return PopupMenuButton<String>(
-      tooltip: 'More',
-      icon: Icon(Icons.more_vert_rounded, color: p.text2),
-      onSelected: (v) {
-        switch (v) {
-          case 'repo':
-            showRepoDialog(context, lib);
-          case 'file':
-            installFromFile(context, lib);
-          case 'link':
-            _showLinkDialog(context, lib);
-          case 'ai':
-            copyAiInstructions(context);
-        }
-      },
-      itemBuilder: (_) => [
-        if (lib.canInstall) ...[
-          PopupMenuItem(value: 'repo', child: Text(lib.repo == null ? 'Add repository' : 'Edit repository')),
-          const PopupMenuItem(value: 'file', child: Text('Install from file')),
-          const PopupMenuItem(value: 'link', child: Text('Install from link')),
-        ],
-        const PopupMenuItem(value: 'ai', child: Text('Copy instructions for AI')),
-      ],
-    );
-  }
-}
-
 /// Copies the compact module spec, to paste into Claude or ChatGPT on the phone.
 Future<void> copyAiInstructions(BuildContext context) async {
   final text = await rootBundle.loadString('modules/AI_INSTRUCTIONS.md');
@@ -217,7 +189,7 @@ void _snack(BuildContext context, String text) {
   ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(text)));
 }
 
-Future<void> _showLinkDialog(BuildContext context, LibraryController lib) async {
+Future<void> showLinkDialog(BuildContext context, LibraryController lib) async {
   final ctl = TextEditingController();
   final url = await showDialog<Uri>(
     context: context,

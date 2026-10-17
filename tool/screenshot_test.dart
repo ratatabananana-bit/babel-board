@@ -190,6 +190,49 @@ void main() {
     await _shot(tester, '22_game_switcher');
   });
 
+  testWidgets('flowing family grid, settings and tablet screenshots', (tester) async {
+    await _pumpApp(tester, Brightness.dark);
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Family Fire'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('layoutToggle')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text('2')));
+    await _shot(tester, '25_cards_fire_flowing_cost2');
+
+    // Grouped again, with cost 3 picked on the rail: its section is highlighted.
+    await tester.tap(find.byKey(const Key('layoutToggle')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text('3')));
+    await _shot(tester, '26_cards_fire_grouped_cost3_highlight');
+
+    // A 10-inch tablet in portrait.
+    tester.view.physicalSize = const Size(1600, 2560);
+    tester.view.devicePixelRatio = 2;
+    await tester.tap(find.bySemanticsLabel('Family Fire'));
+    await _shot(tester, '27_tablet_cards');
+  });
+
+  testWidgets('settings screenshot', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 2.75;
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    // ignore: invalid_use_of_visible_for_testing_member
+    SharedPreferences.setMockInitialValues({});
+    final data = await tester.runAsync(() async => AppData(await SharedPreferences.getInstance(), const []));
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: _shotKey,
+        child: HelperApp(key: UniqueKey(), loader: () async => data!),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Settings'));
+    await _shot(tester, '28_settings');
+  });
+
   testWidgets('library screenshots', (tester) async {
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 2.75;

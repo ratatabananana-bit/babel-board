@@ -118,15 +118,17 @@ class _HelperAppState extends State<HelperApp> {
   LibraryController? _library;
   List<String> _shortcutIds = const [];
 
-  Widget _material({required Widget home, TransitionBuilder? builder}) => MaterialApp(
-    title: 'Table Helper',
-    debugShowCheckedModeBanner: false,
-    scaffoldMessengerKey: _messenger,
-    theme: buildTheme(Palette.light, Brightness.light),
-    darkTheme: buildTheme(Palette.dark, Brightness.dark),
-    builder: builder,
-    home: home,
-  );
+  Widget _material({required Widget home, TransitionBuilder? builder, ThemeMode themeMode = ThemeMode.system}) =>
+      MaterialApp(
+        title: 'Table Helper',
+        debugShowCheckedModeBanner: false,
+        scaffoldMessengerKey: _messenger,
+        theme: buildTheme(Palette.light, Brightness.light),
+        darkTheme: buildTheme(Palette.dark, Brightness.dark),
+        themeMode: themeMode,
+        builder: builder,
+        home: home,
+      );
 
   /// Long-press the app icon to jump straight into a game (Android only).
   Future<void> _setUpShortcuts(AppState app) async {
@@ -204,8 +206,9 @@ class _HelperAppState extends State<HelperApp> {
             ChangeNotifierProvider.value(value: _library!),
             ChangeNotifierProvider(create: (_) => Settings(d.prefs)),
           ],
-          child: Consumer<AppState>(
-            builder: (context, app, _) => _material(
+          child: Consumer2<AppState, Settings>(
+            builder: (context, app, settings, _) => _material(
+              themeMode: settings.themeMode,
               builder: (context, child) {
                 final g = app.active;
                 if (g == null) return child!;

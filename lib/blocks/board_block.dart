@@ -199,6 +199,64 @@ List<Item> _itemsIn(LoadedModule module, ZoneState zones, LaneSpec lane) => [
       if (lane.list.filter?.matches(it.data, lane.zone.id) ?? true) it,
 ];
 
+/// Empties [zone] at once and shows a snackbar whose Undo puts the cards back, in order.
+void clearZoneWithUndo(BuildContext context, ZoneSpec zone) {
+  final zones = context.read<ZoneState>();
+  final removed = zones.idsIn(zone.id);
+  if (removed.isEmpty) return;
+  zones.clearZone(zone.id);
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  messenger?.hideCurrentSnackBar();
+  messenger?.showSnackBar(
+    SnackBar(
+      content: Text('Cleared ${zone.label}'),
+      persist: false,
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () {
+          for (final id in removed) {
+            // Leave alone a card that was put somewhere else in the meantime.
+            if (zones.zoneOf(id) == null) zones.put(id, zone.id);
+          }
+        },
+      ),
+    ),
+  );
+}
+
+/// Small "Clear" pill in a lane header.
+class _ClearPill extends StatelessWidget {
+  const _ClearPill({super.key, required this.color, required this.onTap});
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Clear',
+      excludeSemantics: true,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          height: 28,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: color.withValues(alpha: 0.6), width: 1.5),
+          ),
+          child: Text(
+            'Clear',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _Header extends StatelessWidget {
   const _Header({super.key, required this.board, required this.total});
   final BoardSpec board;
@@ -214,41 +272,63 @@ class _Header extends StatelessWidget {
         children: [
           const GameSwitcherButton(),
           const SizedBox(width: 10),
-          Flexible(
-            child: Text(board.title, style: T.title, overflow: TextOverflow.ellipsis),
-          ),
-          const SizedBox(width: 10),
+          // Title and count take their natural width (shrinking only when space runs out);
+          // the rest of the row stays empty so the menu sits at the far right.
           Expanded(
-            child: Text(
-              fillTemplate(board.countLabel, {'count': total}),
-              style: T.body.copyWith(color: p.text2),
-              overflow: TextOverflow.ellipsis,
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(board.title, style: T.title, overflow: TextOverflow.ellipsis),
+                ),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    fillTemplate(board.countLabel, {'count': total}),
+                    style: T.body.copyWith(color: p.text2),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
-          PopupMenuButton<String>(
-            tooltip: 'More',
-            icon: Icon(Icons.more_vert_rounded, color: p.text2),
-            onSelected: (v) async {
-              if (v == '*') {
-                final labels = board.lanes.map((l) => l.zone.label).join(', ');
-                final ok = await confirm(context, 'Clear everything?', 'Removes every card from $labels.', 'Clear all');
-                if (ok) {
-                  for (final l in board.lanes) {
-                    zones.clearZone(l.zone.id);
-                  }
-                }
-              } else {
-                zones.clearZone(v);
-              }
-            },
-            itemBuilder: (_) => [
-              for (final l in board.lanes) PopupMenuItem(value: l.zone.id, child: Text('Clear ${l.zone.label}')),
-              PopupMenuItem(
-                value: '*',
-                child: Text('Clear everything', style: TextStyle(color: p.danger)),
+          // One lane: a plain Clear button, as on the old This race screen.
+          if (board.lanes.length == 1) ...[
+            if (total > 0)
+              TextButton(
+                onPressed: () => clearZoneWithUndo(context, board.lanes.single.zone),
+                child: const Text('Clear'),
               ),
-            ],
-          ),
+            const SizedBox(width: 4),
+          ] else
+            PopupMenuButton<String>(
+              tooltip: 'More',
+              icon: Icon(Icons.more_vert_rounded, color: p.text2),
+              onSelected: (v) async {
+                if (v == '*') {
+                  final labels = board.lanes.map((l) => l.zone.label).join(', ');
+                  final ok = await confirm(
+                    context,
+                    'Clear everything?',
+                    'Removes every card from $labels.',
+                    'Clear all',
+                  );
+                  if (ok) {
+                    for (final l in board.lanes) {
+                      zones.clearZone(l.zone.id);
+                    }
+                  }
+                } else {
+                  zones.clearZone(v);
+                }
+              },
+              itemBuilder: (_) => [
+                for (final l in board.lanes) PopupMenuItem(value: l.zone.id, child: Text('Clear ${l.zone.label}')),
+                PopupMenuItem(
+                  value: '*',
+                  child: Text('Clear everything', style: TextStyle(color: p.danger)),
+                ),
+              ],
+            ),
         ],
       ),
     );
@@ -477,6 +557,11 @@ class _Lane extends StatelessWidget {
                       style: T.caption.copyWith(color: target ? zc : p.muted),
                     ),
                   ),
+                  // One tap clears the lane; the snackbar offers Undo.
+                  if (items.isNotEmpty && !(drag?.active ?? false)) ...[
+                    const SizedBox(width: 6),
+                    _ClearPill(key: Key('clear-${zone.id}'), color: zc, onTap: () => clearZoneWithUndo(context, zone)),
+                  ],
                   Icon(open ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: p.muted),
                 ],
               ),

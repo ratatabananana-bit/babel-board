@@ -147,11 +147,22 @@ class _GalleryBlockState extends State<GalleryBlock> {
 
   void _trackActiveSection() {
     if (_sectionOffsets.isEmpty || _jumping) return;
-    Object? active;
-    for (final e in _sectionOffsets.entries) {
-      if (e.value <= _scroll.offset + 4) active = e.key;
+    // The section starting closest above the top edge. In the flowing layout several can
+    // start in the same row: keep the current one if it is among them, else the first.
+    double? best;
+    for (final y in _sectionOffsets.values) {
+      if (y <= _scroll.offset + 4 && (best == null || y > best)) best = y;
     }
-    active ??= _sectionOffsets.keys.first;
+    final Object? active;
+    if (best == null) {
+      active = _sectionOffsets.keys.first;
+    } else {
+      final tied = [
+        for (final e in _sectionOffsets.entries)
+          if (e.value == best) e.key,
+      ];
+      active = tied.contains(_activeSection) ? _activeSection : tied.first;
+    }
     if (active != _activeSection) setState(() => _activeSection = active);
   }
 
@@ -172,7 +183,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
     final module = context.read<LoadedModule>();
     final spec = module.manifest.collections[_g.collection];
     if (spec == null) return Center(child: Text('Unknown collection "${_g.collection}"', style: T.body));
-    final columns = context.watch<Settings>().columns;
+    final columns = Settings.columnsFor(context.watch<Settings>().columns, MediaQuery.sizeOf(context).width);
     final shown = _shown(module.items(_g.collection));
     final sections = _g.sections;
     final sectioned = sections != null && (!sections.onlyWhenFiltered || _filtered);
@@ -219,7 +230,98 @@ class _GalleryBlockState extends State<GalleryBlock> {
                 '${_g.filters[i].options.where((o) => o.value == _selected[i]).firstOrNull?.label ?? _g.filters[i].allLabel}'
                 ' · ${shown.length} ${_g.noun}',
             onPick: (v) => _pick(i, v),
+            trailing: i == 0 && sectioned ? _LayoutToggle(onChanged: _relayout) : null,
           ),
+      ],
+    );
+  }
+
+  /// After switching layouts the offsets change; start again at the top of the first section.
+  void _relayout() {
+    setState(() => _activeSection = null);
+    if (_scroll.hasClients) _scroll.jumpTo(0);
+  }
+
+  /// One continuous grid in section order. A bar with a small badge marks where each
+  /// section starts; the active section's cards sit on soft panels. Offsets are the start
+  /// rows, so the rail scrolls to the row where a section begins.
+  Widget _flowing(
+    BuildContext context,
+    CollectionSpec spec,
+    List<Item> shown,
+    SectionsSpec sections,
+    List<Object?> keys,
+    Object? activeKey,
+    int columns,
+    double gridW,
+    double viewH,
+    double extra,
+    Widget Function(List<Item>) grid,
+  ) {
+    final p = context.pal;
+    const top = 16.0; // room for the badges above the first row
+    final keyOf = {for (final it in shown) it.id: resolvePath(it.data, sections.path).firstOrNull};
+    final ordered = [for (final k in keys) ...shown.where((it) => keyOf[it.id] == k)];
+    final tileW = ReflowGrid.tileWidth(gridW, columns);
+    final tileH = tileW / spec.cardAspect + extra;
+    double leftOf(int i) => (i % columns) * (tileW + ReflowGrid.spacing);
+    double topOf(int i) => (i ~/ columns) * (tileH + ReflowGrid.runSpacing);
+
+    final overlays = <Widget>[];
+    final panels = <Widget>[];
+    Object? previous = const Object();
+    for (var i = 0; i < ordered.length; i++) {
+      final k = keyOf[ordered[i].id];
+      if (k != previous) {
+        previous = k;
+        _sectionOffsets[k] = topOf(i);
+        final x = leftOf(i) - ReflowGrid.spacing / 2;
+        overlays.add(
+          AnimatedPositioned(
+            key: Key('sep-$k'),
+            duration: ReflowGrid.duration,
+            curve: ReflowGrid.curve,
+            left: x - 12,
+            top: topOf(i) - 14,
+            width: 24,
+            height: tileH + 14,
+            child: _FlowSeparator(label: '$k', active: k == activeKey),
+          ),
+        );
+      }
+      if (k == activeKey) {
+        panels.add(
+          AnimatedPositioned(
+            key: Key('hl-${ordered[i].id}'),
+            duration: ReflowGrid.duration,
+            curve: ReflowGrid.curve,
+            left: leftOf(i) - 4,
+            top: topOf(i) - 4,
+            width: tileW + 8,
+            height: tileH + 8,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: p.surface2.withValues(alpha: 0.85),
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    final totalH = ReflowGrid.heightFor(ordered.length, gridW, columns, aspect: spec.cardAspect, extra: extra);
+    final lastStart = _sectionOffsets[keys.last] ?? 0;
+    final tail = (viewH - (totalH - lastStart) - _pad.bottom - top).clamp(0.0, double.infinity);
+    return CustomScrollView(
+      controller: _scroll,
+      slivers: [
+        SliverPadding(
+          padding: _pad.copyWith(top: top),
+          sliver: SliverToBoxAdapter(
+            child: Stack(clipBehavior: Clip.none, children: [...panels, grid(ordered), ...overlays]),
+          ),
+        ),
+        SliverToBoxAdapter(child: SizedBox(height: tail)),
       ],
     );
   }
@@ -264,6 +366,10 @@ class _GalleryBlockState extends State<GalleryBlock> {
     if (sections == null) {
       return ListView(controller: _scroll, padding: _pad.copyWith(top: 8, right: 16), children: [grid(shown)]);
     }
+    final activeKey = keys.contains(_activeSection) ? _activeSection : keys.first;
+    if (context.read<Settings>().flowingSections) {
+      return _flowing(context, spec, shown, sections, keys, activeKey, columns, gridW, viewH, extra, grid);
+    }
     // Grouped with sticky headers; offsets are computed so the rail can jump.
     var y = 0.0;
     final slivers = <Widget>[];
@@ -279,12 +385,26 @@ class _GalleryBlockState extends State<GalleryBlock> {
           slivers: [
             SliverPersistentHeader(
               pinned: true,
-              delegate: _SectionHeader(fillTemplate(sections.label, {'value': k}), p),
+              delegate: _SectionHeader(fillTemplate(sections.label, {'value': k}), p, active: k == activeKey),
             ),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: _sectionGap),
-                child: grid(items),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    // The selected section sits on a soft panel; it is drawn outside the grid's
+                    // box, so section heights (and the rail's jump offsets) don't change.
+                    Positioned(
+                      left: -6,
+                      right: -6,
+                      top: -4,
+                      bottom: -4,
+                      child: _SectionPanel(key: Key('section-$k'), active: k == activeKey),
+                    ),
+                    grid(items),
+                  ],
+                ),
               ),
             ),
           ],
@@ -307,10 +427,127 @@ class _GalleryBlockState extends State<GalleryBlock> {
   }
 }
 
+/// Two-way switch between cost groups (a header per cost) and one flowing grid.
+class _LayoutToggle extends StatelessWidget {
+  const _LayoutToggle({required this.onChanged});
+  final VoidCallback onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    final settings = context.watch<Settings>();
+    final flowing = settings.flowingSections;
+    Widget seg(bool forFlowing, IconData icon, String tip) {
+      final on = flowing == forFlowing;
+      return Tooltip(
+        message: tip,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: on
+              ? null
+              : () {
+                  settings.flowingSections = forFlowing;
+                  onChanged();
+                },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: 34,
+            height: 26,
+            decoration: BoxDecoration(color: on ? p.text : Colors.transparent, borderRadius: BorderRadius.circular(13)),
+            child: Icon(icon, size: 17, color: on ? p.bg : p.text2),
+          ),
+        ),
+      );
+    }
+
+    return GestureDetector(
+      key: const Key('layoutToggle'),
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        settings.flowingSections = !flowing;
+        onChanged();
+      },
+      child: Container(
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(color: p.surface2, borderRadius: BorderRadius.circular(15)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            seg(false, Icons.view_agenda_rounded, 'Group by cost'),
+            seg(true, Icons.view_comfy_rounded, 'One flowing grid'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Where a section starts in the flowing layout: a thin bar in the gap before its first
+/// card, with the section's value in a small badge on top.
+class _FlowSeparator extends StatelessWidget {
+  const _FlowSeparator({required this.label, required this.active});
+  final String label;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return IgnorePointer(
+      child: Column(
+        children: [
+          Container(
+            height: 22,
+            constraints: const BoxConstraints(minWidth: 22),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: active ? p.text : p.surface2, shape: BoxShape.circle),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                  color: active ? p.bg : p.text,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              width: 3,
+              decoration: BoxDecoration(
+                color: active ? p.text : p.text2.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Background panel behind the selected section's cards (neutral: accents are for zones).
+class _SectionPanel extends StatelessWidget {
+  const _SectionPanel({super.key, required this.active});
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) => AnimatedContainer(
+    duration: const Duration(milliseconds: 200),
+    decoration: BoxDecoration(
+      color: active ? context.pal.surface2.withValues(alpha: 0.7) : null,
+      borderRadius: BorderRadius.circular(14),
+    ),
+  );
+}
+
 class _SectionHeader extends SliverPersistentHeaderDelegate {
-  _SectionHeader(this.label, this.p);
+  _SectionHeader(this.label, this.p, {this.active = false});
   final String label;
   final Palette p;
+  final bool active;
 
   @override
   double get minExtent => 36;
@@ -324,16 +561,21 @@ class _SectionHeader extends SliverPersistentHeaderDelegate {
       alignment: Alignment.centerLeft,
       child: Row(
         children: [
-          Text(label, style: T.label.copyWith(color: p.text2)),
+          Text(
+            label,
+            style: T.label.copyWith(color: active ? p.text : p.text2, fontWeight: active ? FontWeight.w800 : null),
+          ),
           const SizedBox(width: 8),
-          Expanded(child: Container(height: 1, color: p.surface2)),
+          Expanded(
+            child: Container(height: active ? 2 : 1, color: active ? p.text2 : p.surface2),
+          ),
         ],
       ),
     );
   }
 
   @override
-  bool shouldRebuild(_SectionHeader old) => old.label != label || old.p != p;
+  bool shouldRebuild(_SectionHeader old) => old.label != label || old.p != p || old.active != active;
 }
 
 /// Jump rail: every value of the range (or every present section); absent ones are dimmed.
@@ -440,11 +682,20 @@ class _SectionRail extends StatelessWidget {
 
 /// Single-select option dock at the bottom, in thumb reach.
 class _FilterDock extends StatelessWidget {
-  const _FilterDock({required this.filter, required this.selected, required this.summary, required this.onPick});
+  const _FilterDock({
+    required this.filter,
+    required this.selected,
+    required this.summary,
+    required this.onPick,
+    this.trailing,
+  });
   final FilterSpec filter;
   final Object? selected;
   final String summary;
   final void Function(Object?) onPick;
+
+  /// Shown at the end of the summary row (the grouped/flowing layout switch).
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -474,6 +725,7 @@ class _FilterDock extends StatelessWidget {
                     style: T.caption.copyWith(color: p.text2, fontWeight: FontWeight.w500),
                   ),
                 ),
+                if (trailing != null) ...[const SizedBox(width: 8), trailing!],
               ],
             ),
           ),

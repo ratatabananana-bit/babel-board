@@ -64,6 +64,58 @@ void main() {
     expect(find.text('Opt8 · 0 cards'), findsOneWidget);
   });
 
+  testWidgets('the selected cost section is highlighted', (tester) async {
+    await pumpModules(tester);
+    await tester.tap(find.bySemanticsLabel('Family Fire'));
+    await tester.pumpAndSettle();
+    bool lit(String cost) =>
+        (tester
+                    .widget<AnimatedContainer>(
+                      find.descendant(
+                        of: find.byKey(Key('section-$cost'), skipOffstage: false),
+                        matching: find.byType(AnimatedContainer, skipOffstage: false),
+                        skipOffstage: false,
+                      ),
+                    )
+                    .decoration
+                as BoxDecoration?)
+            ?.color !=
+        null;
+    expect(lit('2'), isTrue, reason: 'the first section is active at the top');
+    expect(lit('4'), isFalse);
+    await tester.tap(find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text('4')));
+    await tester.pumpAndSettle();
+    expect(lit('4'), isTrue);
+    // Section 2 may have scrolled out of the built area; when it is still there it is no longer lit.
+    if (find.byKey(const Key('section-2'), skipOffstage: false).evaluate().isNotEmpty) expect(lit('2'), isFalse);
+  });
+
+  testWidgets('flowing layout: one grid with a separator where each cost starts; the choice is kept', (tester) async {
+    await pumpModules(tester);
+    await tester.tap(find.bySemanticsLabel('Family Fire'));
+    await tester.pumpAndSettle();
+    expect(find.text('COST 2'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('layoutToggle')));
+    await tester.pumpAndSettle();
+    expect(find.text('COST 2'), findsNothing, reason: 'no group headers');
+    expect(find.byType(AnimatedPositioned), findsWidgets);
+    expect(find.byKey(const Key('sep-2')), findsOneWidget);
+    expect(find.byKey(const Key('sep-4')), findsOneWidget);
+    expect(scoped<Settings>(tester).flowingSections, isTrue);
+    // The first cost is highlighted to start with; the rail moves the highlight.
+    expect(find.byKey(const Key('hl-imp')), findsOneWidget);
+    expect(find.byKey(const Key('hl-ghost')), findsNothing);
+    await tester.tap(find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text('4')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('hl-ghost')), findsOneWidget);
+    expect(find.byKey(const Key('hl-imp')), findsNothing);
+    // Back to groups.
+    await tester.tap(find.byKey(const Key('layoutToggle')));
+    await tester.pumpAndSettle();
+    expect(find.text('COST 2'), findsOneWidget);
+    expect(scoped<Settings>(tester).flowingSections, isFalse);
+  });
+
   testWidgets('density toggle sets cards per row', (tester) async {
     await pumpModules(tester);
     expect(scoped<Settings>(tester).columns, 4);
