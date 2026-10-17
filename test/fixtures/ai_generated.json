@@ -1,0 +1,349 @@
+{
+  "format": 1,
+  "id": "crazy-eights",
+  "name": "Crazy Eights",
+  "version": "1.0.0",
+  "minAppVersion": "3.0.0",
+  "players": "2-7",
+  "source": "Traditional public-domain card game rules (standard Hoyle-style rules; Pagat.com Crazy Eights page)",
+  "collections": {
+    "cards": {
+      "titleField": "name",
+      "subtitleField": "pointsText",
+      "imageShape": "square",
+      "items": [
+        {
+          "id": "ace",
+          "name": "Ace",
+          "role": "normal",
+          "points": 1,
+          "pointsText": "1 point",
+          "verified": true,
+          "effects": [
+            { "type": "rule", "text": "Play on a card of the same suit or another Ace." },
+            { "type": "variant", "text": "Common house rule: reverses the direction of play." }
+          ]
+        },
+        {
+          "id": "two",
+          "name": "2",
+          "role": "normal",
+          "points": 2,
+          "pointsText": "2 points",
+          "verified": true,
+          "effects": [
+            { "type": "rule", "text": "Play on a card of the same suit or another 2." },
+            { "type": "variant", "text": "Common house rule: the next player draws 2 cards unless they play a 2." }
+          ]
+        },
+        {
+          "id": "three",
+          "name": "3",
+          "role": "normal",
+          "points": 3,
+          "pointsText": "3 points",
+          "verified": true,
+          "effects": [{ "type": "rule", "text": "Play on a card of the same suit or another 3." }]
+        },
+        {
+          "id": "four",
+          "name": "4",
+          "role": "normal",
+          "points": 4,
+          "pointsText": "4 points",
+          "verified": true,
+          "effects": [{ "type": "rule", "text": "Play on a card of the same suit or another 4." }]
+        },
+        {
+          "id": "five",
+          "name": "5",
+          "role": "normal",
+          "points": 5,
+          "pointsText": "5 points",
+          "verified": true,
+          "effects": [{ "type": "rule", "text": "Play on a card of the same suit or another 5." }]
+        },
+        {
+          "id": "six",
+          "name": "6",
+          "role": "normal",
+          "points": 6,
+          "pointsText": "6 points",
+          "verified": true,
+          "effects": [{ "type": "rule", "text": "Play on a card of the same suit or another 6." }]
+        },
+        {
+          "id": "seven",
+          "name": "7",
+          "role": "normal",
+          "points": 7,
+          "pointsText": "7 points",
+          "verified": true,
+          "effects": [{ "type": "rule", "text": "Play on a card of the same suit or another 7." }]
+        },
+        {
+          "id": "eight",
+          "name": "8",
+          "role": "wild",
+          "points": 50,
+          "pointsText": "50 points",
+          "verified": true,
+          "effects": [
+            { "type": "wild", "text": "Wild. Play it on any card, then name a suit." },
+            { "type": "rule", "text": "The next player must play a card of the named suit or another 8." }
+          ]
+        },
+        {
+          "id": "nine",
+          "name": "9",
+          "role": "normal",
+          "points": 9,
+          "pointsText": "9 points",
+          "verified": true,
+          "effects": [{ "type": "rule", "text": "Play on a card of the same suit or another 9." }]
+        },
+        {
+          "id": "ten",
+          "name": "10",
+          "role": "normal",
+          "points": 10,
+          "pointsText": "10 points",
+          "verified": true,
+          "effects": [{ "type": "rule", "text": "Play on a card of the same suit or another 10." }]
+        },
+        {
+          "id": "jack",
+          "name": "Jack",
+          "role": "normal",
+          "points": 10,
+          "pointsText": "10 points",
+          "verified": true,
+          "effects": [{ "type": "rule", "text": "Play on a card of the same suit or another Jack." }]
+        },
+        {
+          "id": "queen",
+          "name": "Queen",
+          "role": "normal",
+          "points": 10,
+          "pointsText": "10 points",
+          "verified": true,
+          "effects": [
+            { "type": "rule", "text": "Play on a card of the same suit or another Queen." },
+            { "type": "variant", "text": "Common house rule: the next player is skipped." }
+          ]
+        },
+        {
+          "id": "king",
+          "name": "King",
+          "role": "normal",
+          "points": 10,
+          "pointsText": "10 points",
+          "verified": true,
+          "effects": [{ "type": "rule", "text": "Play on a card of the same suit or another King." }]
+        }
+      ],
+      "sheet": {
+        "chips": [{ "text": "{points} pts in hand" }],
+        "effects": {
+          "path": "effects",
+          "typeLabels": { "rule": "Rule", "wild": "Wild", "variant": "House rule (optional)" },
+          "typeHelp": {
+            "rule": "Standard rule for this rank",
+            "wild": "Can be played on anything",
+            "variant": "Only if everyone agrees before the game"
+          }
+        },
+        "secondary": "Scores {points} for the winner if left in your hand",
+        "verifiedPath": "verified"
+      }
+    },
+    "suits": {
+      "titleField": "name",
+      "subtitleField": "colour",
+      "imageShape": "square",
+      "items": [
+        { "id": "hearts", "name": "Hearts", "colour": "Red", "verified": true },
+        { "id": "diamonds", "name": "Diamonds", "colour": "Red", "verified": true },
+        { "id": "clubs", "name": "Clubs", "colour": "Black", "verified": true },
+        { "id": "spades", "name": "Spades", "colour": "Black", "verified": true }
+      ],
+      "sheet": {
+        "secondary": "{colour} suit",
+        "sections": [{ "label": "When called", "path": "calledText" }],
+        "verifiedPath": "verified",
+        "zones": ["called"]
+      }
+    }
+  },
+  "zones": [
+    {
+      "id": "called",
+      "label": "Called suit",
+      "icon": "flag",
+      "accent": "amber",
+      "hint": "Suit named after an 8",
+      "band": "Called",
+      "phrase": "the called suit"
+    }
+  ],
+  "tabs": [
+    {
+      "label": "Ranks",
+      "icon": "cards",
+      "block": {
+        "type": "gallery",
+        "collection": "cards",
+        "search": ["name", "effects.text"],
+        "tileName": true,
+        "noun": "ranks",
+        "filters": [
+          {
+            "path": "role",
+            "label": "Type",
+            "position": "bottom",
+            "allLabel": "All",
+            "options": [
+              { "value": "wild", "label": "Wild" },
+              { "value": "normal", "label": "Normal" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Suit",
+      "icon": "flag",
+      "badge": "zoneCount",
+      "block": {
+        "type": "board",
+        "title": "Called suit",
+        "countLabel": "{count} called",
+        "children": [
+          {
+            "type": "zone",
+            "zone": "called",
+            "list": {
+              "type": "cardList",
+              "collection": "suits",
+              "style": "rows",
+              "removable": true,
+              "emptyText": "No suit called. Open the Suits tab, tap a suit and add it here."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "Suits",
+      "icon": "grid",
+      "block": {
+        "type": "gallery",
+        "collection": "suits",
+        "search": ["name", "colour"],
+        "tileName": true,
+        "noun": "suits"
+      }
+    },
+    {
+      "label": "Round",
+      "icon": "run",
+      "block": {
+        "type": "flow",
+        "title": "Round",
+        "cyclic": true,
+        "reminders": [
+          "Play a card that matches the top card's suit or rank.",
+          "An 8 is wild: play it on anything and name a suit.",
+          "Can't play? Draw from the stock until you can. If the stock is empty, pass.",
+          "First player to empty their hand wins the round.",
+          "2 players: 7 cards each. 3 to 5 players: 5 cards each. 6 to 7 players: shuffle two decks together, 5 cards each.",
+          "Play to an agreed target score, commonly 100 points."
+        ],
+        "newGameText": "Clears the called suit.",
+        "setup": {
+          "id": "setup",
+          "title": "Setup",
+          "short": "Setup",
+          "summary": "Shuffle, deal and turn up the starter card.",
+          "listTitle": "Before the first turn",
+          "how": [
+            "Use one standard 52-card deck for 2 to 5 players.",
+            "For 6 or 7 players, shuffle two 52-card decks together.",
+            "Dealer changes each round, passing to the left."
+          ],
+          "checklist": [
+            { "id": "setup.deck", "text": "Shuffle the deck", "sub": "One deck for 2 to 5 players, two decks for 6 to 7" },
+            { "id": "setup.deal", "text": "Deal cards one at a time", "sub": "7 each with 2 players; 5 each with 3 or more players" },
+            { "id": "setup.stock", "text": "Place the rest face down as the stock" },
+            {
+              "id": "setup.starter",
+              "text": "Turn the top stock card face up to start the discard pile",
+              "sub": "If it is an 8, bury it in the stock and turn up another"
+            },
+            {
+              "id": "setup.clear",
+              "text": "No suit is called yet",
+              "action": { "type": "clearZone", "zone": "called" },
+              "actionLabel": "Clear"
+            }
+          ]
+        },
+        "children": [
+          {
+            "type": "step",
+            "id": "turn",
+            "title": "Your turn",
+            "short": "Turn",
+            "summary": "Play one matching card, or draw.",
+            "listTitle": "On your turn",
+            "how": [
+              "Play starts with the player to the dealer's left and goes clockwise.",
+              "A card matches if it has the same suit or the same rank as the top discard.",
+              "If an 8 was played, match the called suit instead (or play another 8).",
+              "You may draw even if you could play. Keep drawing until you play a card.",
+              "If the stock is empty and you cannot play, pass."
+            ],
+            "checklist": [
+              { "id": "turn.match", "text": "Play a card matching suit or rank", "sub": "Or the called suit after an 8" },
+              { "id": "turn.eight", "text": "Played an 8? Name a suit", "sub": "Track it on the Suit tab" },
+              { "id": "turn.draw", "text": "Cannot play? Draw until you can", "sub": "Stock empty: pass" },
+              {
+                "id": "turn.clearcalled",
+                "text": "Called suit followed? Clear it",
+                "sub": "The called suit only applies to the card played on the 8",
+                "action": { "type": "clearZone", "zone": "called" },
+                "actionLabel": "Clear"
+              }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "end",
+            "title": "End of round",
+            "short": "Score",
+            "summary": "Someone went out, or nobody can play.",
+            "listTitle": "Scoring",
+            "nextLabel": "Next round",
+            "how": [
+              "The round ends when a player plays their last card.",
+              "That player scores the cards left in every other player's hand.",
+              "If the stock is empty and no one can play, the round is blocked. The player with the lowest hand total scores the difference from each other player.",
+              "8 = 50, King/Queen/Jack/10 = 10, Ace = 1, other cards = face value."
+            ],
+            "checklist": [
+              { "id": "end.count", "text": "Count cards left in the losers' hands", "sub": "8 = 50, K Q J 10 = 10, A = 1, others face value" },
+              { "id": "end.record", "text": "Add the total to the winner's score" },
+              { "id": "end.target", "text": "Check the target score", "sub": "First to the agreed target (often 100) wins the game" },
+              {
+                "id": "end.dealer",
+                "text": "Pass the deal to the left",
+                "action": { "type": "clearZone", "zone": "called" },
+                "actionLabel": "Clear suit"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

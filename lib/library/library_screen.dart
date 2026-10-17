@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../app_version.dart';
@@ -32,7 +33,7 @@ class LibraryScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     const Expanded(child: Text('Library', style: T.title)),
-                    if (lib.canInstall) _Menu(lib: lib),
+                    _Menu(lib: lib),
                   ],
                 ),
               ),
@@ -179,15 +180,27 @@ class _Menu extends StatelessWidget {
             installFromFile(context, lib);
           case 'link':
             _showLinkDialog(context, lib);
+          case 'ai':
+            copyAiInstructions(context);
         }
       },
       itemBuilder: (_) => [
-        PopupMenuItem(value: 'repo', child: Text(lib.repo == null ? 'Add repository' : 'Edit repository')),
-        const PopupMenuItem(value: 'file', child: Text('Install from file')),
-        const PopupMenuItem(value: 'link', child: Text('Install from link')),
+        if (lib.canInstall) ...[
+          PopupMenuItem(value: 'repo', child: Text(lib.repo == null ? 'Add repository' : 'Edit repository')),
+          const PopupMenuItem(value: 'file', child: Text('Install from file')),
+          const PopupMenuItem(value: 'link', child: Text('Install from link')),
+        ],
+        const PopupMenuItem(value: 'ai', child: Text('Copy instructions for AI')),
       ],
     );
   }
+}
+
+/// Copies the compact module spec, to paste into Claude or ChatGPT on the phone.
+Future<void> copyAiInstructions(BuildContext context) async {
+  final text = await rootBundle.loadString('modules/AI_INSTRUCTIONS.md');
+  await Clipboard.setData(ClipboardData(text: text));
+  if (context.mounted) _snack(context, 'Copied — paste it into Claude or ChatGPT');
 }
 
 Future<void> installFromFile(BuildContext context, LibraryController lib) async {
