@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "id": "imp",
+      "name": "Imp",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 2,
+      "sellsFor": ["stone_red", "stone_red", "stone_red"],
+      "effects": [
+        { "type": "instant", "text": "Earn 1 red stone." },
+        { "type": "active", "text": "Recover." }
+      ],
+      "verified": true,
+      "image": "images/imp.webp"
+    },
+    {
+      "id": "nessie",
+      "name": "Nessie",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 5,
+      "sellsFor": ["stone_red"],
+      "effects": [
+        { "type": "active", "text": "Gain 2 points." }
+      ],
+      "verified": true,
+      "image": "images/nessie.webp"
+    },
+    {
+      "id": "undine",
+      "name": "Undine",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 0,
+      "sellsFor": ["stone_red"],
+      "effects": [
+        { "type": "permanent", "text": "Keep one more stone." }
+      ],
+      "verified": true,
+      "image": "images/undine.webp"
+    },
+    {
+      "id": "ghost",
+      "name": "Ghost",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 4,
+      "sellsFor": ["stone_red", "stone_red", "stone_red"],
+      "effects": [
+        { "type": "instant", "text": "Haunt a neighbour." }
+      ],
+      "verified": false
+    }
+  ]
+}

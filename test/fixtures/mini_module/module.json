@@ -1,0 +1,148 @@
+{
+  "format": 1,
+  "id": "mini",
+  "name": "Mini Game",
+  "version": "1.0.0",
+  "minAppVersion": "3.0.0",
+  "icon": "images/fire.webp",
+  "players": "2-4",
+  "source": "Test fixture",
+  "collections": {
+    "items": {
+      "items": "data/items.json",
+      "titleField": "name",
+      "subtitleField": "familyLabel",
+      "imageShape": "card",
+      "cardAspect": 0.716,
+      "sheet": {
+        "chips": [
+          { "symbol": "{family}", "text": "{familyLabel}" },
+          { "text": "Cost {cost}" },
+          { "label": "Sells", "symbols": "sellsFor" }
+        ],
+        "effects": {
+          "path": "effects",
+          "typeLabels": { "instant": "Instant", "permanent": "Permanent", "active": "Active" },
+          "typeSymbols": { "instant": "instant", "active": "active" },
+          "typeHelp": { "instant": "Triggers once.", "permanent": "Always on.", "active": "Once per round." }
+        },
+        "verifiedPath": "verified",
+        "zones": ["a", "b"]
+      }
+    }
+  },
+  "symbols": {
+    "fire": "images/fire.webp",
+    "water": "images/water.webp",
+    "instant": "images/instant.webp",
+    "active": "images/active.webp",
+    "stone_red": "images/stone_red.webp"
+  },
+  "zones": [
+    { "id": "a", "label": "Lane A", "icon": "table", "accent": "amber", "hint": "First lane" },
+    { "id": "b", "label": "Lane B", "icon": "hand", "accent": "mint", "hint": "Second lane" }
+  ],
+  "tabs": [
+    {
+      "label": "Gallery",
+      "icon": "cards",
+      "block": {
+        "type": "gallery",
+        "collection": "items",
+        "search": ["name", "effects.text"],
+        "tileName": true,
+        "filters": [
+          {
+            "path": "family",
+            "label": "Family",
+            "position": "bottom",
+            "allLabel": "All families",
+            "options": [
+              { "value": "fire", "label": "Fire", "symbol": "fire" },
+              { "value": "water", "label": "Water", "symbol": "water" }
+            ]
+          }
+        ],
+        "sections": { "path": "cost", "label": "COST {value}", "onlyWhenFiltered": true, "rail": true, "railRange": [0, 12] }
+      }
+    },
+    {
+      "label": "Board",
+      "icon": "hand",
+      "badge": "zoneCount",
+      "block": {
+        "type": "board",
+        "title": "Board",
+        "countLabel": "{count} tracked",
+        "children": [
+          { "type": "zone", "zone": "a", "list": { "type": "cardList", "collection": "items", "style": "mini", "columns": 2 } },
+          { "type": "zone", "zone": "b", "list": { "type": "cardList", "collection": "items", "style": "mini", "columns": 2 } }
+        ]
+      }
+    },
+    {
+      "label": "Flow",
+      "icon": "flag",
+      "block": {
+        "type": "flow",
+        "title": "Round",
+        "cyclic": true,
+        "reminders": ["Rule one.", "Rule two."],
+        "newGameText": "Clears every lane and goes back to Step one.",
+        "setup": {
+          "id": "setup",
+          "title": "Setup",
+          "summary": "Before the first round.",
+          "listTitle": "Setup",
+          "how": ["Shuffle everything."],
+          "checklist": [
+            { "id": "setup.first", "text": "Pick a first player" },
+            { "id": "setup.app", "text": "Start a new game in the app", "action": { "type": "newGame" } }
+          ]
+        },
+        "children": [
+          {
+            "type": "step",
+            "id": "one",
+            "title": "Step one",
+            "short": "One",
+            "summary": "Do the first things.",
+            "listTitle": "First",
+            "how": ["First, do this.", "Then that."],
+            "checklist": [
+              { "id": "one.a", "text": "Tick me", "sub": "A detail" },
+              { "id": "one.clear", "text": "Clear Lane A", "action": { "type": "clearZone", "zone": "a" }, "actionLabel": "Clear" }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "two",
+            "title": "Step two",
+            "short": "Two",
+            "tag": "Wild",
+            "summary": "Use your active items in Lane B.",
+            "listTitle": "Active items",
+            "emptyText": "Nothing in Lane B has an active effect.",
+            "how": ["Each active item once."],
+            "checklist": [],
+            "cardChecklist": {
+              "collection": "items",
+              "filter": { "zone": "b", "where": [ { "path": "effects.type", "has": "active" } ] },
+              "sub": "{effects[type=active].text}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "Text",
+      "icon": "book",
+      "block": {
+        "type": "text",
+        "title": "About",
+        "paragraphs": ["Mini game text paragraph."],
+        "bullets": ["First bullet.", "Second bullet."]
+      }
+    }
+  ]
+}
