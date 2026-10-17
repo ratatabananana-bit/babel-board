@@ -56,9 +56,10 @@ class CardSheet extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
-                                    child: Text(card.name,
-                                        style: const TextStyle(
-                                            fontSize: 26, height: 1.1, fontWeight: FontWeight.w800)),
+                                    child: Text(
+                                      card.name,
+                                      style: const TextStyle(fontSize: 26, height: 1.1, fontWeight: FontWeight.w800),
+                                    ),
                                   ),
                                   IconButton(
                                     tooltip: 'Close',
@@ -73,17 +74,21 @@ class CardSheet extends StatelessWidget {
                                 spacing: 6,
                                 runSpacing: 6,
                                 children: [
-                                  _Chip(children: [
-                                    FamilySymbol(card.family, size: 22),
-                                    const SizedBox(width: 6),
-                                    Text(card.family.label),
-                                  ]),
+                                  _Chip(
+                                    children: [
+                                      FamilySymbol(card.family, size: 22),
+                                      const SizedBox(width: 6),
+                                      Text(card.family.label),
+                                    ],
+                                  ),
                                   _Chip(children: [Text('Cost ${card.cost}')]),
-                                  _Chip(children: [
-                                    const Text('Sells'),
-                                    const SizedBox(width: 4),
-                                    StoneRow(card.family.sellsFor, size: 20),
-                                  ]),
+                                  _Chip(
+                                    children: [
+                                      const Text('Sells'),
+                                      const SizedBox(width: 4),
+                                      StoneRow(card.family.sellsFor, size: 20),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ],
@@ -96,8 +101,10 @@ class CardSheet extends StatelessWidget {
                     if (!card.verified)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: Text('⚠ Effect text not verified. Check the physical card.',
-                            style: T.caption.copyWith(color: p.warn)),
+                        child: Text(
+                          '⚠ Effect text not verified. Check the physical card.',
+                          style: T.caption.copyWith(color: p.warn),
+                        ),
                       ),
                   ],
                 ),
@@ -107,7 +114,9 @@ class CardSheet extends StatelessWidget {
             Row(
               children: [
                 for (final z in Zone.values) ...[
-                  Expanded(child: _ZoneButton(zone: z, active: current == z, cardId: card.id)),
+                  Expanded(
+                    child: _ZoneButton(zone: z, active: current == z, cardId: card.id),
+                  ),
                   const SizedBox(width: 6),
                 ],
                 Tooltip(
@@ -123,8 +132,7 @@ class CardSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: p.line, width: 1.5),
                       ),
-                      child: Icon(Icons.remove_done_rounded,
-                          color: current == null ? p.line : p.text),
+                      child: Icon(Icons.remove_done_rounded, color: current == null ? p.line : p.text),
                     ),
                   ),
                 ),
@@ -270,11 +278,12 @@ class _ZoneButton extends StatelessWidget {
                 Icon(zone.icon, size: 21, color: active ? p.onAccent : zc),
                 const SizedBox(width: 5),
                 Flexible(
-                  child: Text(zone.label,
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w700, color: active ? p.onAccent : p.text)),
+                  child: Text(
+                    zone.label,
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: active ? p.onAccent : p.text),
+                  ),
                 ),
               ],
             ),

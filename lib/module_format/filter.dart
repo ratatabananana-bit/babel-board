@@ -38,10 +38,7 @@ class ItemFilter {
   }
 
   static ItemFilter fromJson(Map<String, dynamic> j) => ItemFilter(
-        zone: j['zone'] as String?,
-        where: [
-          for (final r in (j['where'] as List? ?? const []))
-            FieldRule.fromJson((r as Map).cast<String, dynamic>()),
-        ],
-      );
+    zone: j['zone'] as String?,
+    where: [for (final r in (j['where'] as List? ?? const [])) FieldRule.fromJson((r as Map).cast<String, dynamic>())],
+  );
 }

@@ -9,17 +9,10 @@ import '../../blocks/flow/flow_state.dart';
 
 /// One checklist row as shown on the parchment card.
 class FlowItem {
-  const FlowItem({
-    required this.id,
-    required this.text,
-    this.sub,
-    this.action,
-    this.actionLabel,
-    this.leading,
-  });
+  const FlowItem({required this.id, required this.text, this.sub, this.action, this.actionLabel, this.leading});
 
   FlowItem.fromChecklist(ChecklistItem i)
-      : this(id: i.id, text: i.text, sub: i.sub, action: i.action, actionLabel: i.actionLabel);
+    : this(id: i.id, text: i.text, sub: i.sub, action: i.action, actionLabel: i.actionLabel);
 
   final String id;
   final String text;
@@ -74,8 +67,7 @@ class _FlowScreenState extends State<FlowScreen> {
   bool _howOpen = false;
 
   List<FlowItem> _items(FlowConfig config, PhaseInfo phase) =>
-      config.itemsFor?.call(context, phase) ??
-      [for (final i in phase.checklist) FlowItem.fromChecklist(i)];
+      config.itemsFor?.call(context, phase) ?? [for (final i in phase.checklist) FlowItem.fromChecklist(i)];
 
   void _advance(FlowState state, List<FlowItem> items) {
     state.next(items.map((i) => i.id));
@@ -133,11 +125,7 @@ class _FlowScreenState extends State<FlowScreen> {
                 onToggle: () => setState(() => _armed = false),
               ),
               const SizedBox(height: 18),
-              _HowItWorks(
-                steps: phase.steps,
-                open: _howOpen,
-                onToggle: () => setState(() => _howOpen = !_howOpen),
-              ),
+              _HowItWorks(steps: phase.steps, open: _howOpen, onToggle: () => setState(() => _howOpen = !_howOpen)),
             ],
           ),
         ),
@@ -189,11 +177,13 @@ class _Header extends StatelessWidget {
                 onTap: () => _showRules(context, rules.reminders),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  child: Row(children: [
-                    Icon(Icons.menu_book_rounded, size: 20, color: p.text),
-                    const SizedBox(width: 6),
-                    const Text('Rules', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                  ]),
+                  child: Row(
+                    children: [
+                      Icon(Icons.menu_book_rounded, size: 20, color: p.text),
+                      const SizedBox(width: 6),
+                      const Text('Rules', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -206,7 +196,10 @@ class _Header extends StatelessWidget {
               },
               itemBuilder: (_) => [
                 const PopupMenuItem(value: 'setup', child: Text('Setup checklist')),
-                PopupMenuItem(value: 'new', child: Text('New game', style: TextStyle(color: p.danger))),
+                PopupMenuItem(
+                  value: 'new',
+                  child: Text('New game', style: TextStyle(color: p.danger)),
+                ),
               ],
             ),
           ],
@@ -235,9 +228,15 @@ class _Header extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 8, right: 10),
-                      child: Container(width: 6, height: 6, decoration: BoxDecoration(color: p.text2, shape: BoxShape.circle)),
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(color: p.text2, shape: BoxShape.circle),
+                      ),
                     ),
-                    Expanded(child: Text(r, style: T.body.copyWith(color: p.text))),
+                    Expanded(
+                      child: Text(r, style: T.body.copyWith(color: p.text)),
+                    ),
                   ],
                 ),
               ),
@@ -257,17 +256,17 @@ class _Header extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(padding: EdgeInsets.only(left: 4), child: Text('Setup', style: T.title)),
+              const Padding(
+                padding: EdgeInsets.only(left: 4),
+                child: Text('Setup', style: T.title),
+              ),
               const SizedBox(height: 4),
               Padding(
                 padding: const EdgeInsets.only(left: 4),
                 child: Text(setup.summary, style: T.body.copyWith(color: context.pal.text2)),
               ),
               const SizedBox(height: 14),
-              _Checklist(
-                title: setup.listTitle,
-                items: [for (final i in setup.checklist) FlowItem.fromChecklist(i)],
-              ),
+              _Checklist(title: setup.listTitle, items: [for (final i in setup.checklist) FlowItem.fromChecklist(i)]),
               const SizedBox(height: 14),
               _HowItWorks(steps: setup.steps, open: true, onToggle: null),
             ],
@@ -384,12 +383,19 @@ class _Checklist extends StatelessWidget {
                   const Icon(Icons.checklist_rounded, size: 21, color: Palette.ink),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(title.toUpperCase(),
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+                    child: Text(
+                      title.toUpperCase(),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 0.8),
+                    ),
                   ),
-                  Text('$done / ${items.length}',
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w800, fontFeatures: [FontFeature.tabularFigures()])),
+                  Text(
+                    '$done / ${items.length}',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -453,10 +459,7 @@ class _ChecklistRow extends StatelessWidget {
                   child: on ? const Icon(Icons.check_rounded, size: 20, color: Palette.parchment) : null,
                 ),
                 const SizedBox(width: 12),
-                if (item.leading != null) ...[
-                  SizedBox(width: 40, child: item.leading),
-                  const SizedBox(width: 12),
-                ],
+                if (item.leading != null) ...[SizedBox(width: 40, child: item.leading), const SizedBox(width: 12)],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -472,15 +475,11 @@ class _ChecklistRow extends StatelessWidget {
                         ),
                       ),
                       if (item.sub != null)
-                        Text(item.sub!,
-                            style: const TextStyle(fontSize: 14, height: 1.35, color: Palette.inkMuted)),
+                        Text(item.sub!, style: const TextStyle(fontSize: 14, height: 1.35, color: Palette.inkMuted)),
                     ],
                   ),
                 ),
-                if (item.action != null && !on) ...[
-                  const SizedBox(width: 8),
-                  _ActionPill(item: item),
-                ],
+                if (item.action != null && !on) ...[const SizedBox(width: 8), _ActionPill(item: item)],
               ],
             ),
           ),
@@ -516,8 +515,10 @@ class _ActionPill extends StatelessWidget {
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Text(label,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Palette.parchment)),
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Palette.parchment),
+          ),
         ),
       ),
     );
@@ -551,8 +552,11 @@ class _HowItWorks extends StatelessWidget {
                     Icon(Icons.info_outline_rounded, size: 21, color: p.text2),
                     const SizedBox(width: 10),
                     const Expanded(
-                        child: Text('How this phase works',
-                            style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700))),
+                      child: Text(
+                        'How this phase works',
+                        style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700),
+                      ),
+                    ),
                     if (onToggle != null)
                       Icon(open ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: p.text2),
                   ],
@@ -567,7 +571,10 @@ class _HowItWorks extends StatelessWidget {
                       for (final s in steps)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(s, style: TextStyle(fontSize: 15, height: 1.45, color: p.text.withValues(alpha: 0.85))),
+                          child: Text(
+                            s,
+                            style: TextStyle(fontSize: 15, height: 1.45, color: p.text.withValues(alpha: 0.85)),
+                          ),
                         ),
                     ],
                   ),
@@ -608,8 +615,10 @@ class _NextButton extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(label,
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: ready ? p.bg : p.text)),
+                  Text(
+                    label,
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: ready ? p.bg : p.text),
+                  ),
                   const SizedBox(width: 6),
                   Icon(Icons.arrow_forward_rounded, size: 21, color: ready ? p.bg : p.text),
                 ],

@@ -37,7 +37,5 @@ List<Object?> resolvePath(Object? data, String path) {
 final _hole = RegExp(r'\{([^{}]+)\}');
 
 /// Replaces each `{path}` with the resolved values joined by `, `; missing → empty.
-String fillTemplate(String template, Map<String, dynamic> item) => template.replaceAllMapped(
-      _hole,
-      (m) => resolvePath(item, m.group(1)!.trim()).map((v) => '$v').join(', '),
-    );
+String fillTemplate(String template, Map<String, dynamic> item) =>
+    template.replaceAllMapped(_hole, (m) => resolvePath(item, m.group(1)!.trim()).map((v) => '$v').join(', '));

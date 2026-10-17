@@ -57,8 +57,11 @@ void main() {
     expect(find.text('Mini game text paragraph.'), findsOneWidget);
     await tester.tap(navLabel('Gallery'));
     await tester.pumpAndSettle();
-    expect(find.text('Mini game text paragraph.', skipOffstage: false), findsOneWidget,
-        reason: 'the Text page is kept alive offstage');
+    expect(
+      find.text('Mini game text paragraph.', skipOffstage: false),
+      findsOneWidget,
+      reason: 'the Text page is kept alive offstage',
+    );
   });
 
   testWidgets('the game switcher lists installed modules and a Library entry', (tester) async {

@@ -50,8 +50,10 @@ class ModuleManifest {
     final rawCollections = j['collections'];
     if (rawCollections is Map) {
       for (final e in rawCollections.entries) {
-        collections[e.key as String] =
-            CollectionSpec.fromJson((e.value as Map).cast<String, dynamic>(), 'collections.${e.key}');
+        collections[e.key as String] = CollectionSpec.fromJson(
+          (e.value as Map).cast<String, dynamic>(),
+          'collections.${e.key}',
+        );
       }
     }
     final symbols = <String, String>{};
@@ -112,8 +114,7 @@ class CollectionSpec {
 
   bool get isInline => items is List;
   String? get path => items is String ? items as String : null;
-  List<Map<String, dynamic>> get inlineItems =>
-      items is List ? (items as List).cast<Map<String, dynamic>>() : const [];
+  List<Map<String, dynamic>> get inlineItems => items is List ? (items as List).cast<Map<String, dynamic>>() : const [];
 
   static CollectionSpec fromJson(Map<String, dynamic> j, String where) {
     final raw = j['items'];
@@ -146,6 +147,7 @@ class ZoneSpec {
     required this.accent,
     this.hint,
     this.band,
+    this.phrase,
   });
 
   final String id;
@@ -161,14 +163,19 @@ class ZoneSpec {
   /// Text of the band on tracked tiles; defaults to [label].
   final String? band;
 
+  /// How the zone reads inside a sentence ("Add to this race"); defaults to [label].
+  final String? phrase;
+  String get inSentence => phrase ?? label;
+
   static ZoneSpec fromJson(Map<String, dynamic> j, String where) => ZoneSpec(
-        id: _req<String>(j, 'id', where),
-        label: _req<String>(j, 'label', where),
-        icon: j['icon'] as String? ?? 'grid',
-        accent: j['accent'] as String? ?? 'amber',
-        hint: j['hint'] as String?,
-        band: j['band'] as String?,
-      );
+    id: _req<String>(j, 'id', where),
+    label: _req<String>(j, 'label', where),
+    icon: j['icon'] as String? ?? 'grid',
+    accent: j['accent'] as String? ?? 'amber',
+    hint: j['hint'] as String?,
+    band: j['band'] as String?,
+    phrase: j['phrase'] as String?,
+  );
 }
 
 class TabSpec {
@@ -182,11 +189,11 @@ class TabSpec {
   final BlockSpec block;
 
   static TabSpec fromJson(Map<String, dynamic> j, String where) => TabSpec(
-        label: _req<String>(j, 'label', where),
-        icon: j['icon'] as String? ?? 'grid',
-        badge: j['badge'] as String?,
-        block: BlockSpec.fromJson(_req<Map>(j, 'block', where).cast<String, dynamic>(), '$where.block'),
-      );
+    label: _req<String>(j, 'label', where),
+    icon: j['icon'] as String? ?? 'grid',
+    badge: j['badge'] as String?,
+    block: BlockSpec.fromJson(_req<Map>(j, 'block', where).cast<String, dynamic>(), '$where.block'),
+  );
 }
 
 /// One node of a tab's block tree: a type, its settings, and sub-blocks.
@@ -207,9 +214,7 @@ class BlockSpec {
         for (final e in j.entries)
           if (e.key != 'type' && e.key != 'children') e.key: e.value,
       },
-      children: [
-        for (var i = 0; i < kids.length; i++) BlockSpec.fromJson(kids[i], '$where.children[$i]'),
-      ],
+      children: [for (var i = 0; i < kids.length; i++) BlockSpec.fromJson(kids[i], '$where.children[$i]')],
     );
   }
 }

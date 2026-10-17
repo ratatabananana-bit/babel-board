@@ -20,11 +20,7 @@ class CardImage extends StatelessWidget {
         aspectRatio: aspect,
         child: img == null
             ? _Placeholder(card)
-            : Image.asset(
-                img,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _Placeholder(card),
-              ),
+            : Image.asset(img, fit: BoxFit.cover, errorBuilder: (_, _, _) => _Placeholder(card)),
       ),
     );
   }
@@ -44,13 +40,16 @@ class _Placeholder extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('${card.cost}',
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
-            Text(card.name,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: Colors.white)),
-            if (card.nameZh != null)
-              Text(card.nameZh!, style: const TextStyle(fontSize: 14, color: Colors.white70)),
+            Text(
+              '${card.cost}',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            Text(
+              card.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, color: Colors.white),
+            ),
+            if (card.nameZh != null) Text(card.nameZh!, style: const TextStyle(fontSize: 14, color: Colors.white70)),
           ],
         ),
       ),

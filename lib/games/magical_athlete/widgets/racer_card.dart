@@ -18,8 +18,11 @@ class RacerArt extends StatelessWidget {
         aspectRatio: 1,
         child: racer.image == null
             ? ColoredBox(color: p.surface2)
-            : Image.asset(racer.image!, fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => ColoredBox(color: p.surface2)),
+            : Image.asset(
+                racer.image!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => ColoredBox(color: p.surface2),
+              ),
       ),
     );
   }
@@ -35,45 +38,56 @@ class RacerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: racerAspect,
-      child: LayoutBuilder(builder: (context, box) {
-        final w = box.maxWidth;
-        final pad = w * 0.05;
-        return Container(
-          padding: EdgeInsets.all(pad),
-          decoration: BoxDecoration(color: Palette.parchment, borderRadius: BorderRadius.circular(radius)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              RacerArt(racer, radius: radius * 0.6),
-              Expanded(
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: pad),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(racer.name,
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final w = box.maxWidth;
+          final pad = w * 0.05;
+          return Container(
+            padding: EdgeInsets.all(pad),
+            decoration: BoxDecoration(color: Palette.parchment, borderRadius: BorderRadius.circular(radius)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                RacerArt(racer, radius: radius * 0.6),
+                Expanded(
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: pad),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              racer.name,
                               style: TextStyle(
-                                  fontSize: w * 0.11, fontWeight: FontWeight.w800, color: Palette.ink, height: 1.1)),
-                          if (racer.powerName != null)
-                            Text(racer.powerName!,
+                                fontSize: w * 0.11,
+                                fontWeight: FontWeight.w800,
+                                color: Palette.ink,
+                                height: 1.1,
+                              ),
+                            ),
+                            if (racer.powerName != null)
+                              Text(
+                                racer.powerName!,
                                 style: TextStyle(
-                                    fontSize: w * 0.075,
-                                    fontStyle: FontStyle.italic,
-                                    color: Palette.inkMuted,
-                                    height: 1.2)),
-                        ],
+                                  fontSize: w * 0.075,
+                                  fontStyle: FontStyle.italic,
+                                  color: Palette.inkMuted,
+                                  height: 1.2,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      }),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

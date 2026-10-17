@@ -28,8 +28,10 @@ class Tracker extends ChangeNotifier {
 
   Zone? zoneOf(String cardId) => _zones[cardId];
 
-  List<String> idsIn(Zone zone) =>
-      [for (final e in _zones.entries) if (e.value == zone) e.key];
+  List<String> idsIn(Zone zone) => [
+    for (final e in _zones.entries)
+      if (e.value == zone) e.key,
+  ];
 
   int count(Zone zone) => _zones.values.where((z) => z == zone).length;
 

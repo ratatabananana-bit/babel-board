@@ -15,9 +15,9 @@ final miniDir = Directory('test/fixtures/mini_module');
 
 /// Every file of the mini module, keyed by relative path with `/` separators.
 Map<String, Uint8List> miniFiles() => {
-      for (final f in miniDir.listSync(recursive: true).whereType<File>())
-        f.path.substring(miniDir.path.length + 1).replaceAll(r'\', '/'): f.readAsBytesSync(),
-    };
+  for (final f in miniDir.listSync(recursive: true).whereType<File>())
+    f.path.substring(miniDir.path.length + 1).replaceAll(r'\', '/'): f.readAsBytesSync(),
+};
 
 /// Loads the mini module, optionally after editing its manifest in memory.
 Future<LoadedModule> loadMini({void Function(Map<String, dynamic> manifest)? edit}) async {
@@ -34,7 +34,7 @@ Finder navLabel(String label) => find.descendant(of: find.byType(NavigationBar),
 /// Pumps the app with the given modules (default: the mini module) and opens [tab].
 Future<AppState> pumpModules(
   WidgetTester tester, {
-  List<LoadedModule>? modules,
+  Future<List<LoadedModule>> Function()? load,
   Map<String, Object> prefs = const {'app.lastGame': 'mini'},
   String? tab,
   void Function(Map<String, dynamic> manifest)? edit,
@@ -45,7 +45,7 @@ Future<AppState> pumpModules(
   SharedPreferences.setMockInitialValues(prefs);
   final data = await tester.runAsync(() async {
     final p = await SharedPreferences.getInstance();
-    return AppData(p, modules ?? [await loadMini(edit: edit)]);
+    return AppData(p, load != null ? await load() : [await loadMini(edit: edit)]);
   });
   await tester.pumpWidget(HelperApp(loader: () async => data!));
   await tester.pumpAndSettle();

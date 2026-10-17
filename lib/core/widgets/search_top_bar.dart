@@ -42,8 +42,7 @@ class SearchTopBar extends StatelessWidget {
                   filled: true,
                   fillColor: p.surface,
                   contentPadding: EdgeInsets.zero,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
                 ),
               ),
             ),

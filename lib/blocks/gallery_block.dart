@@ -12,9 +12,9 @@ import 'item_view.dart';
 
 class FilterOption {
   FilterOption(Map<String, dynamic> j)
-      : value = j['value'],
-        label = j['label'] as String? ?? '${j['value']}',
-        symbol = j['symbol'] as String?;
+    : value = j['value'],
+      label = j['label'] as String? ?? '${j['value']}',
+      symbol = j['symbol'] as String?;
   final Object? value;
   final String label;
   final String? symbol;
@@ -22,10 +22,10 @@ class FilterOption {
 
 class FilterSpec {
   FilterSpec(Map<String, dynamic> j)
-      : path = j['path'] as String,
-        label = j['label'] as String? ?? '',
-        allLabel = j['allLabel'] as String? ?? 'All',
-        options = [for (final o in (j['options'] as List? ?? const [])) FilterOption((o as Map).cast<String, dynamic>())];
+    : path = j['path'] as String,
+      label = j['label'] as String? ?? '',
+      allLabel = j['allLabel'] as String? ?? 'All',
+      options = [for (final o in (j['options'] as List? ?? const [])) FilterOption((o as Map).cast<String, dynamic>())];
   final String path;
   final String label;
   final String allLabel;
@@ -34,11 +34,11 @@ class FilterSpec {
 
 class SectionsSpec {
   SectionsSpec(Map<String, dynamic> j)
-      : path = j['path'] as String,
-        label = j['label'] as String? ?? '{value}',
-        onlyWhenFiltered = j['onlyWhenFiltered'] as bool? ?? false,
-        rail = j['rail'] as bool? ?? false,
-        railRange = (j['railRange'] as List?)?.cast<int>();
+    : path = j['path'] as String,
+      label = j['label'] as String? ?? '{value}',
+      onlyWhenFiltered = j['onlyWhenFiltered'] as bool? ?? false,
+      rail = j['rail'] as bool? ?? false,
+      railRange = (j['railRange'] as List?)?.cast<int>();
   final String path;
   final String label;
   final bool onlyWhenFiltered;
@@ -49,12 +49,17 @@ class SectionsSpec {
 /// Settings: `{collection, search: [path], tileName: bool, filters?: [...], sections?: {...}}`.
 class GallerySpec {
   GallerySpec(BlockSpec b)
-      : collection = b.settings['collection'] as String,
-        search = (b.settings['search'] as List?)?.cast<String>() ?? const ['name'],
-        tileName = b.settings['tileName'] as bool? ?? true,
-        filters = [for (final f in (b.settings['filters'] as List? ?? const [])) FilterSpec((f as Map).cast<String, dynamic>())],
-        sections = b.settings['sections'] is Map ? SectionsSpec((b.settings['sections'] as Map).cast<String, dynamic>()) : null,
-        noun = b.settings['noun'] as String? ?? 'cards';
+    : collection = b.settings['collection'] as String,
+      search = (b.settings['search'] as List?)?.cast<String>() ?? const ['name'],
+      tileName = b.settings['tileName'] as bool? ?? true,
+      filters = [
+        for (final f in (b.settings['filters'] as List? ?? const [])) FilterSpec((f as Map).cast<String, dynamic>()),
+      ],
+      sections = b.settings['sections'] is Map
+          ? SectionsSpec((b.settings['sections'] as Map).cast<String, dynamic>())
+          : null,
+      noun = b.settings['noun'] as String? ?? 'cards',
+      searchHint = b.settings['searchHint'] as String? ?? 'Search ${b.settings['noun'] ?? 'cards'}';
 
   final String collection;
   final List<String> search;
@@ -64,6 +69,7 @@ class GallerySpec {
 
   /// What the summary counts, e.g. "cards".
   final String noun;
+  final String searchHint;
 }
 
 /// A grid of item pictures with search, density, optional single-select filter docks and
@@ -174,15 +180,26 @@ class _GalleryBlockState extends State<GalleryBlock> {
 
     return Column(
       children: [
-        SearchTopBar(search: _search, hint: 'Search ${_g.noun}'),
+        SearchTopBar(search: _search, hint: _g.searchHint),
         Expanded(
           child: Row(
             children: [
               Expanded(
-                child: LayoutBuilder(builder: (context, box) {
-                  final gridW = box.maxWidth - _pad.horizontal;
-                  return _grid(context, spec, shown, sectioned ? sections : null, keys, columns, gridW, box.maxHeight);
-                }),
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final gridW = box.maxWidth - _pad.horizontal;
+                    return _grid(
+                      context,
+                      spec,
+                      shown,
+                      sectioned ? sections : null,
+                      keys,
+                      columns,
+                      gridW,
+                      box.maxHeight,
+                    );
+                  },
+                ),
               ),
               if (sectioned && sections.rail)
                 _SectionRail(
@@ -198,7 +215,8 @@ class _GalleryBlockState extends State<GalleryBlock> {
           _FilterDock(
             filter: _g.filters[i],
             selected: _selected[i],
-            summary: '${_g.filters[i].options.where((o) => o.value == _selected[i]).firstOrNull?.label ?? _g.filters[i].allLabel}'
+            summary:
+                '${_g.filters[i].options.where((o) => o.value == _selected[i]).firstOrNull?.label ?? _g.filters[i].allLabel}'
                 ' · ${shown.length} ${_g.noun}',
             onPick: (v) => _pick(i, v),
           ),
@@ -217,28 +235,34 @@ class _GalleryBlockState extends State<GalleryBlock> {
     return keys;
   }
 
-  Widget _grid(BuildContext context, CollectionSpec spec, List<Item> shown, SectionsSpec? sections,
-      List<Object?> keys, int columns, double gridW, double viewH) {
+  Widget _grid(
+    BuildContext context,
+    CollectionSpec spec,
+    List<Item> shown,
+    SectionsSpec? sections,
+    List<Object?> keys,
+    int columns,
+    double gridW,
+    double viewH,
+  ) {
     final p = context.pal;
     final extra = _g.tileName ? ItemTile.nameHeight : 0.0;
     Widget grid(List<Item> items) => ReflowGrid<Item>(
-          items: items,
-          idOf: (it) => it.id,
-          columns: columns,
-          aspect: spec.cardAspect,
-          extraHeight: extra,
-          tileBuilder: (it) => ItemTile(item: it, collection: spec, collectionId: _g.collection, showName: _g.tileName),
-        );
+      items: items,
+      idOf: (it) => it.id,
+      columns: columns,
+      aspect: spec.cardAspect,
+      extraHeight: extra,
+      tileBuilder: (it) => ItemTile(item: it, collection: spec, collectionId: _g.collection, showName: _g.tileName),
+    );
     if (shown.isEmpty) {
-      return Center(child: Text('No ${_g.noun} match "${_search.text}".', style: T.body.copyWith(color: p.text2)));
+      return Center(
+        child: Text('No ${_g.noun} match "${_search.text}".', style: T.body.copyWith(color: p.text2)),
+      );
     }
     _sectionOffsets.clear();
     if (sections == null) {
-      return ListView(
-        controller: _scroll,
-        padding: _pad.copyWith(top: 8, right: 16),
-        children: [grid(shown)],
-      );
+      return ListView(controller: _scroll, padding: _pad.copyWith(top: 8, right: 16), children: [grid(shown)]);
     }
     // Grouped with sticky headers; offsets are computed so the rail can jump.
     var y = 0.0;
@@ -246,11 +270,26 @@ class _GalleryBlockState extends State<GalleryBlock> {
     for (final k in keys) {
       final items = shown.where((it) => resolvePath(it.data, sections.path).firstOrNull == k).toList();
       _sectionOffsets[k] = y;
-      y += _headerH + ReflowGrid.heightFor(items.length, gridW, columns, aspect: spec.cardAspect, extra: extra) + _sectionGap;
-      slivers.add(SliverMainAxisGroup(slivers: [
-        SliverPersistentHeader(pinned: true, delegate: _SectionHeader(fillTemplate(sections.label, {'value': k}), p)),
-        SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.only(bottom: _sectionGap), child: grid(items))),
-      ]));
+      y +=
+          _headerH +
+          ReflowGrid.heightFor(items.length, gridW, columns, aspect: spec.cardAspect, extra: extra) +
+          _sectionGap;
+      slivers.add(
+        SliverMainAxisGroup(
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _SectionHeader(fillTemplate(sections.label, {'value': k}), p),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: _sectionGap),
+                child: grid(items),
+              ),
+            ),
+          ],
+        ),
+      );
     }
     // Room after the last section so every section can scroll to the top (keeps the rail honest).
     final lastH = y - _sectionOffsets[keys.last]!;
@@ -258,7 +297,10 @@ class _GalleryBlockState extends State<GalleryBlock> {
     return CustomScrollView(
       controller: _scroll,
       slivers: [
-        SliverPadding(padding: _pad, sliver: SliverMainAxisGroup(slivers: slivers)),
+        SliverPadding(
+          padding: _pad,
+          sliver: SliverMainAxisGroup(slivers: slivers),
+        ),
         SliverToBoxAdapter(child: SizedBox(height: tail)),
       ],
     );
@@ -337,60 +379,62 @@ class _SectionRail extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.pal;
     final slots = _slots;
-    return LayoutBuilder(builder: (context, box) {
-      final h = box.maxHeight - _pad.vertical;
-      void scrub(Offset local, {required bool animate}) {
-        final s = _sectionAt(local.dy, h, slots);
-        if (s != null && (s != active || animate)) {
-          if (!animate) HapticFeedback.selectionClick();
-          onPick(s, animate: animate);
+    return LayoutBuilder(
+      builder: (context, box) {
+        final h = box.maxHeight - _pad.vertical;
+        void scrub(Offset local, {required bool animate}) {
+          final s = _sectionAt(local.dy, h, slots);
+          if (s != null && (s != active || animate)) {
+            if (!animate) HapticFeedback.selectionClick();
+            onPick(s, animate: animate);
+          }
         }
-      }
 
-      return GestureDetector(
-        key: const Key('sectionRail'),
-        behavior: HitTestBehavior.opaque,
-        onTapUp: (d) => scrub(d.localPosition, animate: true),
-        onVerticalDragStart: (d) => scrub(d.localPosition, animate: false),
-        onVerticalDragUpdate: (d) => scrub(d.localPosition, animate: false),
-        child: Container(
-          width: 36,
-          padding: _pad,
-          child: Column(
-            children: [
-              for (final s in slots)
-                Expanded(
-                  child: Center(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      width: 28,
-                      height: 26,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: s == active ? p.text : Colors.transparent,
-                        borderRadius: BorderRadius.circular(13),
-                      ),
-                      child: Text(
-                        '$s',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                          color: s == active
-                              ? p.bg
-                              : keys.contains(s)
-                                  ? p.text
-                                  : p.line,
+        return GestureDetector(
+          key: const Key('sectionRail'),
+          behavior: HitTestBehavior.opaque,
+          onTapUp: (d) => scrub(d.localPosition, animate: true),
+          onVerticalDragStart: (d) => scrub(d.localPosition, animate: false),
+          onVerticalDragUpdate: (d) => scrub(d.localPosition, animate: false),
+          child: Container(
+            width: 36,
+            padding: _pad,
+            child: Column(
+              children: [
+                for (final s in slots)
+                  Expanded(
+                    child: Center(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        width: 28,
+                        height: 26,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: s == active ? p.text : Colors.transparent,
+                          borderRadius: BorderRadius.circular(13),
+                        ),
+                        child: Text(
+                          '$s',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                            color: s == active
+                                ? p.bg
+                                : keys.contains(s)
+                                ? p.text
+                                : p.line,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }
 
@@ -417,14 +461,18 @@ class _FilterDock extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Row(
               children: [
-                Text(filter.label.toUpperCase(),
-                    style: T.caption.copyWith(letterSpacing: 1, fontWeight: FontWeight.w700, color: p.muted)),
+                Text(
+                  filter.label.toUpperCase(),
+                  style: T.caption.copyWith(letterSpacing: 1, fontWeight: FontWeight.w700, color: p.muted),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(summary,
-                      textAlign: TextAlign.right,
-                      overflow: TextOverflow.ellipsis,
-                      style: T.caption.copyWith(color: p.text2, fontWeight: FontWeight.w500)),
+                  child: Text(
+                    summary,
+                    textAlign: TextAlign.right,
+                    overflow: TextOverflow.ellipsis,
+                    style: T.caption.copyWith(color: p.text2, fontWeight: FontWeight.w500),
+                  ),
                 ),
               ],
             ),
@@ -447,8 +495,10 @@ class _FilterDock extends StatelessWidget {
                   selected: selected == o.value,
                   onTap: () => onPick(o.value),
                   child: o.symbol == null
-                      ? Text(o.label.isEmpty ? '?' : o.label[0],
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: p.text))
+                      ? Text(
+                          o.label.isEmpty ? '?' : o.label[0],
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: p.text),
+                        )
                       : SymbolImage(o.symbol!, size: 40),
                 ),
             ],
@@ -506,12 +556,14 @@ class _OptionButton extends StatelessWidget {
               const SizedBox(height: 3),
               FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(label,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: selected ? p.text : p.muted,
-                      fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                    )),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: selected ? p.text : p.muted,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                  ),
+                ),
               ),
             ],
           ),

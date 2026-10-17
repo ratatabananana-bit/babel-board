@@ -39,16 +39,16 @@ class Racer {
   final String? image;
 
   factory Racer.fromJson(Map<String, dynamic> j) => Racer(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        nameZh: j['nameZh'] as String?,
-        number: j['number'] as int?,
-        powerName: j['powerName'] as String?,
-        notes: j['notes'] as String?,
-        abilities: (j['abilities'] as List).cast<String>(),
-        verified: j['verified'] as bool? ?? false,
-        image: j['image'] as String?,
-      );
+    id: j['id'] as String,
+    name: j['name'] as String,
+    nameZh: j['nameZh'] as String?,
+    number: j['number'] as int?,
+    powerName: j['powerName'] as String?,
+    notes: j['notes'] as String?,
+    abilities: (j['abilities'] as List).cast<String>(),
+    verified: j['verified'] as bool? ?? false,
+    image: j['image'] as String?,
+  );
 }
 
 /// Racer tiles are drawn in the printed card's shape (width / height).

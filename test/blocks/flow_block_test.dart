@@ -7,8 +7,10 @@ import 'package:vale_helper/modules/module_state.dart';
 
 import '../helpers.dart';
 
-Map<String, Object> prefsWith(Map<String, String> zones) =>
-    {'app.lastGame': 'mini', 'mod.mini.zones': jsonEncode(zones)};
+Map<String, Object> prefsWith(Map<String, String> zones) => {
+  'app.lastGame': 'mini',
+  'mod.mini.zones': jsonEncode(zones),
+};
 
 void main() {
   testWidgets('phase bar, "n steps left", and Next needs a second tap with open steps', (tester) async {

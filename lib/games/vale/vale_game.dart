@@ -23,8 +23,9 @@ class ValeGame implements GameModule {
   String get title => 'Vale of Eternity';
 
   @override
-  Widget icon(double size) =>
-      ClipOval(child: Image.asset('assets/symbols/dragon.webp', width: size, height: size));
+  Widget icon(double size) => ClipOval(
+    child: Image.asset('assets/symbols/dragon.webp', width: size, height: size),
+  );
 
   late final List<GameCard> cards;
   late final Rules rules;
@@ -67,24 +68,24 @@ class ValeGame implements GameModule {
 
   @override
   List<GameTab> get tabs => [
-        GameTab(label: 'Cards', icon: Icons.style_rounded, builder: (_) => const CardsScreen()),
-        GameTab(
-          label: 'My cards',
-          icon: Icons.back_hand_rounded,
-          builder: (_) => const MyCardsScreen(),
-          badge: (context) => context.watch<Tracker>().total,
-        ),
-        GameTab(label: 'Round', icon: Icons.flag_rounded, builder: (_) => const FlowScreen()),
-      ];
+    GameTab(label: 'Cards', icon: Icons.style_rounded, builder: (_) => const CardsScreen()),
+    GameTab(
+      label: 'My cards',
+      icon: Icons.back_hand_rounded,
+      builder: (_) => const MyCardsScreen(),
+      badge: (context) => context.watch<Tracker>().total,
+    ),
+    GameTab(label: 'Round', icon: Icons.flag_rounded, builder: (_) => const FlowScreen()),
+  ];
 
   @override
   Widget wrap(Widget child) => MultiProvider(
-        providers: [
-          Provider<List<GameCard>>.value(value: cards),
-          ChangeNotifierProvider<Tracker>.value(value: tracker),
-          ChangeNotifierProvider<FlowState>.value(value: flow),
-          Provider<FlowConfig>.value(value: _flow),
-        ],
-        child: child,
-      );
+    providers: [
+      Provider<List<GameCard>>.value(value: cards),
+      ChangeNotifierProvider<Tracker>.value(value: tracker),
+      ChangeNotifierProvider<FlowState>.value(value: flow),
+      Provider<FlowConfig>.value(value: _flow),
+    ],
+    child: child,
+  );
 }

@@ -18,8 +18,8 @@ enum Zone {
 /// Zone colors: Table amber, Hand mint, Field violet.
 extension ZoneColors on Palette {
   Color zone(Zone z) => switch (z) {
-        Zone.table => amber,
-        Zone.hand => mint,
-        Zone.field => violet,
-      };
+    Zone.table => amber,
+    Zone.hand => mint,
+    Zone.field => violet,
+  };
 }

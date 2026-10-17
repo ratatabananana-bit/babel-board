@@ -25,8 +25,7 @@ Future<void> pumpApp(WidgetTester tester, {String? lastGame}) async {
   await tester.pumpAndSettle();
 }
 
-Finder navLabel(String label) =>
-    find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
+Finder navLabel(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
 
 T read<T>(WidgetTester tester) => tester.element(find.byType(NavigationBar)).read<T>();
 
@@ -43,8 +42,9 @@ void main() {
     });
 
     test('rules: draft, 4 races (Mild/Wild), final; unique checklist ids; runs once', () {
-      final rules = Rules.fromJson(jsonDecode(
-          File('assets/games/magical_athlete/rules_en.json').readAsStringSync()) as Map<String, dynamic>);
+      final rules = Rules.fromJson(
+        jsonDecode(File('assets/games/magical_athlete/rules_en.json').readAsStringSync()) as Map<String, dynamic>,
+      );
       expect(rules.cyclic, isFalse);
       expect(rules.phases.map((p) => p.id), ['draft', 'race1', 'race2', 'race3', 'race4', 'final']);
       expect(rules.phases.map((p) => p.tag), [null, 'Mild', 'Wild', 'Mild', 'Wild', null]);
@@ -56,8 +56,7 @@ void main() {
     });
   });
 
-  testWidgets('first launch shows the game picker; picking a game opens it and is remembered',
-      (tester) async {
+  testWidgets('first launch shows the game picker; picking a game opens it and is remembered', (tester) async {
     await pumpApp(tester);
     expect(find.text('Which game?'), findsOneWidget);
 

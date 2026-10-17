@@ -26,13 +26,7 @@ class GameIcon extends StatelessWidget {
     );
     if (img == null) return fallback;
     return ClipOval(
-      child: Image(
-        image: img,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => fallback,
-      ),
+      child: Image(image: img, width: size, height: size, fit: BoxFit.cover, errorBuilder: (_, _, _) => fallback),
     );
   }
 }

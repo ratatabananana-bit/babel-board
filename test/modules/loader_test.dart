@@ -28,9 +28,10 @@ void main() {
     expect(m.item('nope', 'imp'), isNull);
   });
 
-  test('directory files give FileImage for real refs and null otherwise', () {
+  test('directory files give a path-keyed image for real refs and null otherwise', () {
     final f = DirectoryModuleFiles(fixture);
-    expect(f.image('images/imp.webp'), isA<FileImage>());
+    expect(f.image('images/imp.webp'), isA<ModuleFileImage>());
+    expect(f.image('images/imp.webp'), equals(f.image('images/imp.webp')), reason: 'same cache key');
     expect(f.image(null), isNull);
     expect(f.image(''), isNull);
     expect(f.image('images/missing.webp'), isNull);
@@ -71,11 +72,19 @@ void main() {
     final files = MemoryModuleFiles({'module.json': bytes(manifest)});
     await expectLater(
       loadModule(files),
-      throwsA(isA<ModuleLoadException>().having(
-          (e) => e.issues.map((i) => i.message).join(), 'issues', contains('Unknown block'))),
+      throwsA(
+        isA<ModuleLoadException>().having(
+          (e) => e.issues.map((i) => i.message).join(),
+          'issues',
+          contains('Unknown block'),
+        ),
+      ),
     );
 
-    (manifest['tabs'] as List)[0]['block'] = {'type': 'text', 'paragraphs': ['hi']};
+    (manifest['tabs'] as List)[0]['block'] = {
+      'type': 'text',
+      'paragraphs': ['hi'],
+    };
     final ok = await loadModule(MemoryModuleFiles({'module.json': bytes(manifest)}));
     expect(ok.collections['items']!.single.id, 'x');
     expect(ok.files.image('images/none.webp'), isNull);
@@ -95,14 +104,22 @@ void main() {
         {
           'label': 'T',
           'icon': 'book',
-          'block': {'type': 'text', 'paragraphs': ['hi']},
+          'block': {
+            'type': 'text',
+            'paragraphs': ['hi'],
+          },
         },
       ],
     };
     await expectLater(
       loadModule(MemoryModuleFiles({'module.json': bytes(manifest)})),
-      throwsA(isA<ModuleLoadException>().having(
-          (e) => e.issues.map((i) => i.path).join(), 'issues', contains('collections.items'))),
+      throwsA(
+        isA<ModuleLoadException>().having(
+          (e) => e.issues.map((i) => i.path).join(),
+          'issues',
+          contains('collections.items'),
+        ),
+      ),
     );
   });
 }

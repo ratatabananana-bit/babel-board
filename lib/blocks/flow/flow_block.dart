@@ -14,19 +14,20 @@ import 'flow_state.dart';
 /// One step of a flow, read from a `step` block's settings (or the flow's `setup`).
 class StepSpec {
   StepSpec(Map<String, dynamic> s)
-      : id = s['id'] as String? ?? 'step',
-        title = s['title'] as String? ?? '',
-        short = s['short'] as String?,
-        tag = s['tag'] as String?,
-        summary = s['summary'] as String? ?? '',
-        listTitle = s['listTitle'] as String? ?? 'Checklist',
-        nextLabel = s['nextLabel'] as String?,
-        emptyText = s['emptyText'] as String?,
-        how = (s['how'] as List?)?.cast<String>() ?? const [],
-        checklist = [
-          for (final r in (s['checklist'] as List? ?? const [])) ChecklistRow.fromJson((r as Map).cast<String, dynamic>()),
-        ],
-        cardChecklist = (s['cardChecklist'] as Map?)?.cast<String, dynamic>();
+    : id = s['id'] as String? ?? 'step',
+      title = s['title'] as String? ?? '',
+      short = s['short'] as String?,
+      tag = s['tag'] as String?,
+      summary = s['summary'] as String? ?? '',
+      listTitle = s['listTitle'] as String? ?? 'Checklist',
+      nextLabel = s['nextLabel'] as String?,
+      emptyText = s['emptyText'] as String?,
+      how = (s['how'] as List?)?.cast<String>() ?? const [],
+      checklist = [
+        for (final r in (s['checklist'] as List? ?? const []))
+          ChecklistRow.fromJson((r as Map).cast<String, dynamic>()),
+      ],
+      cardChecklist = (s['cardChecklist'] as Map?)?.cast<String, dynamic>();
 
   final String id;
   final String title;
@@ -59,23 +60,26 @@ class ChecklistRow {
   final Widget? leading;
 
   static ChecklistRow fromJson(Map<String, dynamic> j) => ChecklistRow(
-        id: j['id'] as String,
-        text: j['text'] as String? ?? '',
-        sub: j['sub'] as String?,
-        action: (j['action'] as Map?)?.cast<String, dynamic>(),
-        actionLabel: j['actionLabel'] as String?,
-      );
+    id: j['id'] as String,
+    text: j['text'] as String? ?? '',
+    sub: j['sub'] as String?,
+    action: (j['action'] as Map?)?.cast<String, dynamic>(),
+    actionLabel: j['actionLabel'] as String?,
+  );
 }
 
 /// The flow block's settings.
 class FlowSpec {
   FlowSpec(BlockSpec b)
-      : title = b.settings['title'] as String? ?? 'Round',
-        cyclic = b.settings['cyclic'] as bool? ?? true,
-        reminders = (b.settings['reminders'] as List?)?.cast<String>() ?? const [],
-        newGameText = b.settings['newGameText'] as String? ?? 'Clears everything you tracked and starts over.',
-        setup = b.settings['setup'] is Map ? StepSpec((b.settings['setup'] as Map).cast<String, dynamic>()) : null,
-        steps = [for (final c in b.children) if (c.type == 'step') StepSpec(c.settings)];
+    : title = b.settings['title'] as String? ?? 'Round',
+      cyclic = b.settings['cyclic'] as bool? ?? true,
+      reminders = (b.settings['reminders'] as List?)?.cast<String>() ?? const [],
+      newGameText = b.settings['newGameText'] as String? ?? 'Clears everything you tracked and starts over.',
+      setup = b.settings['setup'] is Map ? StepSpec((b.settings['setup'] as Map).cast<String, dynamic>()) : null,
+      steps = [
+        for (final c in b.children)
+          if (c.type == 'step') StepSpec(c.settings),
+      ];
 
   final String title;
   final bool cyclic;
@@ -122,7 +126,9 @@ class _FlowBlockState extends State<FlowBlock> {
     final flow = _flow;
     final state = context.watch<FlowState?>();
     if (state == null || flow.steps.isEmpty) {
-      return Center(child: Text('This flow has no steps.', style: T.body.copyWith(color: p.text2)));
+      return Center(
+        child: Text('This flow has no steps.', style: T.body.copyWith(color: p.text2)),
+      );
     }
     final index = state.index.clamp(0, flow.steps.length - 1);
     final step = flow.steps[index];
@@ -169,11 +175,7 @@ class _FlowBlockState extends State<FlowBlock> {
                   onToggle: () => setState(() => _armed = false),
                 ),
                 const SizedBox(height: 18),
-                _HowItWorks(
-                  steps: step.how,
-                  open: _howOpen,
-                  onToggle: () => setState(() => _howOpen = !_howOpen),
-                ),
+                _HowItWorks(steps: step.how, open: _howOpen, onToggle: () => setState(() => _howOpen = !_howOpen)),
               ],
             ),
           ),
@@ -243,7 +245,9 @@ class _Header extends StatelessWidget {
           children: [
             const GameSwitcherButton(),
             const SizedBox(width: 10),
-            Expanded(child: Text(flow.title, style: T.title, overflow: TextOverflow.ellipsis)),
+            Expanded(
+              child: Text(flow.title, style: T.title, overflow: TextOverflow.ellipsis),
+            ),
             if (flow.reminders.isNotEmpty)
               Material(
                 color: p.surface,
@@ -253,11 +257,13 @@ class _Header extends StatelessWidget {
                   onTap: () => _showRules(context, flow.reminders),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    child: Row(children: [
-                      Icon(Icons.menu_book_rounded, size: 20, color: p.text),
-                      const SizedBox(width: 6),
-                      const Text('Rules', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                    ]),
+                    child: Row(
+                      children: [
+                        Icon(Icons.menu_book_rounded, size: 20, color: p.text),
+                        const SizedBox(width: 6),
+                        const Text('Rules', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -270,7 +276,10 @@ class _Header extends StatelessWidget {
               },
               itemBuilder: (_) => [
                 if (flow.setup != null) const PopupMenuItem(value: 'setup', child: Text('Setup checklist')),
-                PopupMenuItem(value: 'new', child: Text('New game', style: TextStyle(color: p.danger))),
+                PopupMenuItem(
+                  value: 'new',
+                  child: Text('New game', style: TextStyle(color: p.danger)),
+                ),
               ],
             ),
           ],
@@ -299,9 +308,15 @@ class _Header extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 8, right: 10),
-                      child: Container(width: 6, height: 6, decoration: BoxDecoration(color: p.text2, shape: BoxShape.circle)),
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(color: p.text2, shape: BoxShape.circle),
+                      ),
                     ),
-                    Expanded(child: Text(r, style: T.body.copyWith(color: p.text))),
+                    Expanded(
+                      child: Text(r, style: T.body.copyWith(color: p.text)),
+                    ),
                   ],
                 ),
               ),
@@ -323,7 +338,10 @@ class _Header extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(padding: const EdgeInsets.only(left: 4), child: Text(setup.title, style: T.title)),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Text(setup.title, style: T.title),
+                ),
                 const SizedBox(height: 4),
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
@@ -462,12 +480,19 @@ class ParchmentChecklist extends StatelessWidget {
                   const Icon(Icons.checklist_rounded, size: 21, color: Palette.ink),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(title.toUpperCase(),
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+                    child: Text(
+                      title.toUpperCase(),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 0.8),
+                    ),
                   ),
-                  Text('$done / ${items.length}',
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w800, fontFeatures: [FontFeature.tabularFigures()])),
+                  Text(
+                    '$done / ${items.length}',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -533,10 +558,7 @@ class _ChecklistRowView extends StatelessWidget {
                   child: on ? const Icon(Icons.check_rounded, size: 20, color: Palette.parchment) : null,
                 ),
                 const SizedBox(width: 12),
-                if (item.leading != null) ...[
-                  SizedBox(width: 40, child: item.leading),
-                  const SizedBox(width: 12),
-                ],
+                if (item.leading != null) ...[SizedBox(width: 40, child: item.leading), const SizedBox(width: 12)],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -556,10 +578,7 @@ class _ChecklistRowView extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (item.action != null && !on) ...[
-                  const SizedBox(width: 8),
-                  _ActionPill(item: item),
-                ],
+                if (item.action != null && !on) ...[const SizedBox(width: 8), _ActionPill(item: item)],
               ],
             ),
           ),
@@ -591,7 +610,10 @@ class _ActionPill extends StatelessWidget {
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Palette.parchment)),
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Palette.parchment),
+          ),
         ),
       ),
     );
@@ -626,8 +648,13 @@ class _HowItWorks extends StatelessWidget {
                     Icon(Icons.info_outline_rounded, size: 21, color: p.text2),
                     const SizedBox(width: 10),
                     const Expanded(
-                        child: Text('How this phase works', style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700))),
-                    if (onToggle != null) Icon(open ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: p.text2),
+                      child: Text(
+                        'How this phase works',
+                        style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    if (onToggle != null)
+                      Icon(open ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: p.text2),
                   ],
                 ),
               ),
@@ -640,7 +667,10 @@ class _HowItWorks extends StatelessWidget {
                       for (final s in steps)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(s, style: TextStyle(fontSize: 15, height: 1.45, color: p.text.withValues(alpha: 0.85))),
+                          child: Text(
+                            s,
+                            style: TextStyle(fontSize: 15, height: 1.45, color: p.text.withValues(alpha: 0.85)),
+                          ),
                         ),
                     ],
                   ),
@@ -682,9 +712,11 @@ class _NextButton extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Flexible(
-                    child: Text(label,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: ready ? p.bg : p.text)),
+                    child: Text(
+                      label,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: ready ? p.bg : p.text),
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Icon(Icons.arrow_forward_rounded, size: 21, color: ready ? p.bg : p.text),

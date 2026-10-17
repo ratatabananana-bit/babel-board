@@ -20,17 +20,21 @@ const _remove = 'remove';
 /// `cardList` settings: `{collection, style: mini|rows|thumbs, columns?, filter?, removable?}`.
 class CardListSpec {
   CardListSpec(Map<String, dynamic> s)
-      : collection = s['collection'] as String? ?? '',
-        style = s['style'] as String? ?? 'mini',
-        columns = (s['columns'] as num?)?.toInt() ?? 2,
-        filter = s['filter'] is Map ? ItemFilter.fromJson((s['filter'] as Map).cast<String, dynamic>()) : null,
-        removable = s['removable'] as bool? ?? false;
+    : collection = s['collection'] as String? ?? '',
+      style = s['style'] as String? ?? 'mini',
+      columns = (s['columns'] as num?)?.toInt() ?? 2,
+      filter = s['filter'] is Map ? ItemFilter.fromJson((s['filter'] as Map).cast<String, dynamic>()) : null,
+      removable = s['removable'] as bool? ?? false,
+      emptyText = s['emptyText'] as String?;
 
   final String collection;
   final String style;
   final int columns;
   final ItemFilter? filter;
   final bool removable;
+
+  /// Shown in the lane when it has no items (and nothing can be dragged in).
+  final String? emptyText;
 
   static CardListSpec? fromSetting(Object? v) => v is Map ? CardListSpec(v.cast<String, dynamic>()) : null;
 }
@@ -45,18 +49,19 @@ class LaneSpec {
 /// `board` settings: `{title, countLabel: template with {count}, children: [zone]}`.
 class BoardSpec {
   BoardSpec(BlockSpec b, LoadedModule module)
-      : title = b.settings['title'] as String? ?? 'Board',
-        countLabel = b.settings['countLabel'] as String? ?? '{count} tracked',
-        lanes = [
-          for (final c in b.children)
-            if (c.type == 'zone')
-              if (zoneSpec(module, c.settings['zone'] as String?) case final z?)
-                LaneSpec(
-                  zone: z,
-                  list: CardListSpec.fromSetting(c.settings['list']) ??
-                      CardListSpec({'collection': module.manifest.collections.keys.firstOrNull ?? ''}),
-                ),
-        ];
+    : title = b.settings['title'] as String? ?? 'Board',
+      countLabel = b.settings['countLabel'] as String? ?? '{count} tracked',
+      lanes = [
+        for (final c in b.children)
+          if (c.type == 'zone')
+            if (zoneSpec(module, c.settings['zone'] as String?) case final z?)
+              LaneSpec(
+                zone: z,
+                list:
+                    CardListSpec.fromSetting(c.settings['list']) ??
+                    CardListSpec({'collection': module.manifest.collections.keys.firstOrNull ?? ''}),
+              ),
+      ];
 
   final String title;
   final String countLabel;
@@ -169,10 +174,13 @@ class _BoardBlockState extends State<BoardBlock> {
                         items: _itemsIn(module, zones, lane),
                         drag: draggable ? _drag : null,
                         open: !_collapsed.contains(lane.zone.id) || _drag.active,
-                        onToggle: () => setState(() => _collapsed.contains(lane.zone.id)
-                            ? _collapsed.remove(lane.zone.id)
-                            : _collapsed.add(lane.zone.id)),
+                        onToggle: () => setState(
+                          () => _collapsed.contains(lane.zone.id)
+                              ? _collapsed.remove(lane.zone.id)
+                              : _collapsed.add(lane.zone.id),
+                        ),
                         onDragUpdate: _autoScroll,
+                        flat: !draggable,
                       ),
                     ),
                 ],
@@ -186,10 +194,10 @@ class _BoardBlockState extends State<BoardBlock> {
 }
 
 List<Item> _itemsIn(LoadedModule module, ZoneState zones, LaneSpec lane) => [
-      for (final id in zones.idsIn(lane.zone.id))
-        if (module.item(lane.list.collection, id) case final it?)
-          if (lane.list.filter?.matches(it.data, lane.zone.id) ?? true) it,
-    ];
+  for (final id in zones.idsIn(lane.zone.id))
+    if (module.item(lane.list.collection, id) case final it?)
+      if (lane.list.filter?.matches(it.data, lane.zone.id) ?? true) it,
+];
 
 class _Header extends StatelessWidget {
   const _Header({super.key, required this.board, required this.total});
@@ -206,11 +214,16 @@ class _Header extends StatelessWidget {
         children: [
           const GameSwitcherButton(),
           const SizedBox(width: 10),
-          Flexible(child: Text(board.title, style: T.title, overflow: TextOverflow.ellipsis)),
+          Flexible(
+            child: Text(board.title, style: T.title, overflow: TextOverflow.ellipsis),
+          ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(fillTemplate(board.countLabel, {'count': total}),
-                style: T.body.copyWith(color: p.text2), overflow: TextOverflow.ellipsis),
+            child: Text(
+              fillTemplate(board.countLabel, {'count': total}),
+              style: T.body.copyWith(color: p.text2),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           PopupMenuButton<String>(
             tooltip: 'More',
@@ -230,7 +243,10 @@ class _Header extends StatelessWidget {
             },
             itemBuilder: (_) => [
               for (final l in board.lanes) PopupMenuItem(value: l.zone.id, child: Text('Clear ${l.zone.label}')),
-              PopupMenuItem(value: '*', child: Text('Clear everything', style: TextStyle(color: p.danger))),
+              PopupMenuItem(
+                value: '*',
+                child: Text('Clear everything', style: TextStyle(color: p.danger)),
+              ),
             ],
           ),
         ],
@@ -276,9 +292,14 @@ class _DropDock extends StatelessWidget {
                   children: [
                     Icon(icon, size: 19, color: hot ? p.onAccent : (isSrc ? p.line : c)),
                     const SizedBox(width: 4),
-                    Text(label,
-                        style: TextStyle(
-                            fontSize: 13.5, fontWeight: FontWeight.w800, color: hot ? p.onAccent : (isSrc ? p.line : c))),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: hot ? p.onAccent : (isSrc ? p.line : c),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -312,10 +333,15 @@ class _Lane extends StatelessWidget {
     required this.open,
     required this.onToggle,
     required this.onDragUpdate,
+    this.flat = false,
   });
 
   final LaneSpec lane;
   final List<Item> items;
+
+  /// A single-lane board draws its list plainly: no lane header or tint, since the
+  /// board header already names it.
+  final bool flat;
 
   /// Null when the board has a single lane (nothing to drag between).
   final _Drag? drag;
@@ -345,13 +371,18 @@ class _Lane extends StatelessWidget {
                 color: p.line,
                 child: SizedBox(
                   height: 64,
-                  child: Center(child: Text('Drag cards here', style: T.body.copyWith(color: p.muted, fontSize: 14))),
+                  child: Center(
+                    child: Text('Drag cards here', style: T.body.copyWith(color: p.muted, fontSize: 14)),
+                  ),
                 ),
               )
             : Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text('Nothing in ${zone.label} yet. Add items from their sheet.',
-                    textAlign: TextAlign.center, style: T.body.copyWith(color: p.muted, fontSize: 14)),
+                child: Text(
+                  lane.list.emptyText ?? 'Nothing in ${zone.inSentence} yet. Add items from their sheet.',
+                  textAlign: TextAlign.center,
+                  style: T.body.copyWith(color: p.muted, fontSize: 14),
+                ),
               );
       }
       switch (lane.list.style) {
@@ -399,6 +430,8 @@ class _Lane extends StatelessWidget {
       }
     }
 
+    if (flat) return Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: content());
+
     final body = AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       padding: const EdgeInsets.fromLTRB(6, 0, 6, 6),
@@ -420,27 +453,25 @@ class _Lane extends StatelessWidget {
                   const SizedBox(width: 6),
                   Icon(moduleIcon(zone.icon), size: 19, color: zc),
                   const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(zone.label,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800)),
-                  ),
+                  Text(zone.label, style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800)),
                   const SizedBox(width: 8),
                   Container(
                     height: 20,
                     padding: const EdgeInsets.symmetric(horizontal: 7),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(color: zc, borderRadius: BorderRadius.circular(10)),
-                    child: Text('${items.length}',
-                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: p.onAccent)),
+                    child: Text(
+                      '${items.length}',
+                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: p.onAccent),
+                    ),
                   ),
                   Expanded(
                     child: Text(
                       hot
                           ? 'Release to drop here'
                           : target
-                              ? 'Drop here'
-                              : zone.hint ?? '',
+                          ? 'Drop here'
+                          : zone.hint ?? '',
                       textAlign: TextAlign.right,
                       overflow: TextOverflow.ellipsis,
                       style: T.caption.copyWith(color: target ? zc : p.muted),
@@ -493,21 +524,28 @@ List<Widget> _detailLines(BuildContext context, Item item, CollectionSpec spec, 
                   const SizedBox(width: 5),
                 ],
                 Expanded(
-                  child: Text('${raw['text'] ?? ''}',
-                      style: TextStyle(fontSize: size, height: 1.3, color: p.text.withValues(alpha: 0.9))),
+                  child: Text(
+                    '${raw['text'] ?? ''}',
+                    style: TextStyle(fontSize: size, height: 1.3, color: p.text.withValues(alpha: 0.9)),
+                  ),
                 ),
               ],
             ),
           ),
     ];
   }
+  // Without effects, the first section (e.g. the ability text) is what a list row shows.
+  final first = sheet.sections.firstOrNull;
+  if (first == null) return const [];
   return [
-    for (final s in sheet.sections)
-      for (final v in resolvePath(item.data, s['path'] as String? ?? ''))
-        Padding(
-          padding: const EdgeInsets.only(bottom: 4),
-          child: Text('$v', style: TextStyle(fontSize: size, height: 1.35, color: p.text)),
+    for (final v in resolvePath(item.data, first['path'] as String? ?? ''))
+      Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Text(
+          '$v',
+          style: TextStyle(fontSize: size, height: 1.35, color: p.text),
         ),
+      ),
   ];
 }
 
@@ -568,7 +606,9 @@ class _MiniCard extends StatelessWidget {
               top: 0,
               bottom: 0,
               width: 4,
-              child: DecoratedBox(decoration: BoxDecoration(color: zc, borderRadius: BorderRadius.circular(2))),
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: zc, borderRadius: BorderRadius.circular(2)),
+              ),
             ),
         ],
       ),
@@ -643,8 +683,10 @@ class _MiniCardBody extends StatelessWidget {
                   SizedBox(width: 40, child: ItemPicture(item, spec, radius: 8)),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(item.title(spec),
-                        style: const TextStyle(fontSize: 14, height: 1.2, fontWeight: FontWeight.w700)),
+                    child: Text(
+                      item.title(spec),
+                      style: const TextStyle(fontSize: 14, height: 1.2, fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ],
               ),
@@ -680,7 +722,7 @@ class _RowCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(width: 64, child: ItemPicture(item, spec, radius: 8)),
+              SizedBox(width: 64, child: ItemPicture(item, spec, radius: 8, artOnly: true)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -688,7 +730,10 @@ class _RowCard extends StatelessWidget {
                   children: [
                     Text(item.title(spec), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
                     if (subtitle != null)
-                      Text(subtitle, style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: p.text2)),
+                      Text(
+                        subtitle,
+                        style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: p.text2),
+                      ),
                     const SizedBox(height: 4),
                     ..._detailLines(context, item, spec, size: 15.5),
                   ],
@@ -696,7 +741,7 @@ class _RowCard extends StatelessWidget {
               ),
               if (lane.list.removable)
                 IconButton(
-                  tooltip: 'Remove from ${lane.zone.label}',
+                  tooltip: 'Remove from ${lane.zone.inSentence}',
                   icon: Icon(Icons.close_rounded, color: p.muted),
                   onPressed: () => context.read<ZoneState>().remove(item.id),
                 ),
@@ -728,8 +773,8 @@ class _Ghost extends StatelessWidget {
         final ring = overZone != null
             ? zoneColor(context, overZone)
             : over == _remove
-                ? p.danger
-                : p.text;
+            ? p.danger
+            : p.text;
         return Transform.rotate(
           angle: -0.07,
           child: Transform.scale(
@@ -776,7 +821,9 @@ class CardListBlock extends StatelessWidget {
       for (final it in source)
         if (filter?.matches(it.data, zones.zoneOf(it.id)) ?? true) it,
     ];
-    final zone = zoneSpec(module, filter?.zone) ?? ZoneSpec(id: '', label: spec.settings['title'] as String? ?? '', icon: 'list', accent: 'amber');
+    final zone =
+        zoneSpec(module, filter?.zone) ??
+        ZoneSpec(id: '', label: spec.settings['title'] as String? ?? '', icon: 'list', accent: 'amber');
     final lane = LaneSpec(zone: zone, list: list);
     return ListView(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
@@ -784,7 +831,11 @@ class CardListBlock extends StatelessWidget {
         if (items.isEmpty)
           Padding(
             padding: const EdgeInsets.all(24),
-            child: Text('Nothing here yet.', textAlign: TextAlign.center, style: T.body.copyWith(color: p.muted)),
+            child: Text(
+              'Nothing here yet.',
+              textAlign: TextAlign.center,
+              style: T.body.copyWith(color: p.muted),
+            ),
           ),
         for (final it in items)
           Padding(

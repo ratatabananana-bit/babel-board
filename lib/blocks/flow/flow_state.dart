@@ -5,8 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Saved under a per-game [prefix] so games never share progress.
 class FlowState extends ChangeNotifier {
   FlowState(this._prefs, {required this.prefix, required this.phaseCount})
-      : _index = _prefs.getInt('${prefix}phase.index') ?? 0,
-        _checked = (_prefs.getStringList('${prefix}phase.checked') ?? []).toSet();
+    : _index = _prefs.getInt('${prefix}phase.index') ?? 0,
+      _checked = (_prefs.getStringList('${prefix}phase.checked') ?? []).toSet();
 
   final SharedPreferences _prefs;
   final String prefix;

@@ -20,7 +20,9 @@ final Map<String, BlockBuilder> blockRegistry = {
   'gallery': (context, spec) => GalleryBlock(spec: spec),
   'board': (context, spec) => BoardBlock(spec: spec),
   // A zone on its own is a one-lane board.
-  'zone': (context, spec) => BoardBlock(spec: BlockSpec(type: 'board', children: [spec])),
+  'zone': (context, spec) => BoardBlock(
+    spec: BlockSpec(type: 'board', children: [spec]),
+  ),
   'cardList': (context, spec) => CardListBlock(spec: spec),
 };
 
@@ -36,27 +38,21 @@ class UnknownBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Text(
-            "This game needs a newer Table Helper (unknown block '$type').",
-            textAlign: TextAlign.center,
-            style: T.body.copyWith(color: context.pal.text2),
-          ),
-        ),
-      );
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Text(
+        "This game needs a newer Table Helper (unknown block '$type').",
+        textAlign: TextAlign.center,
+        style: T.body.copyWith(color: context.pal.text2),
+      ),
+    ),
+  );
 }
 
 /// Provides the open module and its state to everything below, including sheets and
 /// dialogs when placed in `MaterialApp.builder`.
 class ModuleScope extends StatelessWidget {
-  const ModuleScope({
-    super.key,
-    required this.module,
-    required this.zones,
-    required this.flow,
-    required this.child,
-  });
+  const ModuleScope({super.key, required this.module, required this.zones, required this.flow, required this.child});
 
   final LoadedModule module;
   final ZoneState zones;

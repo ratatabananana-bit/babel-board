@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../models/card.dart';
 
@@ -10,8 +10,7 @@ class GameSymbol extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) =>
-      Image.asset(asset, width: size, height: size, fit: BoxFit.contain);
+  Widget build(BuildContext context) => Image.asset(asset, width: size, height: size, fit: BoxFit.contain);
 }
 
 class FamilySymbol extends StatelessWidget {
@@ -20,8 +19,10 @@ class FamilySymbol extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) =>
-      Semantics(label: family.label, child: GameSymbol(family.asset, size: size));
+  Widget build(BuildContext context) => Semantics(
+    label: family.label,
+    child: GameSymbol(family.asset, size: size),
+  );
 }
 
 class EffectSymbol extends StatelessWidget {
@@ -51,7 +52,10 @@ class StoneRow extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final s in stones)
-            Padding(padding: const EdgeInsets.only(right: 3), child: GameSymbol(s.asset, size: size)),
+            Padding(
+              padding: const EdgeInsets.only(right: 3),
+              child: GameSymbol(s.asset, size: size),
+            ),
         ],
       ),
     );

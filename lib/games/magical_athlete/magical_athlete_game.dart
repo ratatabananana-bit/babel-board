@@ -22,13 +22,13 @@ class MagicalAthleteGame implements GameModule {
 
   @override
   Widget icon(double size) => Builder(
-        builder: (context) => Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(color: context.pal.mint, shape: BoxShape.circle),
-          child: Icon(Icons.directions_run_rounded, size: size * 0.6, color: context.pal.onAccent),
-        ),
-      );
+    builder: (context) => Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: context.pal.mint, shape: BoxShape.circle),
+      child: Icon(Icons.directions_run_rounded, size: size * 0.6, color: context.pal.onAccent),
+    ),
+  );
 
   late final List<Racer> racers;
   late final Rules rules;
@@ -56,24 +56,24 @@ class MagicalAthleteGame implements GameModule {
 
   @override
   List<GameTab> get tabs => [
-        GameTab(label: 'Racers', icon: Icons.style_rounded, builder: (_) => const RacersScreen()),
-        GameTab(
-          label: 'This race',
-          icon: Icons.sports_score_rounded,
-          builder: (_) => const ThisRaceScreen(),
-          badge: (context) => context.watch<Lineup>().count,
-        ),
-        GameTab(label: 'Game', icon: Icons.flag_rounded, builder: (_) => const FlowScreen()),
-      ];
+    GameTab(label: 'Racers', icon: Icons.style_rounded, builder: (_) => const RacersScreen()),
+    GameTab(
+      label: 'This race',
+      icon: Icons.sports_score_rounded,
+      builder: (_) => const ThisRaceScreen(),
+      badge: (context) => context.watch<Lineup>().count,
+    ),
+    GameTab(label: 'Game', icon: Icons.flag_rounded, builder: (_) => const FlowScreen()),
+  ];
 
   @override
   Widget wrap(Widget child) => MultiProvider(
-        providers: [
-          Provider<List<Racer>>.value(value: racers),
-          ChangeNotifierProvider<Lineup>.value(value: lineup),
-          ChangeNotifierProvider<FlowState>.value(value: flow),
-          Provider<FlowConfig>.value(value: _flow),
-        ],
-        child: child,
-      );
+    providers: [
+      Provider<List<Racer>>.value(value: racers),
+      ChangeNotifierProvider<Lineup>.value(value: lineup),
+      ChangeNotifierProvider<FlowState>.value(value: flow),
+      Provider<FlowConfig>.value(value: _flow),
+    ],
+    child: child,
+  );
 }

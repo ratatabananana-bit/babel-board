@@ -5,102 +5,104 @@ import 'manifest_test.dart' show minimalManifest;
 
 /// A manifest with every block type in use, so each rule has something to check.
 Map<String, dynamic> fullManifest() => {
-      'format': 1,
-      'id': 'mini',
-      'name': 'Mini',
-      'version': '1.0.0',
-      'minAppVersion': '3.0.0',
-      'icon': 'images/icon.webp',
-      'collections': {
-        'items': {'items': 'data/items.json'},
+  'format': 1,
+  'id': 'mini',
+  'name': 'Mini',
+  'version': '1.0.0',
+  'minAppVersion': '3.0.0',
+  'icon': 'images/icon.webp',
+  'collections': {
+    'items': {'items': 'data/items.json'},
+  },
+  'symbols': {'fire': 'images/fire.webp'},
+  'zones': [
+    {'id': 'a', 'label': 'A', 'icon': 'table', 'accent': 'amber'},
+    {'id': 'b', 'label': 'B', 'icon': 'hand', 'accent': 'mint'},
+  ],
+  'tabs': [
+    {
+      'label': 'Gallery',
+      'icon': 'cards',
+      'block': {'type': 'gallery', 'collection': 'items'},
+    },
+    {
+      'label': 'Board',
+      'icon': 'hand',
+      'block': {
+        'type': 'board',
+        'children': [
+          {
+            'type': 'zone',
+            'zone': 'a',
+            'list': {'type': 'cardList', 'collection': 'items', 'style': 'mini'},
+          },
+          {'type': 'zone', 'zone': 'b'},
+        ],
       },
-      'symbols': {'fire': 'images/fire.webp'},
-      'zones': [
-        {'id': 'a', 'label': 'A', 'icon': 'table', 'accent': 'amber'},
-        {'id': 'b', 'label': 'B', 'icon': 'hand', 'accent': 'mint'},
-      ],
-      'tabs': [
-        {
-          'label': 'Gallery',
-          'icon': 'cards',
-          'block': {'type': 'gallery', 'collection': 'items'},
-        },
-        {
-          'label': 'Board',
-          'icon': 'hand',
-          'block': {
-            'type': 'board',
-            'children': [
+    },
+    {
+      'label': 'Flow',
+      'icon': 'flag',
+      'block': {
+        'type': 'flow',
+        'title': 'Round',
+        'children': [
+          {
+            'type': 'step',
+            'id': 's1',
+            'title': 'One',
+            'summary': 'First.',
+            'checklist': [
+              {'id': 's1.a', 'text': 'Do a'},
               {
-                'type': 'zone',
-                'zone': 'a',
-                'list': {'type': 'cardList', 'collection': 'items', 'style': 'mini'},
-              },
-              {'type': 'zone', 'zone': 'b'},
-            ],
-          },
-        },
-        {
-          'label': 'Flow',
-          'icon': 'flag',
-          'block': {
-            'type': 'flow',
-            'title': 'Round',
-            'children': [
-              {
-                'type': 'step',
-                'id': 's1',
-                'title': 'One',
-                'summary': 'First.',
-                'checklist': [
-                  {'id': 's1.a', 'text': 'Do a'},
-                  {
-                    'id': 's1.clear',
-                    'text': 'Clear A',
-                    'action': {'type': 'clearZone', 'zone': 'a'},
-                  },
-                ],
-              },
-              {
-                'type': 'step',
-                'id': 's2',
-                'title': 'Two',
-                'summary': 'Second.',
-                'checklist': [
-                  {
-                    'id': 's2.new',
-                    'text': 'New game',
-                    'action': {'type': 'newGame'},
-                  },
-                ],
+                'id': 's1.clear',
+                'text': 'Clear A',
+                'action': {'type': 'clearZone', 'zone': 'a'},
               },
             ],
           },
-        },
-        {
-          'label': 'Text',
-          'icon': 'book',
-          'block': {
-            'type': 'text',
-            'paragraphs': ['Hello'],
+          {
+            'type': 'step',
+            'id': 's2',
+            'title': 'Two',
+            'summary': 'Second.',
+            'checklist': [
+              {
+                'id': 's2.new',
+                'text': 'New game',
+                'action': {'type': 'newGame'},
+              },
+            ],
           },
-        },
-      ],
-    };
+        ],
+      },
+    },
+    {
+      'label': 'Text',
+      'icon': 'book',
+      'block': {
+        'type': 'text',
+        'paragraphs': ['Hello'],
+      },
+    },
+  ],
+};
 
 List<Map<String, dynamic>> items() => [
-      {'id': 'one', 'name': 'One', 'image': 'images/one.webp'},
-      {'id': 'two', 'name': 'Two', 'image': 'https://example.com/two.png'},
-      {'id': 'three', 'name': 'Three'},
-    ];
+  {'id': 'one', 'name': 'One', 'image': 'images/one.webp'},
+  {'id': 'two', 'name': 'Two', 'image': 'https://example.com/two.png'},
+  {'id': 'three', 'name': 'Three'},
+];
 
 List<ValidationIssue> check(Map<String, dynamic> m, {List<Map<String, dynamic>>? list, String app = '3.0.0'}) =>
     validateModule(m, collections: {'items': list ?? items()}, appVersion: app);
 
-Matcher fatalAt(String path, [Object? message]) => contains(isA<ValidationIssue>()
-    .having((i) => i.path, 'path', path)
-    .having((i) => i.fatal, 'fatal', isTrue)
-    .having((i) => i.message, 'message', message ?? anything));
+Matcher fatalAt(String path, [Object? message]) => contains(
+  isA<ValidationIssue>()
+      .having((i) => i.path, 'path', path)
+      .having((i) => i.fatal, 'fatal', isTrue)
+      .having((i) => i.message, 'message', message ?? anything),
+);
 
 void main() {
   test('compareVersions', () {
@@ -123,8 +125,10 @@ void main() {
   });
 
   test('minAppVersion above the app needs a newer app', () {
-    expect(check(fullManifest()..['minAppVersion'] = '3.1.0'),
-        fatalAt('minAppVersion', contains('needs a newer Table Helper')));
+    expect(
+      check(fullManifest()..['minAppVersion'] = '3.1.0'),
+      fatalAt('minAppVersion', contains('needs a newer Table Helper')),
+    );
     expect(check(fullManifest()..['minAppVersion'] = '3.1.0', app: '3.1.0'), isEmpty);
   });
 
@@ -186,7 +190,10 @@ void main() {
   });
 
   test('item ids are unique per collection', () {
-    final dup = [...items(), {'id': 'one', 'name': 'Again'}];
+    final dup = [
+      ...items(),
+      {'id': 'one', 'name': 'Again'},
+    ];
     expect(check(fullManifest(), list: dup), fatalAt('collections.items[3].id'));
   });
 

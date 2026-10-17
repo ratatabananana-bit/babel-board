@@ -31,7 +31,10 @@ class ZoneState extends ChangeNotifier {
 
   String? zoneOf(String itemId) => _zones[itemId];
 
-  List<String> idsIn(String zone) => [for (final e in _zones.entries) if (e.value == zone) e.key];
+  List<String> idsIn(String zone) => [
+    for (final e in _zones.entries)
+      if (e.value == zone) e.key,
+  ];
 
   int count(String zone) => _zones.values.where((z) => z == zone).length;
 

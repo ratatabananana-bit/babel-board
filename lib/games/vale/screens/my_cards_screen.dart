@@ -118,8 +118,8 @@ class _MyCardsScreenState extends State<MyCardsScreen> {
                         cards: [for (final id in tracker.idsIn(z)) ?byId[id]],
                         drag: _drag,
                         open: !_collapsed.contains(z) || _drag.active,
-                        onToggle: () => setState(
-                            () => _collapsed.contains(z) ? _collapsed.remove(z) : _collapsed.add(z)),
+                        onToggle: () =>
+                            setState(() => _collapsed.contains(z) ? _collapsed.remove(z) : _collapsed.add(z)),
                         onDragUpdate: _autoScroll,
                       ),
                     ),
@@ -149,23 +149,28 @@ class _Header extends StatelessWidget {
           const SizedBox(width: 10),
           const Text('My cards', style: T.title),
           const SizedBox(width: 10),
-          Expanded(child: Text('$total tracked', style: T.body.copyWith(color: p.text2))),
+          Expanded(
+            child: Text('$total tracked', style: T.body.copyWith(color: p.text2)),
+          ),
           PopupMenuButton<String>(
             tooltip: 'More',
             icon: Icon(Icons.more_vert_rounded, color: p.text2),
             onSelected: (v) async {
               switch (v) {
                 case 'all':
-                  final ok = await confirm(context, 'Clear all your cards?',
-                      'Removes every card from Table, Hand and Field.', 'Clear all');
+                  final ok = await confirm(
+                    context,
+                    'Clear all your cards?',
+                    'Removes every card from Table, Hand and Field.',
+                    'Clear all',
+                  );
                   if (ok) tracker.clearAll();
                 default:
                   tracker.clearZone(Zone.values.byName(v));
               }
             },
             itemBuilder: (_) => [
-              for (final z in Zone.values)
-                PopupMenuItem(value: z.name, child: Text('Clear ${z.label}')),
+              for (final z in Zone.values) PopupMenuItem(value: z.name, child: Text('Clear ${z.label}')),
               PopupMenuItem(
                 value: 'all',
                 child: Text('Clear everything', style: TextStyle(color: p.danger)),
@@ -195,8 +200,7 @@ class _DropDock extends StatelessWidget {
           onWillAcceptWithDetails: (_) => !isSrc,
           onMove: (_) => drag.hover(key),
           onLeave: (_) => drag.hover(null),
-          onAcceptWithDetails: (d) =>
-              key == _remove ? tracker.remove(d.data) : tracker.put(d.data, key as Zone),
+          onAcceptWithDetails: (d) => key == _remove ? tracker.remove(d.data) : tracker.put(d.data, key as Zone),
           builder: (context, _, _) {
             final box = AnimatedContainer(
               key: Key('drop-$key'),
@@ -215,11 +219,14 @@ class _DropDock extends StatelessWidget {
                   children: [
                     Icon(icon, size: 19, color: hot ? p.onAccent : (isSrc ? p.line : c)),
                     const SizedBox(width: 4),
-                    Text(label,
-                        style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w800,
-                            color: hot ? p.onAccent : (isSrc ? p.line : c))),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: hot ? p.onAccent : (isSrc ? p.line : c),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -304,17 +311,18 @@ class _Lane extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 7),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(color: zc, borderRadius: BorderRadius.circular(10)),
-                      child: Text('${cards.length}',
-                          style: TextStyle(
-                              fontSize: 12.5, fontWeight: FontWeight.w800, color: p.onAccent)),
+                      child: Text(
+                        '${cards.length}',
+                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: p.onAccent),
+                      ),
                     ),
                     Expanded(
                       child: Text(
                         hot
                             ? 'Release to drop here'
                             : target
-                                ? 'Drop here'
-                                : zone.hint,
+                            ? 'Drop here'
+                            : zone.hint,
                         textAlign: TextAlign.right,
                         overflow: TextOverflow.ellipsis,
                         style: T.caption.copyWith(color: target ? zc : p.muted),
@@ -330,7 +338,9 @@ class _Lane extends StatelessWidget {
                 color: p.line,
                 child: SizedBox(
                   height: 64,
-                  child: Center(child: Text('Drag cards here', style: T.body.copyWith(color: p.muted, fontSize: 14))),
+                  child: Center(
+                    child: Text('Drag cards here', style: T.body.copyWith(color: p.muted, fontSize: 14)),
+                  ),
                 ),
               ),
             if (open)
@@ -341,7 +351,9 @@ class _Lane extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(child: _MiniCard(card: cards[i], zone: zone, drag: drag, onDragUpdate: onDragUpdate)),
+                        Expanded(
+                          child: _MiniCard(card: cards[i], zone: zone, drag: drag, onDragUpdate: onDragUpdate),
+                        ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: i + 1 < cards.length
@@ -394,40 +406,39 @@ class _MiniCard extends StatelessWidget {
       feedback: feedback,
       childWhenDragging: placeholder,
       child: LongPressDraggable<String>(
-      data: card.id,
-      delay: const Duration(milliseconds: 220),
-      dragAnchorStrategy: anchor,
-      onDragStarted: onStart,
-      onDragUpdate: onDragUpdate,
-      onDragEnd: (_) => drag.end(),
-      feedback: feedback,
-      childWhenDragging: placeholder,
-      // Dropping onto a card places the dragged card just before it (in this card's zone).
-      child: DragTarget<String>(
-        onWillAcceptWithDetails: (d) => d.data != card.id,
-        onMove: (_) => drag.hover(zone),
-        onLeave: (_) => drag.hover(null),
-        onAcceptWithDetails: (d) => tracker.put(d.data, zone, beforeId: card.id),
-        builder: (context, candidates, _) => Stack(
-          // Passthrough so the card takes the row's stretched height (equal-height pairs).
-          fit: StackFit.passthrough,
-          children: [
-            _MiniCardBody(card: card, onTap: () => showCardSheet(context, card)),
-            if (candidates.isNotEmpty)
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: 4,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                      color: p.zone(zone), borderRadius: BorderRadius.circular(2)),
+        data: card.id,
+        delay: const Duration(milliseconds: 220),
+        dragAnchorStrategy: anchor,
+        onDragStarted: onStart,
+        onDragUpdate: onDragUpdate,
+        onDragEnd: (_) => drag.end(),
+        feedback: feedback,
+        childWhenDragging: placeholder,
+        // Dropping onto a card places the dragged card just before it (in this card's zone).
+        child: DragTarget<String>(
+          onWillAcceptWithDetails: (d) => d.data != card.id,
+          onMove: (_) => drag.hover(zone),
+          onLeave: (_) => drag.hover(null),
+          onAcceptWithDetails: (d) => tracker.put(d.data, zone, beforeId: card.id),
+          builder: (context, candidates, _) => Stack(
+            // Passthrough so the card takes the row's stretched height (equal-height pairs).
+            fit: StackFit.passthrough,
+            children: [
+              _MiniCardBody(card: card, onTap: () => showCardSheet(context, card)),
+              if (candidates.isNotEmpty)
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 4,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: p.zone(zone), borderRadius: BorderRadius.circular(2)),
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }
@@ -475,8 +486,10 @@ class _MiniCardBody extends StatelessWidget {
                   SizedBox(width: 40, child: CardArt(card, radius: 8)),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(card.name,
-                        style: const TextStyle(fontSize: 14, height: 1.2, fontWeight: FontWeight.w700)),
+                    child: Text(
+                      card.name,
+                      style: const TextStyle(fontSize: 14, height: 1.2, fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ],
               ),
@@ -487,14 +500,13 @@ class _MiniCardBody extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 1),
-                        child: EffectSymbol(e.type, size: 16),
-                      ),
+                      Padding(padding: const EdgeInsets.only(top: 1), child: EffectSymbol(e.type, size: 16)),
                       const SizedBox(width: 5),
                       Expanded(
-                        child: Text(e.text,
-                            style: TextStyle(fontSize: 13, height: 1.3, color: p.text.withValues(alpha: 0.9))),
+                        child: Text(
+                          e.text,
+                          style: TextStyle(fontSize: 13, height: 1.3, color: p.text.withValues(alpha: 0.9)),
+                        ),
                       ),
                     ],
                   ),
@@ -523,8 +535,8 @@ class _Ghost extends StatelessWidget {
         final ring = over is Zone
             ? p.zone(over)
             : over == _remove
-                ? p.danger
-                : p.text;
+            ? p.danger
+            : p.text;
         return Transform.rotate(
           angle: -0.07,
           child: Transform.scale(

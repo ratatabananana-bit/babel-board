@@ -37,31 +37,33 @@ class ReflowGrid<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, box) {
-      final w = box.maxWidth;
-      final tileW = tileWidth(w, columns);
-      final tileH = tileW / aspect + extraHeight;
-      return AnimatedContainer(
-        duration: duration,
-        curve: curve,
-        height: heightFor(items.length, w, columns, aspect: aspect, extra: extraHeight),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            for (var i = 0; i < items.length; i++)
-              AnimatedPositioned(
-                key: ValueKey(idOf(items[i])),
-                duration: duration,
-                curve: curve,
-                left: (i % columns) * (tileW + spacing),
-                top: (i ~/ columns) * (tileH + runSpacing),
-                width: tileW,
-                height: tileH,
-                child: tileBuilder(items[i]),
-              ),
-          ],
-        ),
-      );
-    });
+    return LayoutBuilder(
+      builder: (context, box) {
+        final w = box.maxWidth;
+        final tileW = tileWidth(w, columns);
+        final tileH = tileW / aspect + extraHeight;
+        return AnimatedContainer(
+          duration: duration,
+          curve: curve,
+          height: heightFor(items.length, w, columns, aspect: aspect, extra: extraHeight),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              for (var i = 0; i < items.length; i++)
+                AnimatedPositioned(
+                  key: ValueKey(idOf(items[i])),
+                  duration: duration,
+                  curve: curve,
+                  left: (i % columns) * (tileW + spacing),
+                  top: (i ~/ columns) * (tileH + runSpacing),
+                  width: tileW,
+                  height: tileH,
+                  child: tileBuilder(items[i]),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

@@ -1,4 +1,4 @@
-﻿// Renders every screen to design/screenshots/*.png at phone size (1080x2340).
+// Renders every screen to design/screenshots/*.png at phone size (1080x2340).
 // Run from the project root: flutter test tool/screenshot_test.dart
 import 'dart:convert';
 import 'dart:io';
@@ -10,24 +10,28 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vale_helper/main.dart';
+import 'package:vale_helper/modules/loaded_module.dart';
+import 'package:vale_helper/modules/module_files.dart';
 
 final _shotKey = GlobalKey();
 
+const _vale = 'vale-of-eternity';
+const _ma = 'magical-athlete';
+
 Future<void> _loadFonts() async {
-  Future<ByteData> f(String path) async =>
-      ByteData.view(Uint8List.fromList(await File(path).readAsBytes()).buffer);
+  Future<ByteData> f(String path) async => ByteData.view(Uint8List.fromList(await File(path).readAsBytes()).buffer);
   final figtree = FontLoader('Figtree');
   for (final w in [400, 500, 600, 700, 800]) {
     figtree.addFont(f('assets/fonts/Figtree-$w.ttf'));
   }
   await figtree.load();
   final root = Platform.environment['FLUTTER_ROOT'] ?? r'C:\Users\Benny\scoop\apps\flutter\current';
-  await (FontLoader('MaterialIcons')
-        ..addFont(f('$root/bin/cache/artifacts/material_fonts/materialicons-regular.otf')))
-      .load();
+  await (FontLoader(
+    'MaterialIcons',
+  )..addFont(f('$root/bin/cache/artifacts/material_fonts/materialicons-regular.otf'))).load();
 }
 
-/// Decodes every visible image (asset decoding needs real async in tests), then captures.
+/// Decodes every visible image (file decoding needs real async in tests), then captures.
 Future<void> _shot(WidgetTester tester, String name, {bool settle = true}) async {
   if (settle) await tester.pumpAndSettle();
   await tester.runAsync(() async {
@@ -50,10 +54,9 @@ Future<void> _shot(WidgetTester tester, String name, {bool settle = true}) async
   });
 }
 
-Finder _nav(String label) =>
-    find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
+Finder _nav(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
 
-Future<void> _pumpApp(WidgetTester tester, Brightness brightness, {String game = 'vale'}) async {
+Future<void> _pumpApp(WidgetTester tester, Brightness brightness, {String game = _vale}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 2.75;
   tester.platformDispatcher.platformBrightnessTestValue = brightness;
@@ -63,8 +66,8 @@ Future<void> _pumpApp(WidgetTester tester, Brightness brightness, {String game =
   // ignore: invalid_use_of_visible_for_testing_member
   SharedPreferences.setMockInitialValues({
     'app.lastGame': game,
-    'ma.lineup': ['banana', 'baba_yaga', 'suckerfish'],
-    'vale.tracker.zones': jsonEncode({
+    'mod.$_ma.zones': jsonEncode({'banana': 'race', 'baba_yaga': 'race', 'suckerfish': 'race'}),
+    'mod.$_vale.zones': jsonEncode({
       'sea_spirit': 'table',
       'balog': 'table',
       'imp': 'hand',
@@ -74,12 +77,23 @@ Future<void> _pumpApp(WidgetTester tester, Brightness brightness, {String game =
       'undine': 'field',
       'ifrit': 'field',
     }),
-    'vale.phase.checked': ['hunting.reveal'],
-    'ma.phase.index': 2,
-    'ma.phase.checked': ['race2.reveal', 'race2.start'],
+    'mod.$_vale.phase.checked': ['hunting.reveal'],
+    'mod.$_ma.phase.index': 2,
+    'mod.$_ma.phase.checked': ['race2.reveal', 'race2.start'],
   });
-  final data = await tester.runAsync(loadAppData);
-  await tester.pumpWidget(RepaintBoundary(key: _shotKey, child: HelperApp(loader: () async => data!)));
+  final data = await tester.runAsync(() async {
+    final prefs = await SharedPreferences.getInstance();
+    return AppData(prefs, [
+      await loadModule(DirectoryModuleFiles(Directory('modules/$_vale'))),
+      await loadModule(DirectoryModuleFiles(Directory('modules/$_ma'))),
+    ]);
+  });
+  await tester.pumpWidget(
+    RepaintBoundary(
+      key: _shotKey,
+      child: HelperApp(loader: () async => data!),
+    ),
+  );
 }
 
 void main() {
@@ -92,7 +106,7 @@ void main() {
     await _shot(tester, '01_cards_all');
     await tester.tap(find.bySemanticsLabel('Family Fire'));
     await _shot(tester, '02_cards_fire_by_cost');
-    await tester.tap(find.text('3').last);
+    await tester.tap(find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text('3')));
     await _shot(tester, '03_cards_fire_jump_cost3');
     await tester.tap(find.bySemanticsLabel('Family Fire'));
     await tester.pumpAndSettle();
@@ -153,13 +167,13 @@ void main() {
   });
 
   testWidgets('magical athlete screenshots', (tester) async {
-    await _pumpApp(tester, Brightness.dark, game: 'ma');
+    await _pumpApp(tester, Brightness.dark, game: _ma);
     await _shot(tester, '17_ma_racers');
     await tester.tap(find.byKey(const Key('density2')));
     await _shot(tester, '18_ma_racers_2_per_row');
     await tester.tap(find.byKey(const Key('density4')));
     await tester.pumpAndSettle();
-    await tester.tap(find.bySemanticsLabel('Baba Yaga, in this race'));
+    await tester.tap(find.bySemanticsLabel('Baba Yaga, in This race'));
     await _shot(tester, '19_ma_racer_sheet');
     await tester.tapAt(const Offset(200, 60));
     await tester.pumpAndSettle();

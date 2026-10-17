@@ -72,12 +72,15 @@ class CardTile extends StatelessWidget {
                             children: [
                               Icon(zone.icon, size: 14, color: p.onAccent),
                               const SizedBox(width: 3),
-                              Text(zone.label.toUpperCase(),
-                                  style: TextStyle(
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: 0.4,
-                                      color: p.onAccent)),
+                              Text(
+                                zone.label.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.4,
+                                  color: p.onAccent,
+                                ),
+                              ),
                             ],
                           ),
                         ),

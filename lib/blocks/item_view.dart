@@ -32,8 +32,13 @@ class SymbolImage extends StatelessWidget {
     final img = m.files.image(m.manifest.symbols[name]);
     final w = img == null
         ? SizedBox(width: size, height: size)
-        : Image(image: img, width: size, height: size, fit: BoxFit.contain,
-            errorBuilder: (_, _, _) => SizedBox(width: size, height: size));
+        : Image(
+            image: img,
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+            errorBuilder: (_, _, _) => SizedBox(width: size, height: size),
+          );
     return label == null ? w : Semantics(label: label, child: w);
   }
 }
@@ -41,22 +46,22 @@ class SymbolImage extends StatelessWidget {
 /// One chip of an item's template: text, a symbol, or a labeled row of symbols.
 class ChipSpec {
   ChipSpec(Map<String, dynamic> j)
-      : symbol = j['symbol'] as String?,
-        text = j['text'] as String?,
-        symbols = j['symbols'] as String?,
-        label = j['label'] as String?;
+    : symbol = j['symbol'] as String?,
+      text = j['text'] as String?,
+      symbols = j['symbols'] as String?,
+      label = j['label'] as String?;
   final String? symbol, text, symbols, label;
 }
 
 /// The sheet template of a collection, read from `CollectionSpec.sheet`.
 class SheetSpec {
   SheetSpec(Map<String, dynamic> j)
-      : chips = [for (final c in (j['chips'] as List? ?? const [])) ChipSpec((c as Map).cast<String, dynamic>())],
-        effects = (j['effects'] as Map?)?.cast<String, dynamic>(),
-        sections = [for (final s in (j['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>()],
-        secondary = j['secondary'] as String?,
-        verifiedPath = j['verifiedPath'] as String?,
-        zones = (j['zones'] as List?)?.cast<String>() ?? const [];
+    : chips = [for (final c in (j['chips'] as List? ?? const [])) ChipSpec((c as Map).cast<String, dynamic>())],
+      effects = (j['effects'] as Map?)?.cast<String, dynamic>(),
+      sections = [for (final s in (j['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>()],
+      secondary = j['secondary'] as String?,
+      verifiedPath = j['verifiedPath'] as String?,
+      zones = (j['zones'] as List?)?.cast<String>() ?? const [];
 
   final List<ChipSpec> chips;
   final Map<String, dynamic>? effects;
@@ -86,43 +91,58 @@ class TextOnlyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final chip = SheetSpec(collection.sheet).firstChipText(item.data);
     final subtitle = item.subtitle(collection);
-    return LayoutBuilder(builder: (context, box) {
-      final w = box.maxWidth;
-      return Container(
-        padding: EdgeInsets.all(w * 0.07),
-        decoration: BoxDecoration(color: Palette.parchment, borderRadius: BorderRadius.circular(radius)),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(item.title(collection),
+    return LayoutBuilder(
+      builder: (context, box) {
+        final w = box.maxWidth;
+        return Container(
+          padding: EdgeInsets.all(w * 0.07),
+          decoration: BoxDecoration(color: Palette.parchment, borderRadius: BorderRadius.circular(radius)),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  item.title(collection),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: w * 0.12, fontWeight: FontWeight.w800, color: Palette.ink, height: 1.1)),
-              if (subtitle != null)
-                Text(subtitle,
+                  style: TextStyle(fontSize: w * 0.12, fontWeight: FontWeight.w800, color: Palette.ink, height: 1.1),
+                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: w * 0.08, fontStyle: FontStyle.italic, color: Palette.inkMuted, height: 1.3)),
-              if (chip != null)
-                Padding(
-                  padding: EdgeInsets.only(top: w * 0.05),
-                  child: Text(chip,
+                      fontSize: w * 0.08,
+                      fontStyle: FontStyle.italic,
+                      color: Palette.inkMuted,
+                      height: 1.3,
+                    ),
+                  ),
+                if (chip != null)
+                  Padding(
+                    padding: EdgeInsets.only(top: w * 0.05),
+                    child: Text(
+                      chip,
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: w * 0.075, fontWeight: FontWeight.w600, color: Palette.inkMuted)),
-                ),
-            ],
+                      style: TextStyle(fontSize: w * 0.075, fontWeight: FontWeight.w600, color: Palette.inkMuted),
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }
 
 /// An item's picture in its printed shape: `card` fills the shape with the picture,
 /// `square` frames square art above the title and subtitle. No picture → [TextOnlyCard].
 class ItemPicture extends StatelessWidget {
-  const ItemPicture(this.item, this.collection, {super.key, this.radius = 12});
+  const ItemPicture(this.item, this.collection, {super.key, this.radius = 12, this.artOnly = false});
+
+  /// For the `square` shape: draw just the square art, without the card frame (list rows).
+  final bool artOnly;
 
   final Item item;
   final CollectionSpec collection;
@@ -135,6 +155,14 @@ class ItemPicture extends StatelessWidget {
     Widget body;
     if (img == null) {
       body = textOnly;
+    } else if (collection.imageShape == 'square' && artOnly) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: Image(image: img, fit: BoxFit.cover, errorBuilder: (_, _, _) => textOnly),
+        ),
+      );
     } else if (collection.imageShape == 'square') {
       body = _FramedCard(item: item, collection: collection, image: img, radius: radius, fallback: textOnly);
     } else {
@@ -165,55 +193,66 @@ class _FramedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final subtitle = item.subtitle(collection);
-    return LayoutBuilder(builder: (context, box) {
-      final w = box.maxWidth;
-      final pad = w * 0.05;
-      return Container(
-        padding: EdgeInsets.all(pad),
-        decoration: BoxDecoration(color: Palette.parchment, borderRadius: BorderRadius.circular(radius)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(radius * 0.6),
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Image(
-                  image: image,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => ColoredBox(color: context.pal.surface2),
+    return LayoutBuilder(
+      builder: (context, box) {
+        final w = box.maxWidth;
+        final pad = w * 0.05;
+        return Container(
+          padding: EdgeInsets.all(pad),
+          decoration: BoxDecoration(color: Palette.parchment, borderRadius: BorderRadius.circular(radius)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(radius * 0.6),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Image(
+                    image: image,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => ColoredBox(color: context.pal.surface2),
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: pad),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(item.title(collection),
+              Expanded(
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: pad),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            item.title(collection),
                             style: TextStyle(
-                                fontSize: w * 0.11, fontWeight: FontWeight.w800, color: Palette.ink, height: 1.1)),
-                        if (subtitle != null)
-                          Text(subtitle,
+                              fontSize: w * 0.11,
+                              fontWeight: FontWeight.w800,
+                              color: Palette.ink,
+                              height: 1.1,
+                            ),
+                          ),
+                          if (subtitle != null)
+                            Text(
+                              subtitle,
                               style: TextStyle(
-                                  fontSize: w * 0.075,
-                                  fontStyle: FontStyle.italic,
-                                  color: Palette.inkMuted,
-                                  height: 1.2)),
-                      ],
+                                fontSize: w * 0.075,
+                                fontStyle: FontStyle.italic,
+                                color: Palette.inkMuted,
+                                height: 1.2,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      );
-    });
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -257,7 +296,10 @@ class ItemTile extends StatelessWidget {
             Container(
               foregroundDecoration: zc == null
                   ? null
-                  : BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: zc, width: 2.5)),
+                  : BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: zc, width: 2.5),
+                    ),
               child: Stack(
                 children: [
                   ItemPicture(item, collection),
@@ -282,12 +324,15 @@ class ItemTile extends StatelessWidget {
                             children: [
                               Icon(moduleIcon(zone.icon), size: 14, color: p.onAccent),
                               const SizedBox(width: 3),
-                              Text((zone.band ?? zone.label).toUpperCase(),
-                                  style: TextStyle(
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: 0.4,
-                                      color: p.onAccent)),
+                              Text(
+                                (zone.band ?? zone.label).toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.4,
+                                  color: p.onAccent,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -338,7 +383,9 @@ class ItemSheet extends StatelessWidget {
     final current = zones.zoneOf(item.id);
     final subtitle = item.subtitle(collection);
     final secondary = sheet.secondary == null ? null : fillTemplate(sheet.secondary!, item.data).trim();
-    final verified = sheet.verifiedPath == null ? true : resolvePath(item.data, sheet.verifiedPath!).firstOrNull != false;
+    final verified = sheet.verifiedPath == null
+        ? true
+        : resolvePath(item.data, sheet.verifiedPath!).firstOrNull != false;
     final zoneSpecs = [for (final id in sheet.zones) ?zoneSpec(module, id)];
 
     return SafeArea(
@@ -367,8 +414,10 @@ class ItemSheet extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
-                                    child: Text(item.title(collection),
-                                        style: const TextStyle(fontSize: 26, height: 1.1, fontWeight: FontWeight.w800)),
+                                    child: Text(
+                                      item.title(collection),
+                                      style: const TextStyle(fontSize: 26, height: 1.1, fontWeight: FontWeight.w800),
+                                    ),
                                   ),
                                   IconButton(
                                     tooltip: 'Close',
@@ -380,7 +429,10 @@ class ItemSheet extends StatelessWidget {
                               ),
                               if (subtitle != null) ...[
                                 const SizedBox(height: 4),
-                                Text(subtitle, style: T.body.copyWith(color: p.text2, fontStyle: FontStyle.italic)),
+                                Text(
+                                  subtitle,
+                                  style: T.body.copyWith(color: p.text2, fontStyle: FontStyle.italic),
+                                ),
                               ],
                               if (secondary != null && secondary.isNotEmpty) ...[
                                 const SizedBox(height: 6),
@@ -388,11 +440,7 @@ class ItemSheet extends StatelessWidget {
                               ],
                               if (sheet.chips.isNotEmpty) ...[
                                 const SizedBox(height: 8),
-                                Wrap(
-                                  spacing: 6,
-                                  runSpacing: 6,
-                                  children: [for (final c in sheet.chips) ?_chip(c)],
-                                ),
+                                Wrap(spacing: 6, runSpacing: 6, children: [for (final c in sheet.chips) ?_chip(c)]),
                               ],
                             ],
                           ),
@@ -405,8 +453,10 @@ class ItemSheet extends StatelessWidget {
                     if (!verified)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: Text('⚠ Text not verified. Check the physical card.',
-                            style: T.caption.copyWith(color: p.warn)),
+                        child: Text(
+                          '⚠ Text not verified. Check the physical card.',
+                          style: T.caption.copyWith(color: p.warn),
+                        ),
                       ),
                   ],
                 ),
@@ -420,7 +470,9 @@ class ItemSheet extends StatelessWidget {
                 Row(
                   children: [
                     for (final z in zoneSpecs) ...[
-                      Expanded(child: _ZoneButton(zone: z, active: current == z.id, itemId: item.id)),
+                      Expanded(
+                        child: _ZoneButton(zone: z, active: current == z.id, itemId: item.id),
+                      ),
                       const SizedBox(width: 6),
                     ],
                     Tooltip(
@@ -470,12 +522,18 @@ class ItemSheet extends StatelessWidget {
       final names = resolvePath(item.data, c.symbols!).map((v) => '$v').toList();
       if (names.isNotEmpty) {
         if (children.isNotEmpty) children.add(const SizedBox(width: 4));
-        children.add(Semantics(
-          label: '${names.length} symbols',
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            for (final n in names) Padding(padding: const EdgeInsets.only(right: 3), child: SymbolImage(n, size: 20)),
-          ]),
-        ));
+        children.add(
+          Semantics(
+            label: '${names.length} symbols',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final n in names)
+                  Padding(padding: const EdgeInsets.only(right: 3), child: SymbolImage(n, size: 20)),
+              ],
+            ),
+          ),
+        );
       }
     }
     if (children.isEmpty) return null;
@@ -508,8 +566,10 @@ class ItemSheet extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${labels[raw['type']] ?? raw['type'] ?? ''}'.toUpperCase(),
-                          style: T.caption.copyWith(color: p.text2, letterSpacing: 1)),
+                      Text(
+                        '${labels[raw['type']] ?? raw['type'] ?? ''}'.toUpperCase(),
+                        style: T.caption.copyWith(color: p.text2, letterSpacing: 1),
+                      ),
                       const SizedBox(height: 2),
                       Text('${raw['text'] ?? ''}', style: T.effect.copyWith(color: p.text)),
                     ],
@@ -529,7 +589,10 @@ class ItemSheet extends StatelessWidget {
       Text('${s['label'] ?? ''}'.toUpperCase(), style: T.caption.copyWith(color: p.text2, letterSpacing: 1)),
       const SizedBox(height: 4),
       for (final v in values)
-        Padding(padding: const EdgeInsets.only(bottom: 10), child: Text(v, style: T.effect.copyWith(color: p.text))),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Text(v, style: T.effect.copyWith(color: p.text)),
+        ),
       const SizedBox(height: 6),
     ];
   }
@@ -637,10 +700,12 @@ class _ZoneButton extends StatelessWidget {
                 Icon(moduleIcon(zone.icon), size: 21, color: active ? p.onAccent : zc),
                 const SizedBox(width: 5),
                 Flexible(
-                  child: Text(zone.label,
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: active ? p.onAccent : p.text)),
+                  child: Text(
+                    zone.label,
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: active ? p.onAccent : p.text),
+                  ),
                 ),
               ],
             ),
@@ -677,11 +742,15 @@ class _SingleZoneButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(active ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded,
-                  color: active ? p.onAccent : zc),
+              Icon(
+                active ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded,
+                color: active ? p.onAccent : zc,
+              ),
               const SizedBox(width: 8),
-              Text(active ? 'In ${zone.label}' : 'Add to ${zone.label}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: active ? p.onAccent : p.text)),
+              Text(
+                active ? 'In ${zone.inSentence}' : 'Add to ${zone.inSentence}',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: active ? p.onAccent : p.text),
+              ),
             ],
           ),
         ),

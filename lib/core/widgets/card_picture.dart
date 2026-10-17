@@ -4,13 +4,7 @@ import '../theme.dart';
 
 /// A card picture in its printed shape, with a named placeholder if the image is missing.
 class CardPicture extends StatelessWidget {
-  const CardPicture({
-    super.key,
-    required this.asset,
-    required this.aspect,
-    required this.label,
-    this.radius = 12,
-  });
+  const CardPicture({super.key, required this.asset, required this.aspect, required this.label, this.radius = 12});
 
   final String? asset;
 
@@ -28,9 +22,11 @@ class CardPicture extends StatelessWidget {
       color: p.surface2,
       padding: const EdgeInsets.all(6),
       alignment: Alignment.center,
-      child: Text(label,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: p.text2)),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: p.text2),
+      ),
     );
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),

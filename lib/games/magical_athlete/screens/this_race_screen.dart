@@ -32,9 +32,10 @@ class ThisRaceScreen extends StatelessWidget {
                 const SizedBox(width: 10),
                 const Text('This race', style: T.title),
                 const SizedBox(width: 10),
-                Expanded(child: Text('${racers.length} racers', style: T.body.copyWith(color: p.text2))),
-                if (racers.isNotEmpty)
-                  TextButton(onPressed: lineup.clear, child: const Text('Clear')),
+                Expanded(
+                  child: Text('${racers.length} racers', style: T.body.copyWith(color: p.text2)),
+                ),
+                if (racers.isNotEmpty) TextButton(onPressed: lineup.clear, child: const Text('Clear')),
               ],
             ),
           ),
@@ -82,10 +83,7 @@ class _RaceRow extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 64,
-                child: RacerArt(racer),
-              ),
+              SizedBox(width: 64, child: RacerArt(racer)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -93,7 +91,10 @@ class _RaceRow extends StatelessWidget {
                   children: [
                     Text(racer.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
                     if (racer.powerName != null)
-                      Text(racer.powerName!, style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: p.text2)),
+                      Text(
+                        racer.powerName!,
+                        style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic, color: p.text2),
+                      ),
                     const SizedBox(height: 4),
                     for (final a in racer.abilities)
                       Padding(

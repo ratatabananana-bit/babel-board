@@ -40,22 +40,21 @@ void main() {
   test('cards are sorted by family then cost', () {
     for (var i = 1; i < cards.length; i++) {
       final a = cards[i - 1], b = cards[i];
-      final ok = a.family.index < b.family.index ||
-          (a.family == b.family && a.cost <= b.cost);
+      final ok = a.family.index < b.family.index || (a.family == b.family && a.cost <= b.cost);
       expect(ok, isTrue, reason: '${a.name} before ${b.name}');
     }
   });
 
   test('duplicate ids are rejected', () {
-    const raw = '{"cards":['
+    const raw =
+        '{"cards":['
         '{"id":"x","name":"X","family":"fire","cost":1,"effects":[{"type":"instant","text":"t"}]},'
         '{"id":"x","name":"X","family":"fire","cost":1,"effects":[{"type":"instant","text":"t"}]}]}';
     expect(() => parseCards(raw), throwsFormatException);
   });
 
   test('rules file parses with the 4-phase cycle and unique checklist ids', () {
-    final rules = Rules.fromJson(
-        jsonDecode(File('assets/rules_en.json').readAsStringSync()) as Map<String, dynamic>);
+    final rules = Rules.fromJson(jsonDecode(File('assets/rules_en.json').readAsStringSync()) as Map<String, dynamic>);
     expect(rules.phases.map((p) => p.id), ['hunting', 'action', 'resolution', 'end']);
     final ids = [
       ...rules.setup.checklist.map((i) => i.id),

@@ -48,13 +48,13 @@ class _HelperAppState extends State<HelperApp> {
   AppState? _app;
 
   static Widget _material({required Widget home, TransitionBuilder? builder}) => MaterialApp(
-        title: 'Table Helper',
-        debugShowCheckedModeBanner: false,
-        theme: buildTheme(Palette.light, Brightness.light),
-        darkTheme: buildTheme(Palette.dark, Brightness.dark),
-        builder: builder,
-        home: home,
-      );
+    title: 'Table Helper',
+    debugShowCheckedModeBanner: false,
+    theme: buildTheme(Palette.light, Brightness.light),
+    darkTheme: buildTheme(Palette.dark, Brightness.dark),
+    builder: builder,
+    home: home,
+  );
 
   /// Long-press the app icon to jump straight into a game (Android only).
   Future<void> _setUpShortcuts(AppState app) async {
@@ -62,9 +62,7 @@ class _HelperAppState extends State<HelperApp> {
     const actions = QuickActions();
     try {
       await actions.initialize(app.open);
-      await actions.setShortcutItems([
-        for (final g in app.games) ShortcutItem(type: g.id, localizedTitle: g.title),
-      ]);
+      await actions.setShortcutItems([for (final g in app.games) ShortcutItem(type: g.id, localizedTitle: g.title)]);
     } on MissingPluginException {
       // Not available here (e.g. in tests); shortcuts are a nice-to-have.
     } on PlatformException {
@@ -90,7 +88,11 @@ class _HelperAppState extends State<HelperApp> {
           );
         }
         final d = snap.data;
-        if (d == null) return _material(home: const Scaffold(body: Center(child: CircularProgressIndicator())));
+        if (d == null) {
+          return _material(
+            home: const Scaffold(body: Center(child: CircularProgressIndicator())),
+          );
+        }
         if (_app == null) {
           _app = AppState(d.prefs, [for (final m in d.modules) OpenGame.load(d.prefs, m)]);
           _setUpShortcuts(_app!);
@@ -163,22 +165,25 @@ class _GameShellState extends State<GameShell> {
         child: PageView(
           controller: _pages,
           onPageChanged: (i) => setState(() => _tab = i),
-          children: [
-            for (final t in tabs) _KeepAlive(Builder(builder: (context) => buildBlock(context, t.block))),
-          ],
+          children: [for (final t in tabs) _KeepAlive(Builder(builder: (context) => buildBlock(context, t.block)))],
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(border: Border(top: BorderSide(color: p.surface2))),
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: p.surface2)),
+        ),
         child: NavigationBarTheme(
           data: NavigationBarThemeData(
-            labelTextStyle: WidgetStateProperty.resolveWith((s) => TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                  color: s.contains(WidgetState.selected) ? p.text : p.muted,
-                )),
+            labelTextStyle: WidgetStateProperty.resolveWith(
+              (s) => TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: s.contains(WidgetState.selected) ? p.text : p.muted,
+              ),
+            ),
             iconTheme: WidgetStateProperty.resolveWith(
-                (s) => IconThemeData(size: 23, color: s.contains(WidgetState.selected) ? p.text : p.muted)),
+              (s) => IconThemeData(size: 23, color: s.contains(WidgetState.selected) ? p.text : p.muted),
+            ),
           ),
           child: NavigationBar(
             height: 72,
@@ -191,16 +196,18 @@ class _GameShellState extends State<GameShell> {
               for (final t in tabs)
                 NavigationDestination(
                   label: t.label,
-                  icon: Builder(builder: (context) {
-                    final n = t.badge == 'zoneCount' ? context.watch<ZoneState>().total : 0;
-                    return Badge(
-                      isLabelVisible: n > 0,
-                      backgroundColor: p.badge,
-                      textColor: p.onAccent,
-                      label: Text('$n', style: const TextStyle(fontWeight: FontWeight.w800)),
-                      child: Icon(moduleIcon(t.icon)),
-                    );
-                  }),
+                  icon: Builder(
+                    builder: (context) {
+                      final n = t.badge == 'zoneCount' ? context.watch<ZoneState>().total : 0;
+                      return Badge(
+                        isLabelVisible: n > 0,
+                        backgroundColor: p.badge,
+                        textColor: p.onAccent,
+                        label: Text('$n', style: const TextStyle(fontWeight: FontWeight.w800)),
+                        child: Icon(moduleIcon(t.icon)),
+                      );
+                    },
+                  ),
                 ),
             ],
           ),

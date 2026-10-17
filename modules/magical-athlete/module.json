@@ -1,0 +1,423 @@
+{
+  "format": 1,
+  "id": "magical-athlete",
+  "name": "Magical Athlete",
+  "version": "1.0.0",
+  "minAppVersion": "3.0.0",
+  "icon": "images/icon.webp",
+  "players": "2-6",
+  "source": "Magical Athlete rulebook (2025 CMYK edition) + publisher rules updates on BoardGameGeek",
+  "collections": {
+    "racers": {
+      "items": "data/racers.json",
+      "titleField": "name",
+      "subtitleField": "powerName",
+      "imageShape": "square",
+      "cardAspect": 0.716,
+      "sheet": {
+        "secondary": "{nameZhNote}",
+        "sections": [
+          {
+            "label": "Ability",
+            "path": "abilities"
+          },
+          {
+            "label": "Rulebook notes",
+            "path": "notes"
+          }
+        ],
+        "verifiedPath": "verified",
+        "zones": [
+          "race"
+        ]
+      }
+    }
+  },
+  "zones": [
+    {
+      "id": "race",
+      "label": "This race",
+      "phrase": "this race",
+      "icon": "race",
+      "accent": "mint",
+      "band": "In race",
+      "hint": "Racers on the track"
+    }
+  ],
+  "tabs": [
+    {
+      "label": "Racers",
+      "icon": "cards",
+      "block": {
+        "type": "gallery",
+        "collection": "racers",
+        "search": [
+          "name",
+          "nameZh",
+          "abilities"
+        ],
+        "tileName": false,
+        "noun": "racers"
+      }
+    },
+    {
+      "label": "This race",
+      "icon": "race",
+      "badge": "zoneCount",
+      "block": {
+        "type": "board",
+        "title": "This race",
+        "countLabel": "{count} racers",
+        "children": [
+          {
+            "type": "zone",
+            "zone": "race",
+            "list": {
+              "type": "cardList",
+              "collection": "racers",
+              "style": "rows",
+              "removable": true,
+              "emptyText": "No racers yet.\nIn Racers, tap a racer and choose \"Add to this race\" for every racer on the track."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "Game",
+      "icon": "flag",
+      "block": {
+        "type": "flow",
+        "title": "Game",
+        "cyclic": false,
+        "reminders": [
+          "2–6 players. The standard rules are for 3–6; 2 players use the 2-player variant (8 racers each, 2 racers per race).",
+          "On your turn, roll your die and move: that's your MAIN MOVE. Many powers only trigger on the main move.",
+          "Powers that say \"can\" are optional; every other power is mandatory.",
+          "When several powers happen at once, resolve them in this order: track spaces first, then the current player, then the other players clockwise.",
+          "Tripped: finish the move, then lay the token down. On its next turn the racer skips its main move and stands back up. Its power still works, and it can still be moved other ways.",
+          "Passing = starting a move behind a racer and ending that same move ahead of it.",
+          "Stopping on / sharing a space means being there after a move ends. Moving through a space doesn't count.",
+          "Warping (being put on a new space) doesn't count as moving, so it triggers nothing that cares about moves or passing.",
+          "Rerolls: the earlier roll never happened, and it triggers nothing.",
+          "\"Before my main move\" style powers happen only once per turn.",
+          "A racer's power stops working once it finishes or leaves the race, unless the card says otherwise.",
+          "Infinite loops: go round the loop once, in order, then stop.",
+          "Aug 2026 rule change: racers that ARRIVE on a space together don't trigger \"stops on a space\" powers on each other (e.g. racers pulled by Party Animal, or Suckerfish riding along).",
+          "Stuck on a rules question? Roll off to decide."
+        ],
+        "newGameText": "Clears this race's lineup and goes back to the start.",
+        "setup": {
+          "id": "setup",
+          "title": "Setup",
+          "summary": "Do this once, before the draft.",
+          "listTitle": "Setup",
+          "how": [
+            "Bronze star chips form a supply: worth 1, earned from Wild-track stars and some powers. The 3-point bronze chips are for making change.",
+            "If you want, decide before the game to race on one track only, or to set your own Mild/Wild schedule."
+          ],
+          "checklist": [
+            {
+              "id": "setup.track",
+              "text": "Track in the middle, Mild Mile side up"
+            },
+            {
+              "id": "setup.chips",
+              "text": "Stack the point chips, biggest at the bottom",
+              "sub": "Gold: 5, 4, 4, 3 (3 on top). Silver: 3, 2, 2, 1 (1 on top)."
+            },
+            {
+              "id": "setup.cards",
+              "text": "Shuffle the racer cards into a deck"
+            },
+            {
+              "id": "setup.dice",
+              "text": "Racer tokens out, one die per player"
+            },
+            {
+              "id": "setup.app",
+              "text": "Start a new game in the app",
+              "sub": "Clears this race's lineup and goes back to the draft",
+              "action": {
+                "type": "newGame"
+              }
+            }
+          ]
+        },
+        "children": [
+          {
+            "type": "step",
+            "id": "draft",
+            "title": "Draft",
+            "summary": "Everyone drafts a team of 4 racers: one for each race.",
+            "listTitle": "Draft",
+            "how": [
+              "Flip up 2 racer cards per player in a line (6 / 8 / 10 / 12 for 3 / 4 / 5 / 6 players).",
+              "Roll off: the highest roll picks first. If the high rolls tie, the next highest wins; if everyone ties, reroll.",
+              "Snake draft: going clockwise, each player picks 1 racer. The last player then picks a second, and picking goes back counterclockwise (4 players: A B C D D C B A). That uses up the line.",
+              "Repeat with a new line, starting with the player to the left of the first picker. Everyone ends with 4 racers. (The rulebook only says \"repeat this process\"; flipping a new line is the likely reading.)",
+              "2-player variant: snake draft a line of 8 (A B B A A B B A), then a second line of 8 in reverse order. Each player ends with 8 racers.",
+              "3-player double-racer variant (optional): snake draft a line of 6, four times, rotating who picks first. Each player ends with 8 racers."
+            ],
+            "checklist": [
+              {
+                "id": "draft.flip",
+                "text": "Flip 2 racers per player",
+                "sub": "6 / 8 / 10 / 12 cards for 3 / 4 / 5 / 6 players"
+              },
+              {
+                "id": "draft.rolloff",
+                "text": "Roll off for first pick"
+              },
+              {
+                "id": "draft.snake1",
+                "text": "First snake draft",
+                "sub": "Clockwise 1 each, then back counterclockwise"
+              },
+              {
+                "id": "draft.snake2",
+                "text": "Second snake draft",
+                "sub": "New line, starting left of the first picker"
+              },
+              {
+                "id": "draft.done",
+                "text": "Everyone has 4 racers",
+                "sub": "8 each in the 2-player variant"
+              }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "race1",
+            "title": "Race 1",
+            "short": "Race 1",
+            "tag": "Mild",
+            "summary": "Mild Mile. 1st place scores 3, 2nd place scores 1.",
+            "listTitle": "Race 1",
+            "how": [
+              "Everyone chooses a racer card from their hand and reveals at the same time. Each racer runs only once.",
+              "All tokens go on Start. \"Before my race\" powers (Egg, Twin, Sisyphus) happen now.",
+              "Race 1: roll off; the highest roll goes first. Turns go clockwise.",
+              "The race ends the moment the 2nd racer crosses the finish line.",
+              "2-player variant: each player runs 2 different racers with 2 dice. On your first turn you use one racer; after that, both in any order, finishing one completely before the other."
+            ],
+            "checklist": [
+              {
+                "id": "race1.reveal",
+                "text": "Reveal racers together",
+                "sub": "Add them to This race in the app"
+              },
+              {
+                "id": "race1.start",
+                "text": "All tokens on Start",
+                "sub": "\"Before my race\" powers happen now"
+              },
+              {
+                "id": "race1.first",
+                "text": "Roll off: highest goes first"
+              },
+              {
+                "id": "race1.chips",
+                "text": "Give out chips: 1st 3, 2nd 1",
+                "sub": "Bronze stars earned during the race are kept"
+              },
+              {
+                "id": "race1.out",
+                "text": "This race's cards and tokens out of play"
+              },
+              {
+                "id": "race1.app",
+                "text": "Clear This race in the app",
+                "action": {
+                  "type": "clearZone",
+                  "zone": "race"
+                },
+                "actionLabel": "Clear"
+              },
+              {
+                "id": "race1.flip",
+                "text": "Flip the track to the Wild side"
+              }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "race2",
+            "title": "Race 2",
+            "short": "Race 2",
+            "tag": "Wild",
+            "summary": "Wild Wilds. 1st place scores 4, 2nd place scores 2.",
+            "listTitle": "Race 2",
+            "how": [
+              "Reveal new racers together; all tokens on Start.",
+              "Whoever was farthest behind (or knocked out first) in the last race goes first. If that's a tie, roll off. 2-player variant: whoever scored fewer points last race goes first.",
+              "Wild track: an arrow moves you the shown number of spaces (a separate move, never the main move). A rock trips you. A star gives you a bronze 1-point chip.",
+              "The race ends the moment the 2nd racer crosses the finish line."
+            ],
+            "checklist": [
+              {
+                "id": "race2.reveal",
+                "text": "Reveal racers together",
+                "sub": "Add them to This race in the app"
+              },
+              {
+                "id": "race2.start",
+                "text": "All tokens on Start",
+                "sub": "\"Before my race\" powers happen now"
+              },
+              {
+                "id": "race2.first",
+                "text": "Farthest behind last race goes first"
+              },
+              {
+                "id": "race2.chips",
+                "text": "Give out chips: 1st 4, 2nd 2",
+                "sub": "Bronze stars earned during the race are kept"
+              },
+              {
+                "id": "race2.out",
+                "text": "This race's cards and tokens out of play"
+              },
+              {
+                "id": "race2.app",
+                "text": "Clear This race in the app",
+                "action": {
+                  "type": "clearZone",
+                  "zone": "race"
+                },
+                "actionLabel": "Clear"
+              },
+              {
+                "id": "race2.flip",
+                "text": "Flip the track to the Mild side"
+              }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "race3",
+            "title": "Race 3",
+            "short": "Race 3",
+            "tag": "Mild",
+            "summary": "Mild Mile. 1st place scores 4, 2nd place scores 2.",
+            "listTitle": "Race 3",
+            "how": [
+              "Reveal new racers together; all tokens on Start.",
+              "Whoever was farthest behind (or knocked out first) in the last race goes first. If that's a tie, roll off. 2-player variant: whoever scored fewer points last race goes first.",
+              "The race ends the moment the 2nd racer crosses the finish line."
+            ],
+            "checklist": [
+              {
+                "id": "race3.reveal",
+                "text": "Reveal racers together",
+                "sub": "Add them to This race in the app"
+              },
+              {
+                "id": "race3.start",
+                "text": "All tokens on Start",
+                "sub": "\"Before my race\" powers happen now"
+              },
+              {
+                "id": "race3.first",
+                "text": "Farthest behind last race goes first"
+              },
+              {
+                "id": "race3.chips",
+                "text": "Give out chips: 1st 4, 2nd 2",
+                "sub": "Bronze stars earned during the race are kept"
+              },
+              {
+                "id": "race3.out",
+                "text": "This race's cards and tokens out of play"
+              },
+              {
+                "id": "race3.app",
+                "text": "Clear This race in the app",
+                "action": {
+                  "type": "clearZone",
+                  "zone": "race"
+                },
+                "actionLabel": "Clear"
+              },
+              {
+                "id": "race3.flip",
+                "text": "Flip the track to the Wild side"
+              }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "race4",
+            "title": "Race 4",
+            "short": "Race 4",
+            "tag": "Wild",
+            "summary": "Wild Wilds, the last race. 1st place scores 5, 2nd place scores 3.",
+            "listTitle": "Race 4",
+            "how": [
+              "Reveal your last racers together; all tokens on Start.",
+              "Whoever was farthest behind (or knocked out first) in the last race goes first. If that's a tie, roll off. 2-player variant: whoever scored fewer points last race goes first.",
+              "Wild track: an arrow moves you the shown number of spaces (a separate move). A rock trips you. A star gives you a bronze 1-point chip.",
+              "The race ends the moment the 2nd racer crosses the finish line."
+            ],
+            "checklist": [
+              {
+                "id": "race4.reveal",
+                "text": "Reveal racers together",
+                "sub": "Add them to This race in the app"
+              },
+              {
+                "id": "race4.start",
+                "text": "All tokens on Start",
+                "sub": "\"Before my race\" powers happen now"
+              },
+              {
+                "id": "race4.first",
+                "text": "Farthest behind last race goes first"
+              },
+              {
+                "id": "race4.chips",
+                "text": "Give out chips: 1st 5, 2nd 3",
+                "sub": "Bronze stars earned during the race are kept"
+              },
+              {
+                "id": "race4.app",
+                "text": "Clear This race in the app",
+                "action": {
+                  "type": "clearZone",
+                  "zone": "race"
+                },
+                "actionLabel": "Clear"
+              }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "final",
+            "title": "Final scoring",
+            "short": "Final",
+            "summary": "The game ends after race 4. Most points wins.",
+            "listTitle": "Final scoring",
+            "nextLabel": "New game",
+            "how": [
+              "Add up everyone's gold, silver and bronze chips.",
+              "There's no tiebreaker: tied players share the win.",
+              "If M.O.U.T.H. knocked out so many racers that nobody finished 2nd in a race, nobody got that race's silver chip."
+            ],
+            "checklist": [
+              {
+                "id": "final.count",
+                "text": "Count everyone's points",
+                "sub": "Gold + silver + bronze chips"
+              },
+              {
+                "id": "final.win",
+                "text": "Most points wins",
+                "sub": "Tied players share the win"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

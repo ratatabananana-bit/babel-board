@@ -28,8 +28,7 @@ int tiles() => find.byType(AnimatedPositioned).evaluate().length;
 
 Tracker tracker(WidgetTester tester) => tester.element(find.byType(NavigationBar)).read<Tracker>();
 
-Finder navLabel(String label) =>
-    find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
+Finder navLabel(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
 
 void main() {
   testWidgets('family dock is single-select; search narrows by name', (tester) async {
@@ -72,8 +71,9 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Family Fire'));
     await tester.pumpAndSettle();
     Color railColor(String n) {
-      final text = tester.widget<Text>(find.descendant(
-          of: find.byType(AnimatedContainer), matching: find.text(n)).last);
+      final text = tester.widget<Text>(
+        find.descendant(of: find.byType(AnimatedContainer), matching: find.text(n)).last,
+      );
       return text.style!.color!;
     }
 
@@ -90,8 +90,7 @@ void main() {
     await pumpApp(tester);
     await tester.tap(find.bySemanticsLabel('Family Fire'));
     await tester.pumpAndSettle();
-    Finder rail(String n) =>
-        find.descendant(of: find.byKey(const Key('costRail')), matching: find.text(n));
+    Finder rail(String n) => find.descendant(of: find.byKey(const Key('costRail')), matching: find.text(n));
 
     final g = await tester.startGesture(tester.getCenter(rail('0')));
     final end = tester.getCenter(rail('4'));

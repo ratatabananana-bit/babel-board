@@ -54,7 +54,9 @@ class TextBlock extends StatelessWidget {
                           decoration: BoxDecoration(color: p.text2, shape: BoxShape.circle),
                         ),
                       ),
-                      Expanded(child: Text(b, style: T.body.copyWith(color: p.text))),
+                      Expanded(
+                        child: Text(b, style: T.body.copyWith(color: p.text)),
+                      ),
                     ],
                   ),
                 ),

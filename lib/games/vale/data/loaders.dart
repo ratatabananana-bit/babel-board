@@ -24,4 +24,3 @@ List<GameCard> parseCards(String raw) {
   });
   return cards;
 }
-

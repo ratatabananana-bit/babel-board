@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 /// Paints a dashed rounded-rectangle border around its child.
 class DashedBorder extends StatelessWidget {
@@ -17,10 +17,8 @@ class DashedBorder extends StatelessWidget {
   final double radius, width, dash, gap;
 
   @override
-  Widget build(BuildContext context) => CustomPaint(
-        foregroundPainter: _DashPainter(color, radius, width, dash, gap),
-        child: child,
-      );
+  Widget build(BuildContext context) =>
+      CustomPaint(foregroundPainter: _DashPainter(color, radius, width, dash, gap), child: child);
 }
 
 class _DashPainter extends CustomPainter {
@@ -30,8 +28,7 @@ class _DashPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rrect = RRect.fromRectAndRadius(
-        (Offset.zero & size).deflate(width / 2), Radius.circular(radius));
+    final rrect = RRect.fromRectAndRadius((Offset.zero & size).deflate(width / 2), Radius.circular(radius));
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
@@ -44,6 +41,5 @@ class _DashPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_DashPainter old) =>
-      old.color != color || old.radius != radius || old.width != width;
+  bool shouldRepaint(_DashPainter old) => old.color != color || old.radius != radius || old.width != width;
 }

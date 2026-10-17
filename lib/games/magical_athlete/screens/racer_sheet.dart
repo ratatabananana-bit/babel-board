@@ -43,10 +43,7 @@ class RacerSheet extends StatelessWidget {
                       children: [
                         GestureDetector(
                           onTap: () => _showFull(context),
-                          child: SizedBox(
-                            width: 88,
-                            child: RacerCard(racer, radius: 8),
-                          ),
+                          child: SizedBox(width: 88, child: RacerCard(racer, radius: 8)),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -57,9 +54,10 @@ class RacerSheet extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
-                                    child: Text(racer.name,
-                                        style: const TextStyle(
-                                            fontSize: 26, height: 1.1, fontWeight: FontWeight.w800)),
+                                    child: Text(
+                                      racer.name,
+                                      style: const TextStyle(fontSize: 26, height: 1.1, fontWeight: FontWeight.w800),
+                                    ),
                                   ),
                                   IconButton(
                                     tooltip: 'Close',
@@ -71,13 +69,14 @@ class RacerSheet extends StatelessWidget {
                               ),
                               if (racer.powerName != null) ...[
                                 const SizedBox(height: 4),
-                                Text(racer.powerName!,
-                                    style: T.body.copyWith(color: p.text2, fontStyle: FontStyle.italic)),
+                                Text(
+                                  racer.powerName!,
+                                  style: T.body.copyWith(color: p.text2, fontStyle: FontStyle.italic),
+                                ),
                               ],
                               if (racer.nameZh != null) ...[
                                 const SizedBox(height: 6),
-                                Text('${racer.nameZh}  (fan translation)',
-                                    style: T.caption.copyWith(color: p.muted)),
+                                Text('${racer.nameZh}  (fan translation)', style: T.caption.copyWith(color: p.muted)),
                               ],
                             ],
                           ),
@@ -100,8 +99,10 @@ class RacerSheet extends StatelessWidget {
                       const SizedBox(height: 10),
                     ],
                     if (!racer.verified)
-                      Text('⚠ Ability text not verified. Check the physical card.',
-                          style: T.caption.copyWith(color: p.warn)),
+                      Text(
+                        '⚠ Ability text not verified. Check the physical card.',
+                        style: T.caption.copyWith(color: p.warn),
+                      ),
                   ],
                 ),
               ),
@@ -119,12 +120,19 @@ class RacerSheet extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(inRace ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded,
-                          color: inRace ? p.onAccent : p.mint),
+                      Icon(
+                        inRace ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded,
+                        color: inRace ? p.onAccent : p.mint,
+                      ),
                       const SizedBox(width: 8),
-                      Text(inRace ? 'In this race' : 'Add to this race',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w700, color: inRace ? p.onAccent : p.text)),
+                      Text(
+                        inRace ? 'In this race' : 'Add to this race',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: inRace ? p.onAccent : p.text,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -145,10 +153,7 @@ class RacerSheet extends StatelessWidget {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: InteractiveViewer(
-              maxScale: 4,
-              child: SizedBox(width: 300, child: RacerCard(racer, radius: 14)),
-            ),
+            child: InteractiveViewer(maxScale: 4, child: SizedBox(width: 300, child: RacerCard(racer, radius: 14))),
           ),
         ),
       ),

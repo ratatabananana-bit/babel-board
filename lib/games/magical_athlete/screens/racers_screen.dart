@@ -42,18 +42,22 @@ class _RacersScreenState extends State<RacersScreen> {
     final shown = q.isEmpty
         ? all
         : all
-            .where((r) =>
-                r.name.toLowerCase().contains(q) ||
-                (r.nameZh?.contains(q) ?? false) ||
-                r.abilities.any((a) => a.toLowerCase().contains(q)))
-            .toList();
+              .where(
+                (r) =>
+                    r.name.toLowerCase().contains(q) ||
+                    (r.nameZh?.contains(q) ?? false) ||
+                    r.abilities.any((a) => a.toLowerCase().contains(q)),
+              )
+              .toList();
 
     return Column(
       children: [
         SearchTopBar(search: _search, hint: 'Search racers'),
         Expanded(
           child: shown.isEmpty
-              ? Center(child: Text('No racers match "${_search.text}".', style: T.body.copyWith(color: p.text2)))
+              ? Center(
+                  child: Text('No racers match "${_search.text}".', style: T.body.copyWith(color: p.text2)),
+                )
               : ListView(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                   children: [
@@ -119,9 +123,15 @@ class RacerTile extends StatelessWidget {
                         ),
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: Text('IN RACE',
-                              style: TextStyle(
-                                  fontSize: 11.5, fontWeight: FontWeight.w800, letterSpacing: 0.4, color: p.onAccent)),
+                          child: Text(
+                            'IN RACE',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.4,
+                              color: p.onAccent,
+                            ),
+                          ),
                         ),
                       ),
                     ),

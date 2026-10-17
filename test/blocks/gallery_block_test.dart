@@ -11,8 +11,9 @@ import '../helpers.dart';
 int tiles() => find.byType(AnimatedPositioned).evaluate().length;
 
 void main() {
-  testWidgets('bottom filter dock is single-select with a summary; search narrows by name and nested path',
-      (tester) async {
+  testWidgets('bottom filter dock is single-select with a summary; search narrows by name and nested path', (
+    tester,
+  ) async {
     await pumpModules(tester);
     expect(tiles(), 4);
     expect(find.text('All families · 4 cards'), findsOneWidget);
@@ -141,8 +142,9 @@ void main() {
     expect(scoped<ZoneState>(tester).zoneOf('nessie'), isNull);
   });
 
-  testWidgets('an item without an image renders the text-only card; unverified items warn in the sheet',
-      (tester) async {
+  testWidgets('an item without an image renders the text-only card; unverified items warn in the sheet', (
+    tester,
+  ) async {
     await pumpModules(tester);
     expect(find.descendant(of: find.byType(ItemPicture), matching: find.text('Ghost')), findsOneWidget);
     expect(find.descendant(of: find.byType(ItemPicture), matching: find.text('Imp')), findsNothing);
@@ -156,7 +158,10 @@ void main() {
     await pumpModules(
       tester,
       edit: (m) => m['collections']['items']['imageShape'] = 'square',
-      prefs: {'app.lastGame': 'mini', 'mod.mini.zones': jsonEncode({'nessie': 'b'})},
+      prefs: {
+        'app.lastGame': 'mini',
+        'mod.mini.zones': jsonEncode({'nessie': 'b'}),
+      },
     );
     expect(find.descendant(of: find.byType(ItemPicture), matching: find.text('Imp')), findsOneWidget);
     expect(find.bySemanticsLabel('Nessie, in Lane B'), findsOneWidget);

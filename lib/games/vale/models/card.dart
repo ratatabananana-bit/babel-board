@@ -29,9 +29,9 @@ enum Family {
   String get asset => 'assets/symbols/$name.webp';
 
   static Family parse(String s) => Family.values.firstWhere(
-        (f) => f.name == s.toLowerCase(),
-        orElse: () => throw FormatException('Unknown family "$s"'),
-      );
+    (f) => f.name == s.toLowerCase(),
+    orElse: () => throw FormatException('Unknown family "$s"'),
+  );
 }
 
 enum EffectType {
@@ -48,9 +48,9 @@ enum EffectType {
   String? get asset => this == none ? null : 'assets/symbols/$name.webp';
 
   static EffectType parse(String s) => EffectType.values.firstWhere(
-        (t) => t.name == s.toLowerCase(),
-        orElse: () => throw FormatException('Unknown effect type "$s"'),
-      );
+    (t) => t.name == s.toLowerCase(),
+    orElse: () => throw FormatException('Unknown effect type "$s"'),
+  );
 }
 
 class CardEffect {
@@ -94,15 +94,13 @@ class GameCard {
   String get effectSummary => effects.map((e) => '${e.type.label}: ${e.text}').join(' · ');
 
   factory GameCard.fromJson(Map<String, dynamic> j) => GameCard(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        nameZh: j['nameZh'] as String?,
-        family: Family.parse(j['family'] as String),
-        cost: j['cost'] as int,
-        effects: (j['effects'] as List)
-            .map((e) => CardEffect.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        verified: j['verified'] as bool? ?? false,
-        image: j['image'] as String?,
-      );
+    id: j['id'] as String,
+    name: j['name'] as String,
+    nameZh: j['nameZh'] as String?,
+    family: Family.parse(j['family'] as String),
+    cost: j['cost'] as int,
+    effects: (j['effects'] as List).map((e) => CardEffect.fromJson(e as Map<String, dynamic>)).toList(),
+    verified: j['verified'] as bool? ?? false,
+    image: j['image'] as String?,
+  );
 }

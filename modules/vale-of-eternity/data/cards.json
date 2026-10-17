@@ -1,0 +1,1386 @@
+{
+  "items": [
+    {
+      "id": "hestia",
+      "name": "Hestia",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 0,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "You can keep two more stones."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/hestia.webp"
+    },
+    {
+      "id": "imp",
+      "name": "Imp",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 0,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 2 red stones."
+        },
+        {
+          "type": "active",
+          "text": "Recover."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/imp.webp"
+    },
+    {
+      "id": "succubus",
+      "name": "Succubus",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 0,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "If cards with written cost of 1, 2, 3, and 4 are all in your area, earn 10 points."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/succubus.webp"
+    },
+    {
+      "id": "firefox",
+      "name": "Firefox",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 1,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 1 point for each card in your hand."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/firefox.webp"
+    },
+    {
+      "id": "salamander",
+      "name": "Salamander",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 1,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Earn 1 red stone and 1 point."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/salamander.webp"
+    },
+    {
+      "id": "horned_salamander",
+      "name": "Horned Salamander",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 2,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Earn 4 red stones."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/horned_salamander.webp"
+    },
+    {
+      "id": "ifrit",
+      "name": "Ifrit",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 2,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 1 point for each card in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/ifrit.webp"
+    },
+    {
+      "id": "incubus",
+      "name": "Incubus",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 2,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 2 points for each card with a written cost of 2 or less in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/incubus.webp"
+    },
+    {
+      "id": "burning_skull",
+      "name": "Burning Skull",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 3,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Discard one of your red stones, then earn 3 points."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/burning_skull.webp"
+    },
+    {
+      "id": "lava_giant",
+      "name": "Lava Giant",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 3,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 2 points for each Fire card in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/lava_giant.webp"
+    },
+    {
+      "id": "phoenix",
+      "name": "Phoenix",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 3,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "Whenever you summon a card, earn 1 point for each used red stone."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/phoenix.webp"
+    },
+    {
+      "id": "agni",
+      "name": "Agni",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 4,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "The value of your red stones is increased by 1."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/agni.webp"
+    },
+    {
+      "id": "asmodeus",
+      "name": "Asmodeus",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 4,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Recover one of your cards with an Instant effect and a written cost of 2 or less."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/asmodeus.webp"
+    },
+    {
+      "id": "balog",
+      "name": "Balog",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 4,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Recover one of your Fire cards with an Instant effect."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/balog.webp"
+    },
+    {
+      "id": "surtr",
+      "name": "Surtr",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "cost": 4,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 2 points for each card family in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/surtr.webp"
+    },
+    {
+      "id": "yuki_onna",
+      "name": "Yuki Onna",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 0,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Discard all your stones and earn points equal to the total value of discarded stones."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/yuki_onna.webp"
+    },
+    {
+      "id": "kappa",
+      "name": "Kappa",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 1,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "Whenever you summon a card using a blue stone, earn 2 points."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/kappa.webp"
+    },
+    {
+      "id": "sea_spirit",
+      "name": "Sea Spirit",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 1,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Earn 1 point for each of your blue stones."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/sea_spirit.webp"
+    },
+    {
+      "id": "undine",
+      "name": "Undine",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 1,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 1 blue stone."
+        },
+        {
+          "type": "active",
+          "text": "Recover."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/undine.webp"
+    },
+    {
+      "id": "nessie",
+      "name": "Nessie",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 2,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "If there is no Dragon card in your area, earn 2 points."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/nessie.webp"
+    },
+    {
+      "id": "hae_tae",
+      "name": "Hae-tae",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 3,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "Value of your blue stones counts as a purple stone. Value of your purple stones counts as a blue stone."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/hae_tae.webp"
+    },
+    {
+      "id": "snail_maiden",
+      "name": "Snail Maiden",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 3,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Exchange one of your blue stones with 1 purple stone. -or- Exchange one of your purple stones with 3 blue stones."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/snail_maiden.webp"
+    },
+    {
+      "id": "undine_queen",
+      "name": "Undine Queen",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 3,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Earn 1 blue stone."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/undine_queen.webp"
+    },
+    {
+      "id": "yuki_onna_exalted",
+      "name": "Yuki Onna Exalted",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 3,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn points equal to the total value of your blue stones."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/yuki_onna_exalted.webp"
+    },
+    {
+      "id": "hydra",
+      "name": "Hydra",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 4,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Choose 2 between 1 purple stone / draw a card / 2 blue stones / 4 points. Earn them."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/hydra.webp"
+    },
+    {
+      "id": "leviathan",
+      "name": "Leviathan",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 4,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 7 points. A player of your choice discards one of their summoned Dragon cards."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/leviathan.webp"
+    },
+    {
+      "id": "triton",
+      "name": "Triton",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 4,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "Whenever you tame a Water card, earn 2 blue stones."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/triton.webp"
+    },
+    {
+      "id": "water_giant",
+      "name": "Water Giant",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 4,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 2 blue stones."
+        },
+        {
+          "type": "permanent",
+          "text": "Values of your blue stones and purple stones are each increased by 1."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/water_giant.webp"
+    },
+    {
+      "id": "charybdis",
+      "name": "Charybdis",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 5,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Discard one of your blue stones, then earn 5 points."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/charybdis.webp"
+    },
+    {
+      "id": "poseidon",
+      "name": "Poseidon",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 7,
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 3 points for each Water card in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/poseidon.webp"
+    },
+    {
+      "id": "young_forest_spirit",
+      "name": "Young Forest Spirit",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 0,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Discard a card from your hand and summon another card for free."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/young_forest_spirit.webp"
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 1,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Steal 1 point from any opponent."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/goblin.webp"
+    },
+    {
+      "id": "forest_spirit",
+      "name": "Forest Spirit",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 2,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Discard a card from your hand and earn points equal to the cost written on that card."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/forest_spirit.webp"
+    },
+    {
+      "id": "gargoyle",
+      "name": "Gargoyle",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 2,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "Whenever you summon a card using a purple stone, earn 3 points."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/gargoyle.webp"
+    },
+    {
+      "id": "basilisk",
+      "name": "Basilisk",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 3,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Lose 0 / 1 / 2 points, then earn 1 red stone / 1 blue stone / 1 purple stone (choose one option)."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/basilisk.webp"
+    },
+    {
+      "id": "troll",
+      "name": "Troll",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 3,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "If you have a purple stone, earn 3 points."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/troll.webp"
+    },
+    {
+      "id": "goblin_soldier",
+      "name": "Goblin Soldier",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 4,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "If any opponent has more points than you, earn 4 points. Otherwise lose 4 points."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/goblin_soldier.webp"
+    },
+    {
+      "id": "medusa",
+      "name": "Medusa",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 4,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Discard a card from your hand, then earn 1 purple stone."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/medusa.webp"
+    },
+    {
+      "id": "cerberus",
+      "name": "Cerberus",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 5,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Discard up to 3 of your other summoned cards."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/cerberus.webp"
+    },
+    {
+      "id": "mimic",
+      "name": "Mimic",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 6,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Choose any Earth card from the discard pile. Add it into your hand."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/mimic.webp"
+    },
+    {
+      "id": "mud_slime",
+      "name": "Mud Slime",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 6,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 6 points."
+        },
+        {
+          "type": "active",
+          "text": "Recover."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/mud_slime.webp"
+    },
+    {
+      "id": "rock_golem",
+      "name": "Rock Golem",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 6,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn points equal to the total value of your purple stones."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/rock_golem.webp"
+    },
+    {
+      "id": "stone_golem",
+      "name": "Stone Golem",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 6,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Exchange each of your stones with a purple stone."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/stone_golem.webp"
+    },
+    {
+      "id": "behemoth",
+      "name": "Behemoth",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 9,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 3 points for each card family in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/behemoth.webp"
+    },
+    {
+      "id": "sand_giant",
+      "name": "Sand Giant",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "cost": 10,
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 4 points for each Earth card in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/sand_giant.webp"
+    },
+    {
+      "id": "dandelion_spirit",
+      "name": "Dandelion Spirit",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 3,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Draw a card."
+        },
+        {
+          "type": "active",
+          "text": "Recover."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/dandelion_spirit.webp"
+    },
+    {
+      "id": "harpy",
+      "name": "Harpy",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 3,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "If the number of cards in your hand is the same as the number of cards in your area, earn 3 points."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/harpy.webp"
+    },
+    {
+      "id": "pegasus",
+      "name": "Pegasus",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 3,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Draw a card."
+        },
+        {
+          "type": "permanent",
+          "text": "The cost of your cards is decreased by 1."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/pegasus.webp"
+    },
+    {
+      "id": "tengu",
+      "name": "Tengu",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 3,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 6 points and put this card on the top of the draw deck."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/tengu.webp"
+    },
+    {
+      "id": "boreas",
+      "name": "Boreas",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 4,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 1 point for each Wind card in your area. Immediately recover this card."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/boreas.webp"
+    },
+    {
+      "id": "genie",
+      "name": "Genie",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 4,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Activate all available Active effects of cards in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/genie.webp"
+    },
+    {
+      "id": "hippogriff",
+      "name": "Hippogriff",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 4,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Draw a card."
+        },
+        {
+          "type": "permanent",
+          "text": "The cost of your Wind cards is decreased by 2."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/hippogriff.webp"
+    },
+    {
+      "id": "sylph",
+      "name": "Sylph",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 4,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Draw a card."
+        },
+        {
+          "type": "permanent",
+          "text": "Whenever you summon a card, earn 1 point."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/sylph.webp"
+    },
+    {
+      "id": "genie_exalted",
+      "name": "Genie Exalted",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 5,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Copy one Active effect of another card in your area and activate it."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/genie_exalted.webp"
+    },
+    {
+      "id": "valkyrie",
+      "name": "Valkyrie",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 5,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Earn 1 point for each card family in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/valkyrie.webp"
+    },
+    {
+      "id": "odin",
+      "name": "Odin",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 6,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "If you have less than 6 cards in your hand, earn 2 points. Otherwise, earn 1 purple stone."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/odin.webp"
+    },
+    {
+      "id": "freyja",
+      "name": "Freyja",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 7,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Earn 1 point for each card with an Active effect in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/freyja.webp"
+    },
+    {
+      "id": "griffon",
+      "name": "Griffon",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 7,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Draw a card."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/griffon.webp"
+    },
+    {
+      "id": "rudra",
+      "name": "Rudra",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 8,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 2 points for each card in your hand."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/rudra.webp"
+    },
+    {
+      "id": "gi_rin",
+      "name": "Gi-rin",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "cost": 10,
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 2 points for each card in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/gi_rin.webp"
+    },
+    {
+      "id": "dragon_egg",
+      "name": "Dragon Egg",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "cost": 3,
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Discard this card and summon a Dragon card for free."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/dragon_egg.webp"
+    },
+    {
+      "id": "tidal",
+      "name": "Tidal",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "cost": 5,
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 5 points for each Dragon card in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/tidal.webp"
+    },
+    {
+      "id": "ember",
+      "name": "Ember",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "cost": 7,
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 7 points. A player of your choice discards one of their summoned Water cards."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/ember.webp"
+    },
+    {
+      "id": "marina",
+      "name": "Marina",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "cost": 7,
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 7 points. A player of your choice discards one of their summoned Fire cards."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/marina.webp"
+    },
+    {
+      "id": "boulder",
+      "name": "Boulder",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "cost": 8,
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 8 points. A player of your choice discards one of their summoned Wind cards."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/boulder.webp"
+    },
+    {
+      "id": "gust",
+      "name": "Gust",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "cost": 8,
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 8 points. A player of your choice discards one of their summoned Earth cards."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/gust.webp"
+    },
+    {
+      "id": "aeris",
+      "name": "Aeris",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "cost": 9,
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Recover one of your other cards and earn points equal to the cost written on that card."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/aeris.webp"
+    },
+    {
+      "id": "scorch",
+      "name": "Scorch",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "cost": 9,
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Copy one Instant effect of another card in your area and activate it."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/scorch.webp"
+    },
+    {
+      "id": "willow",
+      "name": "Willow",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "cost": 10,
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 1 red stone, 1 blue stone, 1 purple stone and 3 points. Draw a card."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/willow.webp"
+    },
+    {
+      "id": "eternity",
+      "name": "Eternity",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "cost": 12,
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 4 points for each card family in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/eternity.webp"
+    }
+  ]
+}

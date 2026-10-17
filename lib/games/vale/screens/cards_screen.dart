@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -65,8 +65,11 @@ class _CardsScreenState extends State<CardsScreen> {
     // Keep the tapped cost lit while the list animates past the sections in between.
     _jumping = true;
     _scroll
-        .animateTo(o.clamp(0, _scroll.position.maxScrollExtent),
-            duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic)
+        .animateTo(
+          o.clamp(0, _scroll.position.maxScrollExtent),
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+        )
         .whenComplete(() => _jumping = false);
   }
 
@@ -87,8 +90,7 @@ class _CardsScreenState extends State<CardsScreen> {
     return all.where((c) {
       if (_family != null && c.family != _family) return false;
       if (q.isEmpty) return true;
-      return c.name.toLowerCase().contains(q) ||
-          c.effects.any((e) => e.text.toLowerCase().contains(q));
+      return c.name.toLowerCase().contains(q) || c.effects.any((e) => e.text.toLowerCase().contains(q));
     }).toList();
   }
 
@@ -106,10 +108,12 @@ class _CardsScreenState extends State<CardsScreen> {
           child: Row(
             children: [
               Expanded(
-                child: LayoutBuilder(builder: (context, box) {
-                  final gridW = box.maxWidth - _pad.horizontal;
-                  return _grid(context, shown, costs, columns, gridW, box.maxHeight);
-                }),
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final gridW = box.maxWidth - _pad.horizontal;
+                    return _grid(context, shown, costs, columns, gridW, box.maxHeight);
+                  },
+                ),
               ),
               if (_family != null)
                 _CostRail(
@@ -125,8 +129,7 @@ class _CardsScreenState extends State<CardsScreen> {
     );
   }
 
-  Widget _grid(BuildContext context, List<GameCard> shown, List<int> costs, int columns, double gridW,
-      double viewH) {
+  Widget _grid(BuildContext context, List<GameCard> shown, List<int> costs, int columns, double gridW, double viewH) {
     final p = context.pal;
     if (shown.isEmpty) {
       return Center(
@@ -138,9 +141,7 @@ class _CardsScreenState extends State<CardsScreen> {
       return ListView(
         controller: _scroll,
         padding: _pad.copyWith(top: 8, right: 16),
-        children: [
-          AnimatedCardGrid(cards: shown, columns: columns, onTap: (c) => showCardSheet(context, c)),
-        ],
+        children: [AnimatedCardGrid(cards: shown, columns: columns, onTap: (c) => showCardSheet(context, c))],
       );
     }
     // Grouped by cost with sticky headers; offsets are computed so the rail can jump.
@@ -151,16 +152,19 @@ class _CardsScreenState extends State<CardsScreen> {
       final cards = shown.where((c) => c.cost == cost).toList();
       _sectionOffsets[cost] = y;
       y += _headerH + AnimatedCardGrid.heightFor(cards.length, gridW, columns) + _sectionGap;
-      slivers.add(SliverMainAxisGroup(slivers: [
-        SliverPersistentHeader(pinned: true, delegate: _CostHeader(cost, p)),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: _sectionGap),
-            child: AnimatedCardGrid(
-                cards: cards, columns: columns, onTap: (c) => showCardSheet(context, c)),
-          ),
+      slivers.add(
+        SliverMainAxisGroup(
+          slivers: [
+            SliverPersistentHeader(pinned: true, delegate: _CostHeader(cost, p)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: _sectionGap),
+                child: AnimatedCardGrid(cards: cards, columns: columns, onTap: (c) => showCardSheet(context, c)),
+              ),
+            ),
+          ],
         ),
-      ]));
+      );
     }
     // Room after the last section so every cost can scroll to the top (keeps the rail honest).
     final lastH = y - _sectionOffsets[costs.last]!;
@@ -168,7 +172,10 @@ class _CardsScreenState extends State<CardsScreen> {
     return CustomScrollView(
       controller: _scroll,
       slivers: [
-        SliverPadding(padding: _pad, sliver: SliverMainAxisGroup(slivers: slivers)),
+        SliverPadding(
+          padding: _pad,
+          sliver: SliverMainAxisGroup(slivers: slivers),
+        ),
         SliverToBoxAdapter(child: SizedBox(height: tail)),
       ],
     );
@@ -226,60 +233,62 @@ class _CostRail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.pal;
-    return LayoutBuilder(builder: (context, box) {
-      final h = box.maxHeight - _pad.vertical;
-      void scrub(Offset local, {required bool animate}) {
-        final c = _costAt(local.dy, h);
-        if (c != null && (c != active || animate)) {
-          if (!animate) HapticFeedback.selectionClick();
-          onPick(c, animate: animate);
+    return LayoutBuilder(
+      builder: (context, box) {
+        final h = box.maxHeight - _pad.vertical;
+        void scrub(Offset local, {required bool animate}) {
+          final c = _costAt(local.dy, h);
+          if (c != null && (c != active || animate)) {
+            if (!animate) HapticFeedback.selectionClick();
+            onPick(c, animate: animate);
+          }
         }
-      }
 
-      return GestureDetector(
-        key: const Key('costRail'),
-        behavior: HitTestBehavior.opaque,
-        onTapUp: (d) => scrub(d.localPosition, animate: true),
-        onVerticalDragStart: (d) => scrub(d.localPosition, animate: false),
-        onVerticalDragUpdate: (d) => scrub(d.localPosition, animate: false),
-        child: Container(
-          width: 36,
-          padding: _pad,
-          child: Column(
-            children: [
-              for (var n = 0; n <= 12; n++)
-                Expanded(
-                  child: Center(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: 28,
-                    height: 26,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: n == active ? p.text : Colors.transparent,
-                      borderRadius: BorderRadius.circular(13),
-                    ),
-                    child: Text(
-                      '$n',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                        color: n == active
-                            ? p.bg
-                            : available.contains(n)
+        return GestureDetector(
+          key: const Key('costRail'),
+          behavior: HitTestBehavior.opaque,
+          onTapUp: (d) => scrub(d.localPosition, animate: true),
+          onVerticalDragStart: (d) => scrub(d.localPosition, animate: false),
+          onVerticalDragUpdate: (d) => scrub(d.localPosition, animate: false),
+          child: Container(
+            width: 36,
+            padding: _pad,
+            child: Column(
+              children: [
+                for (var n = 0; n <= 12; n++)
+                  Expanded(
+                    child: Center(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        width: 28,
+                        height: 26,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: n == active ? p.text : Colors.transparent,
+                          borderRadius: BorderRadius.circular(13),
+                        ),
+                        child: Text(
+                          '$n',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                            color: n == active
+                                ? p.bg
+                                : available.contains(n)
                                 ? p.text
                                 : p.line,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }
 
@@ -304,13 +313,18 @@ class _FamilyDock extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Row(
               children: [
-                Text('FAMILY', style: T.caption.copyWith(letterSpacing: 1, fontWeight: FontWeight.w700, color: p.muted)),
+                Text(
+                  'FAMILY',
+                  style: T.caption.copyWith(letterSpacing: 1, fontWeight: FontWeight.w700, color: p.muted),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text('${selected?.label ?? 'All families'} · $count cards',
-                      textAlign: TextAlign.right,
-                      overflow: TextOverflow.ellipsis,
-                      style: T.caption.copyWith(color: p.text2, fontWeight: FontWeight.w500)),
+                  child: Text(
+                    '${selected?.label ?? 'All families'} · $count cards',
+                    textAlign: TextAlign.right,
+                    overflow: TextOverflow.ellipsis,
+                    style: T.caption.copyWith(color: p.text2, fontWeight: FontWeight.w500),
+                  ),
                 ),
               ],
             ),
@@ -380,12 +394,14 @@ class _FamilyButton extends StatelessWidget {
               const SizedBox(height: 3),
               FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(label,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: selected ? p.text : p.muted,
-                      fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                    )),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: selected ? p.text : p.muted,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                  ),
+                ),
               ),
             ],
           ),

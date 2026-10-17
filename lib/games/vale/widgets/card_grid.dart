@@ -13,16 +13,16 @@ class AnimatedCardGrid extends StatelessWidget {
   final int columns;
   final void Function(GameCard) onTap;
 
-  static double heightFor(int count, double width, int columns) => ReflowGrid.heightFor(
-      count, width, columns, aspect: CardImage.aspect, extra: CardTile.nameHeight);
+  static double heightFor(int count, double width, int columns) =>
+      ReflowGrid.heightFor(count, width, columns, aspect: CardImage.aspect, extra: CardTile.nameHeight);
 
   @override
   Widget build(BuildContext context) => ReflowGrid<GameCard>(
-        items: cards,
-        idOf: (c) => c.id,
-        columns: columns,
-        aspect: CardImage.aspect,
-        extraHeight: CardTile.nameHeight,
-        tileBuilder: (c) => CardTile(card: c, onTap: () => onTap(c)),
-      );
+    items: cards,
+    idOf: (c) => c.id,
+    columns: columns,
+    aspect: CardImage.aspect,
+    extraHeight: CardTile.nameHeight,
+    tileBuilder: (c) => CardTile(card: c, onTap: () => onTap(c)),
+  );
 }

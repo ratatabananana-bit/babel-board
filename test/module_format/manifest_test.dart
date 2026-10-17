@@ -4,38 +4,38 @@ import 'package:vale_helper/module_format/block_types.dart';
 import 'package:vale_helper/module_format/manifest.dart';
 
 Map<String, dynamic> minimalManifest() => {
-      'format': 1,
-      'id': 'mini',
-      'name': 'Mini',
-      'version': '1.0.0',
-      'minAppVersion': '3.0.0',
-      'collections': {
-        'items': {'items': 'data/items.json'},
-        'extras': {
-          'items': [
-            {'id': 'x', 'name': 'X'},
-          ],
-          'titleField': 'name',
-        },
+  'format': 1,
+  'id': 'mini',
+  'name': 'Mini',
+  'version': '1.0.0',
+  'minAppVersion': '3.0.0',
+  'collections': {
+    'items': {'items': 'data/items.json'},
+    'extras': {
+      'items': [
+        {'id': 'x', 'name': 'X'},
+      ],
+      'titleField': 'name',
+    },
+  },
+  'zones': [
+    {'id': 'table', 'label': 'Table', 'icon': 'table', 'accent': 'amber'},
+    {'id': 'hand', 'label': 'Hand', 'icon': 'hand', 'accent': 'mint', 'hint': 'Taken'},
+  ],
+  'tabs': [
+    {
+      'label': 'My cards',
+      'icon': 'hand',
+      'badge': 'zoneCount',
+      'block': {
+        'type': 'board',
+        'children': [
+          {'type': 'zone', 'zone': 'table'},
+        ],
       },
-      'zones': [
-        {'id': 'table', 'label': 'Table', 'icon': 'table', 'accent': 'amber'},
-        {'id': 'hand', 'label': 'Hand', 'icon': 'hand', 'accent': 'mint', 'hint': 'Taken'},
-      ],
-      'tabs': [
-        {
-          'label': 'My cards',
-          'icon': 'hand',
-          'badge': 'zoneCount',
-          'block': {
-            'type': 'board',
-            'children': [
-              {'type': 'zone', 'zone': 'table'},
-            ],
-          },
-        },
-      ],
-    };
+    },
+  ],
+};
 
 void main() {
   test('app version and format constants', () {

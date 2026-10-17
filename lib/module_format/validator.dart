@@ -23,8 +23,7 @@ const kChecklistActions = {'clearZone', 'newGame'};
 
 /// Compares `x.y.z` versions; missing parts count as 0.
 int compareVersions(String a, String b) {
-  List<int> parts(String v) =>
-      v.split('.').map((s) => int.tryParse(s.trim()) ?? 0).toList();
+  List<int> parts(String v) => v.split('.').map((s) => int.tryParse(s.trim()) ?? 0).toList();
   final pa = parts(a), pb = parts(b);
   final n = pa.length > pb.length ? pa.length : pb.length;
   for (var i = 0; i < n; i++) {
@@ -83,7 +82,10 @@ List<ValidationIssue> validateModule(
     if (ref is! String) {
       fatal(path, 'Image should be a path or https link');
     } else if (ref.isNotEmpty && !isSafeImageRef(ref)) {
-      fatal(path, 'Image must be an https link or a relative path inside the module (no "..", no leading slash or drive letter): "$ref"');
+      fatal(
+        path,
+        'Image must be an https link or a relative path inside the module (no "..", no leading slash or drive letter): "$ref"',
+      );
     }
   }
 
@@ -124,8 +126,13 @@ List<ValidationIssue> validateModule(
       if (item['verified'] == false) unverified++;
     }
     if (unverified > 0) {
-      issues.add(ValidationIssue('collections.$name',
-          '$unverified item${unverified == 1 ? '' : 's'} marked verified: false', fatal: false));
+      issues.add(
+        ValidationIssue(
+          'collections.$name',
+          '$unverified item${unverified == 1 ? '' : 's'} marked verified: false',
+          fatal: false,
+        ),
+      );
     }
   }
 

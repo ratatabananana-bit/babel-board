@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
+import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 
 import '../module_format/validator.dart' show isSafeImageRef;
@@ -43,8 +44,50 @@ class DirectoryModuleFiles implements ModuleFiles {
     final remote = _remote(ref!);
     if (remote != null) return remote;
     final f = _file(ref);
-    return f != null && f.existsSync() ? FileImage(f) : null;
+    return f != null && f.existsSync() ? ModuleFileImage(f.path) : null;
   }
+}
+
+/// An image read from a module folder. Keyed by path, so the image cache reuses decoded
+/// frames across rebuilds. Reads the bytes itself and decodes them from memory: the
+/// engine's file-path decoder never completes under flutter_tester, which would stall
+/// screenshots and widget tests.
+@immutable
+class ModuleFileImage extends ImageProvider<ModuleFileImage> {
+  const ModuleFileImage(this.path, {this.scale = 1.0});
+  final String path;
+  final double scale;
+
+  @override
+  Future<ModuleFileImage> obtainKey(ImageConfiguration configuration) => SynchronousFuture(this);
+
+  @override
+  ImageStreamCompleter loadImage(ModuleFileImage key, ImageDecoderCallback decode) => MultiFrameImageStreamCompleter(
+    codec: _load(decode),
+    scale: key.scale,
+    debugLabel: key.path,
+    informationCollector: () => [DiagnosticsProperty<String>('Path', path)],
+  );
+
+  Future<ui.Codec> _load(ImageDecoderCallback decode) async {
+    // Read synchronously: module images are small local files, and an async read's
+    // continuation is what stalls under the test binding's fake async.
+    final bytes = File(path).readAsBytesSync();
+    if (bytes.isEmpty) {
+      PaintingBinding.instance.imageCache.evict(this);
+      throw StateError('$path is empty and cannot be loaded as an image.');
+    }
+    return decode(await ui.ImmutableBuffer.fromUint8List(bytes));
+  }
+
+  @override
+  bool operator ==(Object other) => other is ModuleFileImage && other.path == path && other.scale == scale;
+
+  @override
+  int get hashCode => Object.hash(path, scale);
+
+  @override
+  String toString() => 'ModuleFileImage("$path", scale: $scale)';
 }
 
 /// A module served over HTTP (the web preview reads `modules/<id>/` next to the app).
