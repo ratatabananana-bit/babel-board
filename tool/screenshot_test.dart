@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vale_helper/blocks/item_view.dart';
 import 'package:vale_helper/library/module_store.dart';
 import 'package:vale_helper/library/repository.dart';
 import 'package:vale_helper/main.dart';
@@ -211,6 +212,40 @@ void main() {
     tester.view.devicePixelRatio = 2;
     await tester.tap(find.bySemanticsLabel('Family Fire'));
     await _shot(tester, '27_tablet_cards');
+  });
+
+  testWidgets('drag-up details screenshot', (tester) async {
+    await _pumpApp(tester, Brightness.dark);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'hae');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(ItemTile));
+    await _shot(tester, '29_card_sheet_details_hidden');
+    await tester.tap(find.byKey(const Key('detailsHint')));
+    await _shot(tester, '30_card_sheet_details_open');
+  });
+
+  testWidgets('card sheet flick screenshots (Hae-tae)', (tester) async {
+    await _pumpApp(tester, Brightness.dark);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'hae');
+    await tester.pumpAndSettle();
+    var n = 31;
+    for (final (dx, name) in [(14.0, 'hand'), (-14.0, 'table')]) {
+      await tester.tap(find.byType(ItemTile).first);
+      await tester.pumpAndSettle();
+      // Mid-flick: the card tints in the target zone's colour.
+      final g = await tester.startGesture(tester.getCenter(find.byType(ItemSheet)));
+      for (var i = 0; i < 10; i++) {
+        await g.moveBy(Offset(dx, 0));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await _shot(tester, '${n++}_card_sheet_flick_to_$name', settle: false);
+      await g.cancel();
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(200, 60));
+      await tester.pumpAndSettle();
+    }
   });
 
   testWidgets('settings screenshot', (tester) async {

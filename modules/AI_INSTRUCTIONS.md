@@ -49,13 +49,16 @@ with the name under it), `cardAspect` (width ÷ height, default 0.716), `sheet`.
 - `sections`: `[{"label": "Ability", "path": "abilities"}]` (string or list of strings)
 - `secondary`: a small grey template line
 - `verifiedPath`: `"verified"` (always set it)
+- `details` (drag-up details): `{"sections": [{"label": "Rulings", "path": "rulings"}]}` — text hidden below the zone buttons until the sheet is dragged up: rulings for tricky interactions, story, flavor. Only use it for text that is not needed at first glance.
 - `zones`: zone ids offered as buttons. One zone = an "Add to …" toggle; several = one toggle each.
+- `swipe`: `{"left": "table", "right": "hand"}` — flick the sheet sideways to put the item in that zone (either side optional).
 
 ### Paths, templates, filters
 
 - Path: `cost`, `effects.type` (lists are flattened), `effects[type=active].text` (keep list
   elements whose `type` is `active`).
 - Template: text with `{path}` holes: `"Cost {cost}"`.
+- Inline symbols: write `:name:` in any text to show that symbol (declared in `symbols`) inside the line, e.g. `"Earn 2 :stone_red:"`. Use it wherever the printed card shows an icon.
 - Filter: `{"zone": "field", "where": [{"path": "effects.type", "has": "active"}]}`. `zone`
   optional; each rule uses `has` (any value equals) or `equals` (exactly one value equals).
 

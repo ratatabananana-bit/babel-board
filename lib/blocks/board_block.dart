@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../core/game_switcher.dart';
+import 'symbol_text.dart';
 import '../core/theme.dart';
 import '../core/widgets/confirm.dart';
 import '../core/widgets/dashed_border.dart';
@@ -609,7 +610,7 @@ List<Widget> _detailLines(BuildContext context, Item item, CollectionSpec spec, 
                   const SizedBox(width: 5),
                 ],
                 Expanded(
-                  child: Text(
+                  child: SymbolText(
                     '${raw['text'] ?? ''}',
                     style: TextStyle(fontSize: size, height: 1.3, color: p.text.withValues(alpha: 0.9)),
                   ),

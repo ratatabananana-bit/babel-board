@@ -233,6 +233,23 @@ List<ValidationIssue> validateModule(
     }
     optText('$p.secondary', sheet['secondary']);
     optText('$p.verifiedPath', sheet['verifiedPath']);
+    final details = optMap('$p.details', sheet['details']);
+    final swipe = optMap('$p.swipe', sheet['swipe']);
+    if (swipe != null) {
+      for (final e in swipe.entries) {
+        if (e.key != 'left' && e.key != 'right') {
+          fatal('$p.swipe.${e.key}', 'Swipe directions are "left" and "right"');
+        } else if (!zoneIds.contains(e.value)) {
+          fatal('$p.swipe.${e.key}', 'Unknown zone "${e.value}"');
+        }
+      }
+    }
+    if (details != null) {
+      for (final (dp, section) in optMapList('$p.details.sections', details['sections'])) {
+        if (section['path'] is! String) fatal('$dp.path', 'Every drag-up section needs a "path"');
+        optText('$dp.label', section['label']);
+      }
+    }
     final zones = sheet['zones'];
     if (zones != null) {
       if (zones is! List) {

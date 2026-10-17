@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/game_switcher.dart';
+import '../symbol_text.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/confirm.dart';
 import '../../module_format/filter.dart';
@@ -163,7 +164,7 @@ class _FlowBlockState extends State<FlowBlock> {
                     children: [
                       Text(step.title, style: T.display),
                       const SizedBox(height: 6),
-                      Text(step.summary, style: T.body.copyWith(fontSize: 16.5, color: p.text2)),
+                      SymbolText(step.summary, style: T.body.copyWith(fontSize: 16.5, color: p.text2)),
                     ],
                   ),
                 ),
@@ -315,7 +316,7 @@ class _Header extends StatelessWidget {
                       ),
                     ),
                     Expanded(
-                      child: Text(r, style: T.body.copyWith(color: p.text)),
+                      child: SymbolText(r, style: T.body.copyWith(color: p.text)),
                     ),
                   ],
                 ),
@@ -345,7 +346,7 @@ class _Header extends StatelessWidget {
                 const SizedBox(height: 4),
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
-                  child: Text(setup.summary, style: T.body.copyWith(color: context.pal.text2)),
+                  child: SymbolText(setup.summary, style: T.body.copyWith(color: context.pal.text2)),
                 ),
                 const SizedBox(height: 14),
                 ParchmentChecklist(title: setup.listTitle, items: setup.checklist),
@@ -563,7 +564,7 @@ class _ChecklistRowView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      SymbolText(
                         item.text,
                         style: TextStyle(
                           fontSize: 16.5,
@@ -574,7 +575,10 @@ class _ChecklistRowView extends StatelessWidget {
                         ),
                       ),
                       if (item.sub != null)
-                        Text(item.sub!, style: const TextStyle(fontSize: 14, height: 1.35, color: Palette.inkMuted)),
+                        SymbolText(
+                          item.sub!,
+                          style: const TextStyle(fontSize: 14, height: 1.35, color: Palette.inkMuted),
+                        ),
                     ],
                   ),
                 ),
@@ -667,7 +671,7 @@ class _HowItWorks extends StatelessWidget {
                       for (final s in steps)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
+                          child: SymbolText(
                             s,
                             style: TextStyle(fontSize: 15, height: 1.45, color: p.text.withValues(alpha: 0.85)),
                           ),

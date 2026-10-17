@@ -12,6 +12,18 @@ void main() {
     expect(Settings(prefs).columns, 3);
   });
 
+  test('animation speed scales durations: Normal as is, Fast half, Instant none', () async {
+    SharedPreferences.setMockInitialValues({});
+    final s = Settings(await SharedPreferences.getInstance());
+    const d = Duration(milliseconds: 260);
+    expect(s.animationSpeed, AnimationSpeed.fast);
+    expect(s.anim(d), const Duration(milliseconds: 130));
+    s.animationSpeed = AnimationSpeed.normal;
+    expect(s.anim(d), d);
+    s.animationSpeed = AnimationSpeed.instant;
+    expect(s.anim(d), Duration.zero);
+  });
+
   test('cards per row grow with the screen: phones keep 4/3/2, tablets get more', () {
     expect(Settings.columnsFor(4, 392), 4);
     expect(Settings.columnsFor(3, 392), 3);

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/settings.dart';
+import 'symbol_text.dart';
 import '../core/theme.dart';
 import '../module_format/path_expr.dart';
 import '../modules/loaded_module.dart';
@@ -61,6 +63,8 @@ class SheetSpec {
       sections = [for (final s in (j['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>()],
       secondary = j['secondary'] as String?,
       verifiedPath = j['verifiedPath'] as String?,
+      details = (j['details'] as Map?)?.cast<String, dynamic>(),
+      swipe = (j['swipe'] as Map?)?.cast<String, dynamic>() ?? const {},
       zones = (j['zones'] as List?)?.cast<String>() ?? const [];
 
   final List<ChipSpec> chips;
@@ -68,6 +72,18 @@ class SheetSpec {
   final List<Map<String, dynamic>> sections;
   final String? secondary;
   final String? verifiedPath;
+
+  /// Drag-up details: `{sections: [{label, path}]}`. Extra text (rulings, story,
+  /// anything a player only sometimes wants) hidden below the zone buttons until the sheet
+  /// is dragged up.
+  final Map<String, dynamic>? details;
+
+  /// Flick the sheet left or right to put the item in a zone: `{left?: zoneId, right?: zoneId}`.
+  final Map<String, dynamic> swipe;
+
+  List<Map<String, dynamic>> get detailSections => [
+    for (final s in (details?['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>(),
+  ];
   final List<String> zones;
 
   /// Text of the first chip that resolves to something, for the text-only card.
@@ -362,8 +378,14 @@ Future<void> showItemSheet(BuildContext context, Item item, String collectionId)
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    showDragHandle: true,
+    showDragHandle: false, // the sheet draws its own handle (see ItemSheet)
     constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.9),
+    // Speed follows the setting (Fast by default: tracking six cards in a row shouldn't mean
+    // waiting on each sheet; Instant skips the slide).
+    sheetAnimationStyle: AnimationStyle(
+      duration: context.read<Settings>().anim(const Duration(milliseconds: 250)),
+      reverseDuration: context.read<Settings>().anim(const Duration(milliseconds: 200)),
+    ),
     builder: (_) => ItemSheet(item: item, collectionId: collectionId),
   );
 }
@@ -388,115 +410,136 @@ class ItemSheet extends StatelessWidget {
         : resolvePath(item.data, sheet.verifiedPath!).firstOrNull != false;
     final zoneSpecs = [for (final id in sheet.zones) ?zoneSpec(module, id)];
 
+    // Flick sides that have a zone in this module.
+    final swipe = {for (final e in sheet.swipe.entries) e.key: ?zoneSpec(module, e.value as String?)};
+
+    // Drag-up details that this item actually has text for.
+    final hidden = [
+      for (final s in sheet.detailSections)
+        if (resolvePath(item.data, s['path'] as String? ?? '').map((v) => '$v').where((v) => v.isNotEmpty).toList()
+            case final values when values.isNotEmpty)
+          (label: s['label'] as String? ?? '', values: values),
+    ];
+
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // The handle is part of the card, so dragging it works like dragging the card.
+        Padding(
+          key: const Key('sheetHandle'),
+          padding: const EdgeInsets.only(top: 12, bottom: 16),
+          child: Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(color: p.line, borderRadius: BorderRadius.circular(2)),
+            ),
+          ),
+        ),
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _Thumb(item: item, collection: collection),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  item.title(collection),
+                                  style: const TextStyle(fontSize: 26, height: 1.1, fontWeight: FontWeight.w800),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (subtitle != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              subtitle,
+                              style: T.body.copyWith(color: p.text2, fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                          if (secondary != null && secondary.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            SymbolText(secondary, style: T.caption.copyWith(color: p.muted)),
+                          ],
+                          if (sheet.chips.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Wrap(spacing: 6, runSpacing: 6, children: [for (final c in sheet.chips) ?_chip(c)]),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                if (sheet.effects != null) ..._effects(context, sheet.effects!),
+                for (final s in sheet.sections) ..._section(context, s),
+                if (!verified)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      '⚠ Text not verified. Check the physical card.',
+                      style: T.caption.copyWith(color: p.warn),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        if (zoneSpecs.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          if (zoneSpecs.length == 1)
+            _SingleZoneButton(zone: zoneSpecs.single, active: current == zoneSpecs.single.id, itemId: item.id)
+          else
+            Row(
+              children: [
+                for (final z in zoneSpecs) ...[
+                  Expanded(
+                    child: _ZoneButton(zone: z, active: current == z.id, itemId: item.id),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                Tooltip(
+                  message: 'Stop tracking',
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: current == null ? null : () => zones.remove(item.id),
+                    child: Container(
+                      key: const Key('untrack'),
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: p.line, width: 1.5),
+                      ),
+                      child: Icon(Icons.remove_done_rounded, color: current == null ? p.line : p.text),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ],
+    );
+
     return SafeArea(
       top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _Thumb(item: item, collection: collection),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      item.title(collection),
-                                      style: const TextStyle(fontSize: 26, height: 1.1, fontWeight: FontWeight.w800),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    tooltip: 'Close',
-                                    visualDensity: VisualDensity.compact,
-                                    onPressed: () => Navigator.pop(context),
-                                    icon: Icon(Icons.close_rounded, color: p.text2),
-                                  ),
-                                ],
-                              ),
-                              if (subtitle != null) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  subtitle,
-                                  style: T.body.copyWith(color: p.text2, fontStyle: FontStyle.italic),
-                                ),
-                              ],
-                              if (secondary != null && secondary.isNotEmpty) ...[
-                                const SizedBox(height: 6),
-                                Text(secondary, style: T.caption.copyWith(color: p.muted)),
-                              ],
-                              if (sheet.chips.isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Wrap(spacing: 6, runSpacing: 6, children: [for (final c in sheet.chips) ?_chip(c)]),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    if (sheet.effects != null) ..._effects(context, sheet.effects!),
-                    for (final s in sheet.sections) ..._section(context, s),
-                    if (!verified)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          '⚠ Text not verified. Check the physical card.',
-                          style: T.caption.copyWith(color: p.warn),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            if (zoneSpecs.isNotEmpty) ...[
-              const SizedBox(height: 14),
-              if (zoneSpecs.length == 1)
-                _SingleZoneButton(zone: zoneSpecs.single, active: current == zoneSpecs.single.id, itemId: item.id)
-              else
-                Row(
-                  children: [
-                    for (final z in zoneSpecs) ...[
-                      Expanded(
-                        child: _ZoneButton(zone: z, active: current == z.id, itemId: item.id),
-                      ),
-                      const SizedBox(width: 6),
-                    ],
-                    Tooltip(
-                      message: 'Stop tracking',
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: current == null ? null : () => zones.remove(item.id),
-                        child: Container(
-                          key: const Key('untrack'),
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: p.line, width: 1.5),
-                          ),
-                          child: Icon(Icons.remove_done_rounded, color: current == null ? p.line : p.text),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          ],
-        ),
+        child: hidden.isEmpty && swipe.isEmpty
+            ? content
+            : _SheetGestures(itemId: item.id, sections: hidden, swipe: swipe, child: content),
       ),
     );
   }
@@ -571,7 +614,7 @@ class ItemSheet extends StatelessWidget {
                         style: T.caption.copyWith(color: p.text2, letterSpacing: 1),
                       ),
                       const SizedBox(height: 2),
-                      Text('${raw['text'] ?? ''}', style: T.effect.copyWith(color: p.text)),
+                      SymbolText('${raw['text'] ?? ''}', style: T.effect.copyWith(color: p.text)),
                     ],
                   ),
                 ),
@@ -591,11 +634,246 @@ class ItemSheet extends StatelessWidget {
       for (final v in values)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: Text(v, style: T.effect.copyWith(color: p.text)),
+          child: SymbolText(v, style: T.effect.copyWith(color: p.text)),
         ),
       const SizedBox(height: 6),
     ];
   }
+}
+
+/// Gestures on the item sheet, all optional:
+/// - drag-up details: extra text hidden below the zone buttons. Dragging the card up
+///   uncovers it (following the finger, then snapping open or shut); dragging down hides it
+///   again, and a further drag down closes the sheet. The arrow toggles it with a tap.
+/// - flick left / right: puts the item in the zone the module names for that side, then
+///   closes the sheet. While dragging, the card tints in that zone's color.
+class _SheetGestures extends StatefulWidget {
+  const _SheetGestures({required this.itemId, required this.sections, required this.swipe, required this.child});
+  final String itemId;
+  final List<({String label, List<String> values})> sections;
+
+  /// Zone for each side: 'left' / 'right'.
+  final Map<String, ZoneSpec> swipe;
+  final Widget child;
+
+  @override
+  State<_SheetGestures> createState() => _SheetGesturesState();
+}
+
+class _SheetGesturesState extends State<_SheetGestures> with TickerProviderStateMixin {
+  late final _reveal = AnimationController(vsync: this, duration: const Duration(milliseconds: 180));
+
+  /// Sideways offset as a fraction of the sheet's width (-1 left … 1 right).
+  late final _slide = AnimationController(vsync: this, lowerBound: -1.5, upperBound: 1.5, value: 0);
+  final _detailsKey = GlobalKey();
+  Duration _snap = const Duration(milliseconds: 180);
+
+  /// Set when a drag starts with the details hidden; a drag down then means "close".
+  bool _startedHidden = false;
+  double _pulledDown = 0;
+
+  bool get _hasDetails => widget.sections.isNotEmpty;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _snap = context.watch<Settings>().anim(const Duration(milliseconds: 360));
+    _reveal.duration = _snap;
+  }
+
+  @override
+  void dispose() {
+    _reveal.dispose();
+    _slide.dispose();
+    super.dispose();
+  }
+
+  double get _detailsHeight {
+    final box = _detailsKey.currentContext?.findRenderObject() as RenderBox?;
+    return box == null || box.size.height <= 0 ? 200 : box.size.height;
+  }
+
+  void _settleReveal(bool open) {
+    if (open) {
+      _reveal.forward();
+    } else {
+      _reveal.reverse();
+    }
+  }
+
+  // Vertical: drag-up details.
+  void _onVStart(DragStartDetails d) {
+    _reveal.stop();
+    _startedHidden = _reveal.value == 0;
+    _pulledDown = 0;
+  }
+
+  void _onVUpdate(DragUpdateDetails d) {
+    final dy = d.primaryDelta ?? 0;
+    if (_startedHidden && _reveal.value == 0 && dy > 0) {
+      _pulledDown += dy;
+      return;
+    }
+    _reveal.value = (_reveal.value - dy / _detailsHeight).clamp(0.0, 1.0);
+  }
+
+  void _onVEnd(DragEndDetails d) {
+    final v = d.primaryVelocity ?? 0;
+    if (_startedHidden && _reveal.value == 0) {
+      if (_pulledDown > 60 || v > 600) Navigator.maybePop(context);
+      return;
+    }
+    _settleReveal(v < -300 || (v.abs() <= 300 && _reveal.value > 0.4));
+  }
+
+  // Horizontal: flick into a zone.
+  double get _width => (context.findRenderObject() as RenderBox?)?.size.width ?? 360;
+
+  ZoneSpec? _zoneFor(double dir) => widget.swipe[dir > 0 ? 'right' : 'left'];
+
+  void _onHUpdate(DragUpdateDetails d) {
+    final next = _slide.value + (d.primaryDelta ?? 0) / _width;
+    // Only follow the finger towards a side that has a zone.
+    _slide.value = (_zoneFor(next) == null ? 0.0 : next).clamp(-1.0, 1.0);
+  }
+
+  Future<void> _onHEnd(DragEndDetails d) async {
+    final v = (d.primaryVelocity ?? 0) / _width;
+    final x = _slide.value;
+    final dir = x != 0 ? x.sign : v.sign;
+    final zone = dir == 0 ? null : _zoneFor(dir);
+    final commit = zone != null && (x.abs() > 0.35 || (v.abs() > 2 && v.sign == dir));
+    if (!commit) {
+      _slide.animateTo(0, duration: _snap, curve: Curves.easeOutCubic);
+      return;
+    }
+    // Put it there and fly off. The zone band on the card shows where it went.
+    final zones = context.read<ZoneState>();
+    if (zones.zoneOf(widget.itemId) != zone.id) zones.put(widget.itemId, zone.id);
+    await _slide.animateTo(dir * 1.2, duration: _snap ~/ 2, curve: Curves.easeIn);
+    if (mounted) Navigator.maybePop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onVerticalDragStart: _hasDetails ? _onVStart : null,
+      onVerticalDragUpdate: _hasDetails ? _onVUpdate : null,
+      onVerticalDragEnd: _hasDetails ? _onVEnd : null,
+      onHorizontalDragUpdate: widget.swipe.isEmpty ? null : _onHUpdate,
+      onHorizontalDragEnd: widget.swipe.isEmpty ? null : _onHEnd,
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_reveal, _slide]),
+        builder: (context, child) {
+          final x = _slide.value;
+          final zone = x == 0 ? null : _zoneFor(x);
+          final strength = (x.abs() / 0.35).clamp(0.0, 1.0);
+          final body = Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Flexible(child: child!),
+              if (_hasDetails) ...[
+                // Just an arrow: there is more below. Tap it, or drag the card up.
+                GestureDetector(
+                  key: const Key('detailsHint'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _settleReveal(_reveal.value < 0.5),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Center(
+                      child: Transform.rotate(
+                        angle: _reveal.value * 3.14159,
+                        child: Icon(Icons.keyboard_arrow_up_rounded, size: 26, color: p.muted),
+                      ),
+                    ),
+                  ),
+                ),
+                ClipRect(
+                  child: Align(
+                    key: const Key('detailsReveal'),
+                    alignment: Alignment.topCenter,
+                    heightFactor: _reveal.value,
+                    child: KeyedSubtree(key: _detailsKey, child: _details(p)),
+                  ),
+                ),
+              ],
+            ],
+          );
+          if (x == 0) return body;
+          final zc = zone == null ? null : zoneColor(context, zone);
+          return Transform.translate(
+            offset: Offset(x * _width, 0),
+            child: Transform.rotate(
+              angle: x * 0.05,
+              child: Stack(
+                children: [
+                  body,
+                  if (zone != null && zc != null)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: zc.withValues(alpha: 0.18 * strength),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: zc.withValues(alpha: strength), width: 3),
+                          ),
+                          child: Align(
+                            alignment: x > 0 ? Alignment.centerLeft : Alignment.centerRight,
+                            child: Opacity(
+                              opacity: strength,
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                decoration: BoxDecoration(color: zc, borderRadius: BorderRadius.circular(16)),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(moduleIcon(zone.icon), size: 20, color: p.onAccent),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      zone.label,
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: p.onAccent),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
+        child: widget.child,
+      ),
+    );
+  }
+
+  Widget _details(Palette p) => Padding(
+    padding: const EdgeInsets.only(top: 2, bottom: 4),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final s in widget.sections) ...[
+          if (s.label.isNotEmpty) ...[
+            Text(s.label.toUpperCase(), style: T.caption.copyWith(color: p.text2, letterSpacing: 1)),
+            const SizedBox(height: 4),
+          ],
+          for (final v in s.values)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: SymbolText(v, style: T.body.copyWith(color: p.text)),
+            ),
+        ],
+      ],
+    ),
+  );
 }
 
 class _Thumb extends StatelessWidget {

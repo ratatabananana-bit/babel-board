@@ -255,7 +255,12 @@ class _GameShellState extends State<GameShell> {
 
   void _goTo(int i) {
     setState(() => _tab = i);
-    _pages.animateToPage(i, duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
+    final d = context.read<Settings>().anim(const Duration(milliseconds: 280));
+    if (d == Duration.zero) {
+      _pages.jumpToPage(i);
+    } else {
+      _pages.animateToPage(i, duration: d, curve: Curves.easeOutCubic);
+    }
   }
 
   @override

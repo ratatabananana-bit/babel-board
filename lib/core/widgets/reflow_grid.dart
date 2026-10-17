@@ -11,6 +11,7 @@ class ReflowGrid<T> extends StatelessWidget {
     required this.columns,
     required this.aspect,
     this.extraHeight = 0,
+    this.duration = normalDuration,
   });
 
   final List<T> items;
@@ -20,9 +21,12 @@ class ReflowGrid<T> extends StatelessWidget {
   final double aspect;
   final double extraHeight;
 
+  /// How long tiles take to glide to new slots (zero: they jump).
+  final Duration duration;
+
   static const spacing = 8.0;
   static const runSpacing = 10.0;
-  static const duration = Duration(milliseconds: 260);
+  static const normalDuration = Duration(milliseconds: 260);
   static const curve = Curves.easeOutCubic;
 
   static double tileWidth(double width, int columns) => (width - spacing * (columns - 1)) / columns;

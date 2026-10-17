@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -93,11 +94,24 @@ class _GalleryBlockState extends State<GalleryBlock> {
 
   /// Selected option value per filter index.
   final Map<int, Object?> _selected = {};
+
+  /// Where you are: the section the rail lights up. Follows your scrolling.
   Object? _activeSection;
-  bool _jumping = false;
+
+  /// What you picked: the section picked on the rail. Its cards stay highlighted while you
+  /// scroll, until you pick another section or another filter.
+  Object? _picked;
+
+  /// True while a finger (or mouse wheel) is scrolling, so jumps made by the rail don't
+  /// move the rail's own light.
+  bool _userScrolling = false;
 
   /// Scroll offset where each section starts (filled in during layout).
   final Map<Object?, double> _sectionOffsets = {};
+
+  /// The vertical ranges each section covers, in scroll content coordinates: one range per
+  /// group when grouped, one per card when flowing. Used to find the most visible section.
+  final Map<Object?, List<(double, double)>> _sectionSpans = {};
 
   @override
   void initState() {
@@ -125,6 +139,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
     setState(() {
       _selected[filter] = _selected[filter] == value ? null : value;
       _activeSection = null;
+      _picked = null;
     });
     if (_scroll.hasClients) _scroll.jumpTo(0);
   }
@@ -132,37 +147,52 @@ class _GalleryBlockState extends State<GalleryBlock> {
   void _jumpTo(Object? section, {required bool animate}) {
     final o = _sectionOffsets[section];
     if (o == null || !_scroll.hasClients) return;
-    setState(() => _activeSection = section);
+    setState(() {
+      _activeSection = section;
+      _picked = section;
+    });
     final target = o.clamp(0.0, _scroll.position.maxScrollExtent);
     if (!animate) {
       _scroll.jumpTo(target);
       return;
     }
-    // Keep the tapped section lit while the list animates past the ones in between.
-    _jumping = true;
-    _scroll
-        .animateTo(target, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic)
-        .whenComplete(() => _jumping = false);
+    final d = context.read<Settings>().anim(const Duration(milliseconds: 250));
+    if (d == Duration.zero) {
+      _scroll.jumpTo(target);
+    } else {
+      _scroll.animateTo(target, duration: d, curve: Curves.easeOutCubic);
+    }
   }
 
-  void _trackActiveSection() {
-    if (_sectionOffsets.isEmpty || _jumping) return;
-    // The section starting closest above the top edge. In the flowing layout several can
-    // start in the same row: keep the current one if it is among them, else the first.
-    double? best;
-    for (final y in _sectionOffsets.values) {
-      if (y <= _scroll.offset + 4 && (best == null || y > best)) best = y;
+  /// Rail jumps aren't user scrolls, so only a finger or wheel moves the rail's light.
+  bool _onUserScroll(UserScrollNotification n) {
+    _userScrolling = n.direction != ScrollDirection.idle;
+    if (!_userScrolling) _trackActiveSection(force: true);
+    return false;
+  }
+
+  /// Lights the section that fills the most of the screen, so a sliver of a group at the
+  /// top never wins. On a tie the current one stays, else the topmost.
+  void _trackActiveSection({bool force = false}) {
+    if (_sectionSpans.isEmpty || !_scroll.hasClients || !(_userScrolling || force)) return;
+    final top = _scroll.offset;
+    final bottom = top + _scroll.position.viewportDimension;
+    final scores = <Object?, double>{};
+    for (final e in _sectionSpans.entries) {
+      var s = 0.0;
+      for (final (a, b) in e.value) {
+        final overlap = (b < bottom ? b : bottom) - (a > top ? a : top);
+        if (overlap > 0) s += overlap;
+      }
+      scores[e.key] = s;
     }
-    final Object? active;
-    if (best == null) {
-      active = _sectionOffsets.keys.first;
-    } else {
-      final tied = [
-        for (final e in _sectionOffsets.entries)
-          if (e.value == best) e.key,
-      ];
-      active = tied.contains(_activeSection) ? _activeSection : tied.first;
-    }
+    final best = scores.values.fold(0.0, (m, s) => s > m ? s : m);
+    if (best <= 0) return;
+    final tied = [
+      for (final e in scores.entries)
+        if (best - e.value < 0.5) e.key,
+    ];
+    final active = tied.contains(_activeSection) ? _activeSection : tied.first;
     if (active != _activeSection) setState(() => _activeSection = active);
   }
 
@@ -279,7 +309,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
         overlays.add(
           AnimatedPositioned(
             key: Key('sep-$k'),
-            duration: ReflowGrid.duration,
+            duration: context.read<Settings>().anim(ReflowGrid.normalDuration),
             curve: ReflowGrid.curve,
             left: x - 12,
             top: topOf(i) - 14,
@@ -289,11 +319,13 @@ class _GalleryBlockState extends State<GalleryBlock> {
           ),
         );
       }
+      // Content coordinates include the top padding above the grid.
+      (_sectionSpans[k] ??= []).add((top + topOf(i), top + topOf(i) + tileH));
       if (k == activeKey) {
         panels.add(
           AnimatedPositioned(
             key: Key('hl-${ordered[i].id}'),
-            duration: ReflowGrid.duration,
+            duration: context.read<Settings>().anim(ReflowGrid.normalDuration),
             curve: ReflowGrid.curve,
             left: leftOf(i) - 4,
             top: topOf(i) - 4,
@@ -355,6 +387,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
       columns: columns,
       aspect: spec.cardAspect,
       extraHeight: extra,
+      duration: context.read<Settings>().anim(ReflowGrid.normalDuration),
       tileBuilder: (it) => ItemTile(item: it, collection: spec, collectionId: _g.collection, showName: _g.tileName),
     );
     if (shown.isEmpty) {
@@ -363,12 +396,16 @@ class _GalleryBlockState extends State<GalleryBlock> {
       );
     }
     _sectionOffsets.clear();
+    _sectionSpans.clear();
     if (sections == null) {
       return ListView(controller: _scroll, padding: _pad.copyWith(top: 8, right: 16), children: [grid(shown)]);
     }
-    final activeKey = keys.contains(_activeSection) ? _activeSection : keys.first;
+    // Highlighted cards: only what was picked on the rail (and is still shown).
+    final activeKey = keys.contains(_picked) ? _picked : null;
     if (context.read<Settings>().flowingSections) {
-      return _flowing(context, spec, shown, sections, keys, activeKey, columns, gridW, viewH, extra, grid);
+      return _scrollWatch(
+        _flowing(context, spec, shown, sections, keys, activeKey, columns, gridW, viewH, extra, grid),
+      );
     }
     // Grouped with sticky headers; offsets are computed so the rail can jump.
     var y = 0.0;
@@ -376,10 +413,12 @@ class _GalleryBlockState extends State<GalleryBlock> {
     for (final k in keys) {
       final items = shown.where((it) => resolvePath(it.data, sections.path).firstOrNull == k).toList();
       _sectionOffsets[k] = y;
-      y +=
+      final h =
           _headerH +
           ReflowGrid.heightFor(items.length, gridW, columns, aspect: spec.cardAspect, extra: extra) +
           _sectionGap;
+      _sectionSpans[k] = [(y, y + h)];
+      y += h;
       slivers.add(
         SliverMainAxisGroup(
           slivers: [
@@ -414,17 +453,22 @@ class _GalleryBlockState extends State<GalleryBlock> {
     // Room after the last section so every section can scroll to the top (keeps the rail honest).
     final lastH = y - _sectionOffsets[keys.last]!;
     final tail = (viewH - lastH - _pad.bottom).clamp(0.0, double.infinity);
-    return CustomScrollView(
-      controller: _scroll,
-      slivers: [
-        SliverPadding(
-          padding: _pad,
-          sliver: SliverMainAxisGroup(slivers: slivers),
-        ),
-        SliverToBoxAdapter(child: SizedBox(height: tail)),
-      ],
+    return _scrollWatch(
+      CustomScrollView(
+        controller: _scroll,
+        slivers: [
+          SliverPadding(
+            padding: _pad,
+            sliver: SliverMainAxisGroup(slivers: slivers),
+          ),
+          SliverToBoxAdapter(child: SizedBox(height: tail)),
+        ],
+      ),
     );
   }
+
+  Widget _scrollWatch(Widget child) =>
+      NotificationListener<UserScrollNotification>(onNotification: _onUserScroll, child: child);
 }
 
 /// Two-way switch between cost groups (a header per cost) and one flowing grid.
@@ -535,7 +579,7 @@ class _SectionPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AnimatedContainer(
-    duration: const Duration(milliseconds: 200),
+    duration: context.read<Settings>().anim(const Duration(milliseconds: 200)),
     decoration: BoxDecoration(
       color: active ? context.pal.surface2.withValues(alpha: 0.7) : null,
       borderRadius: BorderRadius.circular(14),
@@ -771,7 +815,15 @@ class _OptionRow extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, box) {
         if (children.length * _OptionButton.width <= box.maxWidth) {
-          return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: children);
+          // Even gaps everywhere, the ends included; on wide screens the row keeps a
+          // comfortable width in the middle instead of drifting to the walls.
+          final maxW = children.length * _OptionButton.width * 1.6;
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxW < box.maxWidth ? maxW : box.maxWidth),
+              child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: children),
+            ),
+          );
         }
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,

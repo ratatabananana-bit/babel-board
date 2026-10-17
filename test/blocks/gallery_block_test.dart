@@ -45,6 +45,179 @@ void main() {
     expect(find.text('No cards match "zzz".'), findsOneWidget);
   });
 
+  testWidgets('the filter dock spaces its buttons evenly, edges included', (tester) async {
+    await pumpModules(tester);
+    // Mini module: All, Fire, Water.
+    final all = tester.getRect(find.bySemanticsLabel('Family All'));
+    final fire = tester.getRect(find.bySemanticsLabel('Family Fire'));
+    final water = tester.getRect(find.bySemanticsLabel('Family Water'));
+    final screenW = tester.view.physicalSize.width / tester.view.devicePixelRatio;
+    final gapLeft = all.left;
+    final gapMid = fire.left - all.right;
+    final gapRight = screenW - water.right;
+    expect((gapLeft - gapRight).abs(), lessThan(2), reason: 'both ends get the same room');
+    expect(gapMid, greaterThan(20), reason: 'buttons are spread out, not bunched');
+    expect(gapLeft, greaterThan(20), reason: 'not pinned to the wall');
+  });
+
+  group('item sheet: drag-up details (hidden below the zone buttons)', () {
+    // How much of the hidden area shows: 0 folded, 1 fully revealed.
+    double revealed(WidgetTester tester) => tester.widget<Align>(find.byKey(const Key('detailsReveal'))).heightFactor!;
+
+    testWidgets('dragging the sheet up reveals the details; dragging down hides them, then closes', (tester) async {
+      await pumpModules(tester);
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      expect(revealed(tester), 0);
+      expect(find.byKey(const Key('detailsHint')), findsOneWidget, reason: 'an arrow marks the hidden details');
+      expect(find.textContaining('Swipe'), findsNothing, reason: 'no hint text, just the arrow');
+      final title = find.descendant(of: find.byType(ItemSheet), matching: find.text('Imp'));
+
+      await tester.drag(title, const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(revealed(tester), 1);
+      expect(find.text('INTERACTIONS'), findsOneWidget);
+      final details = tester.getRect(find.byKey(const Key('detailsReveal')));
+      final untrack = tester.getRect(find.byKey(const Key('untrack')));
+      expect(details.top, greaterThanOrEqualTo(untrack.bottom - 1), reason: 'the details sit below the zone buttons');
+
+      await tester.drag(title, const Offset(0, 200));
+      await tester.pumpAndSettle();
+      expect(revealed(tester), 0);
+      expect(find.byType(ItemSheet), findsOneWidget, reason: 'the first drag down only hides the details');
+
+      await tester.drag(title, const Offset(0, 200));
+      await tester.pumpAndSettle();
+      expect(find.byType(ItemSheet), findsNothing, reason: 'a second drag down closes the sheet');
+    });
+
+    testWidgets('the drag handle at the top also pulls the details up', (tester) async {
+      await pumpModules(tester);
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      await tester.drag(find.byKey(const Key('sheetHandle')), const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(revealed(tester), 1);
+    });
+
+    testWidgets('the arrow has no highlight box around it', (tester) async {
+      await pumpModules(tester);
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      expect(find.descendant(of: find.byKey(const Key('detailsHint')), matching: find.byType(InkWell)), findsNothing);
+      expect(find.ancestor(of: find.byKey(const Key('detailsHint')), matching: find.byType(InkWell)), findsNothing);
+      expect(tester.widget(find.byKey(const Key('detailsHint'))), isNot(isA<InkWell>()));
+    });
+
+    testWidgets('tapping the hint also reveals and hides', (tester) async {
+      await pumpModules(tester);
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('detailsHint')));
+      await tester.pumpAndSettle();
+      expect(revealed(tester), 1);
+      await tester.tap(find.byKey(const Key('detailsHint')));
+      await tester.pumpAndSettle();
+      expect(revealed(tester), 0);
+    });
+
+    testWidgets('items with nothing to reveal keep the plain sheet', (tester) async {
+      await pumpModules(tester);
+      await tester.tap(find.bySemanticsLabel('Nessie'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('detailsReveal')), findsNothing);
+      expect(find.byKey(const Key('detailsHint')), findsNothing);
+    });
+  });
+
+  group('item sheet: no close button; flick sideways to put the card in a zone', () {
+    Finder sheet() => find.byType(ItemSheet);
+
+    testWidgets('there is no close button; tapping outside closes the sheet', (tester) async {
+      await pumpModules(tester);
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      expect(find.descendant(of: sheet(), matching: find.byTooltip('Close')), findsNothing);
+      expect(find.descendant(of: sheet(), matching: find.byIcon(Icons.close_rounded)), findsNothing);
+      await tester.tapAt(const Offset(200, 60));
+      await tester.pumpAndSettle();
+      expect(sheet(), findsNothing);
+    });
+
+    testWidgets('flick right puts the card in the right-hand zone and closes, with no snackbar', (tester) async {
+      await pumpModules(tester);
+      final zones = scoped<ZoneState>(tester);
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      await tester.fling(sheet(), const Offset(300, 0), 1500);
+      await tester.pumpAndSettle();
+      expect(zones.zoneOf('imp'), 'b');
+      expect(sheet(), findsNothing);
+      expect(find.byType(SnackBar), findsNothing, reason: 'no Undo prompt for flicks');
+    });
+
+    testWidgets('flick left puts the card in the left-hand zone', (tester) async {
+      await pumpModules(tester);
+      await tester.tap(find.bySemanticsLabel('Nessie'));
+      await tester.pumpAndSettle();
+      await tester.fling(sheet(), const Offset(-300, 0), 1500);
+      await tester.pumpAndSettle();
+      expect(scoped<ZoneState>(tester).zoneOf('nessie'), 'a');
+    });
+
+    testWidgets('a short sideways drag springs back and changes nothing', (tester) async {
+      await pumpModules(tester);
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      await tester.drag(sheet(), const Offset(40, 0));
+      await tester.pumpAndSettle();
+      expect(scoped<ZoneState>(tester).zoneOf('imp'), isNull);
+      expect(sheet(), findsOneWidget);
+    });
+
+    testWidgets('modules without a swipe option ignore sideways flicks', (tester) async {
+      await pumpModules(tester, edit: (m) => (m['collections']['items']['sheet'] as Map).remove('swipe'));
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      await tester.fling(sheet(), const Offset(300, 0), 1500);
+      await tester.pumpAndSettle();
+      expect(scoped<ZoneState>(tester).zoneOf('imp'), isNull);
+      expect(sheet(), findsOneWidget);
+    });
+  });
+
+  Future<ModalRoute<dynamic>> openSheetAt(WidgetTester tester, String speed) async {
+    await pumpModules(tester, prefs: {'app.lastGame': 'mini', 'settings.animationSpeed': speed});
+    await tester.tap(find.bySemanticsLabel('Imp'));
+    await tester.pump();
+    return ModalRoute.of(tester.element(find.byType(ItemSheet)))!;
+  }
+
+  testWidgets('animation speed Instant: the sheet and the grid reflow have no animation', (tester) async {
+    final route = await openSheetAt(tester, 'instant');
+    expect(route.transitionDuration, Duration.zero);
+    expect(route.reverseTransitionDuration, Duration.zero);
+    expect(tester.widgetList<AnimatedPositioned>(find.byType(AnimatedPositioned)).first.duration, Duration.zero);
+  });
+
+  testWidgets('animation speed Normal: the standard durations', (tester) async {
+    final route = await openSheetAt(tester, 'normal');
+    expect(route.transitionDuration, const Duration(milliseconds: 250));
+    expect(
+      tester.widgetList<AnimatedPositioned>(find.byType(AnimatedPositioned)).first.duration,
+      const Duration(milliseconds: 260),
+    );
+  });
+
+  testWidgets('the item sheet opens and closes quickly', (tester) async {
+    await pumpModules(tester);
+    await tester.tap(find.bySemanticsLabel('Imp'));
+    await tester.pump();
+    final route = ModalRoute.of(tester.element(find.byType(ItemSheet)))!;
+    expect(route.transitionDuration, lessThanOrEqualTo(const Duration(milliseconds: 150)));
+    expect(route.reverseTransitionDuration, lessThanOrEqualTo(const Duration(milliseconds: 100)));
+  });
+
   testWidgets('review: a filter dock with many options scrolls instead of overflowing', (tester) async {
     await pumpModules(
       tester,
@@ -81,7 +254,7 @@ void main() {
                 as BoxDecoration?)
             ?.color !=
         null;
-    expect(lit('2'), isTrue, reason: 'the first section is active at the top');
+    expect(lit('2'), isFalse, reason: 'nothing is highlighted until a cost is picked on the rail');
     expect(lit('4'), isFalse);
     await tester.tap(find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text('4')));
     await tester.pumpAndSettle();
@@ -102,8 +275,8 @@ void main() {
     expect(find.byKey(const Key('sep-2')), findsOneWidget);
     expect(find.byKey(const Key('sep-4')), findsOneWidget);
     expect(scoped<Settings>(tester).flowingSections, isTrue);
-    // The first cost is highlighted to start with; the rail moves the highlight.
-    expect(find.byKey(const Key('hl-imp')), findsOneWidget);
+    // Nothing is highlighted until a cost is picked on the rail.
+    expect(find.byKey(const Key('hl-imp')), findsNothing);
     expect(find.byKey(const Key('hl-ghost')), findsNothing);
     await tester.tap(find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text('4')));
     await tester.pumpAndSettle();
