@@ -160,11 +160,13 @@ class ModuleStore {
       if (!allowedExtensions.contains(ext)) {
         throw InstallException('File type not allowed in a module: "$path" (only ${allowedExtensions.join(' ')})');
       }
-      if (f.size > maxFileBytes)
+      if (f.size > maxFileBytes) {
         throw InstallException('"$path" is too big (limit ${maxFileBytes ~/ (1024 * 1024)} MB per file)');
+      }
       total += f.size;
-      if (total > maxTotalBytes)
+      if (total > maxTotalBytes) {
         throw InstallException('This module is too big unpacked (limit ${maxTotalBytes ~/ (1024 * 1024)} MB)');
+      }
       if (path == 'module.json') hasManifest = true;
       final content = f.readBytes();
       if (content == null) throw InstallException('Could not unpack "$path"');
