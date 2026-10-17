@@ -6,6 +6,7 @@ import '../modules/loaded_module.dart';
 import '../modules/module_state.dart';
 import 'flow/flow_block.dart';
 import 'flow/flow_state.dart';
+import 'gallery_block.dart';
 import 'text_block.dart';
 
 typedef BlockBuilder = Widget Function(BuildContext context, BlockSpec spec);
@@ -15,6 +16,7 @@ typedef BlockBuilder = Widget Function(BuildContext context, BlockSpec spec);
 final Map<String, BlockBuilder> blockRegistry = {
   'text': (context, spec) => TextBlock(spec: spec),
   'flow': (context, spec) => FlowBlock(spec: spec),
+  'gallery': (context, spec) => GalleryBlock(spec: spec),
 };
 
 Widget buildBlock(BuildContext context, BlockSpec spec) {
