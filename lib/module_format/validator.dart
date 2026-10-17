@@ -35,6 +35,7 @@ int compareVersions(String a, String b) {
 }
 
 final _driveLetter = RegExp(r'^[A-Za-z]:');
+final _plainName = RegExp(r'^[A-Za-z0-9_-]+$');
 
 /// True for `https://…` links and relative paths that stay inside the module folder.
 bool isSafeImageRef(String ref) {
@@ -107,6 +108,10 @@ List<ValidationIssue> validateModule(
   for (final e in m.collections.entries) {
     final name = e.key;
     final spec = e.value;
+    if (!_plainName.hasMatch(name)) {
+      fatal('collections.$name', 'Collection names may only use letters, digits, "-" and "_"');
+      continue;
+    }
     final items = spec.isInline ? spec.inlineItems : collections[name];
     if (items == null) {
       fatal('collections.$name', 'Collection file "${spec.path}" was not loaded');

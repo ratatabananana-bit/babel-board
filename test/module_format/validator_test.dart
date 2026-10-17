@@ -208,6 +208,15 @@ void main() {
     expect(check(fullManifest(), list: bad), fatalAt('collections.items[0].image'));
   });
 
+  test('collection ids are plain names (letters, digits, - and _)', () {
+    final m = fullManifest();
+    m['collections'] = {
+      'items': (m['collections'] as Map)['items'],
+      '../x': {'items': <Object>[]},
+    };
+    expect(check(m), fatalAt('collections.../x'));
+  });
+
   test('zone accent must be amber, mint or violet', () {
     final m = fullManifest();
     (m['zones'] as List)[0]['accent'] = 'red';

@@ -132,6 +132,22 @@ void main() {
     expect(await store.list(), isEmpty);
   });
 
+  test('review: a single-JSON collection name cannot write outside the module folder', () async {
+    final victim = File('${root.path}/victim/data/cards.json')
+      ..createSync(recursive: true)
+      ..writeAsStringSync('ORIGINAL');
+    final m = singleJsonMini();
+    final items = m['collections']['items'];
+    m['collections'] = {'../../../victim/data/cards': items};
+    for (final t in (m['tabs'] as List)) {
+      final b = t['block'] as Map;
+      if (b['collection'] == 'items') b['collection'] = '../../../victim/data/cards';
+    }
+    final store = ModuleStore(root, client: imageServer(), imageTimeout: const Duration(milliseconds: 300));
+    await expectLater(store.installBytes(jsonBytes(m)), throwsA(isA<InstallException>()));
+    expect(victim.readAsStringSync(), 'ORIGINAL');
+  });
+
   test('zip entries that escape the module folder are rejected and nothing is written outside root', () async {
     final store = ModuleStore(root);
     for (final bad in ['../x.json', r'..\x.json', '/abs.json', 'C:/x.json', 'a/../../x.json']) {

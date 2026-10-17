@@ -171,12 +171,22 @@ class ModuleStore {
       if (path == 'module.json') hasManifest = true;
       final content = f.readBytes();
       if (content == null) throw InstallException('Could not unpack "$path"');
-      File(_p(staging.path, path))
+      _staged(staging, path)
         ..createSync(recursive: true)
         ..writeAsBytesSync(content);
     }
     if (!hasManifest) throw InstallException('This zip has no module.json at its root');
   }
+
+  /// A file inside [staging]. Every read and write of a module being installed goes through
+  /// here, so no name taken from module data can reach outside the staging folder.
+  File _staged(Directory staging, String rel) {
+    final safe = safeEntryPath(rel);
+    if (safe == null) throw InstallException('Unsafe path in this module: "$rel"');
+    return File(_p(staging.path, safe));
+  }
+
+  static final _collectionName = RegExp(r'^[A-Za-z0-9_-]+$');
 
   void _writeSingleJson(Uint8List bytes, Directory staging) {
     final Object? j;
@@ -194,21 +204,24 @@ class ModuleStore {
       for (final e in collections.entries) {
         final spec = e.value;
         if (spec is Map && spec['items'] is List) {
+          if (e.key is! String || !_collectionName.hasMatch(e.key as String)) {
+            throw InstallException('Collection name "${e.key}" may only use letters, digits, "-" and "_"');
+          }
           final file = 'data/${e.key}.json';
-          File(_p(staging.path, file))
+          _staged(staging, file)
             ..createSync(recursive: true)
             ..writeAsStringSync(jsonEncode({'items': spec['items']}));
           spec['items'] = file;
         }
       }
     }
-    File(_p(staging.path, 'module.json')).writeAsStringSync(jsonEncode(manifest));
+    _staged(staging, 'module.json').writeAsStringSync(jsonEncode(manifest));
   }
 
   /// Downloads every `https` image ref into `images/remote/` and rewrites the refs.
   /// A failed download leaves the ref empty, which draws the text-only card style.
   Future<void> _fetchRemoteImages(Directory staging, Map<String, String> Function(Uri)? headersFor) async {
-    final manifestFile = File(_p(staging.path, 'module.json'));
+    final manifestFile = _staged(staging, 'module.json');
     if (!manifestFile.existsSync()) return;
     final Object? decoded;
     try {
@@ -239,7 +252,7 @@ class ModuleStore {
         if (spec is! Map || spec['items'] is! String) continue;
         final path = safeEntryPath(spec['items'] as String);
         if (path == null) continue;
-        final f = File(_p(staging.path, path));
+        final f = _staged(staging, path);
         if (!f.existsSync()) continue;
         final Object? dj;
         try {
@@ -278,7 +291,7 @@ class ModuleStore {
     }
     manifestFile.writeAsStringSync(jsonEncode(manifest));
     for (final e in dataFiles.entries) {
-      File(_p(staging.path, e.key)).writeAsStringSync(jsonEncode(e.value));
+      _staged(staging, e.key).writeAsStringSync(jsonEncode(e.value));
     }
   }
 
@@ -295,7 +308,7 @@ class ModuleStore {
       if (ext == null) return '';
       final name = '${sha1.convert(utf8.encode(url.toString()))}$ext';
       final rel = 'images/remote/$name';
-      File(_p(staging.path, rel))
+      _staged(staging, rel)
         ..createSync(recursive: true)
         ..writeAsBytesSync(res.bodyBytes);
       return rel;
