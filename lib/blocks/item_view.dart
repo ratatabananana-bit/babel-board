@@ -39,8 +39,8 @@ class SymbolImage extends StatelessWidget {
 }
 
 /// One chip of an item's template: text, a symbol, or a labeled row of symbols.
-class _ChipSpec {
-  _ChipSpec(Map<String, dynamic> j)
+class ChipSpec {
+  ChipSpec(Map<String, dynamic> j)
       : symbol = j['symbol'] as String?,
         text = j['text'] as String?,
         symbols = j['symbols'] as String?,
@@ -51,14 +51,14 @@ class _ChipSpec {
 /// The sheet template of a collection, read from `CollectionSpec.sheet`.
 class SheetSpec {
   SheetSpec(Map<String, dynamic> j)
-      : chips = [for (final c in (j['chips'] as List? ?? const [])) _ChipSpec((c as Map).cast<String, dynamic>())],
+      : chips = [for (final c in (j['chips'] as List? ?? const [])) ChipSpec((c as Map).cast<String, dynamic>())],
         effects = (j['effects'] as Map?)?.cast<String, dynamic>(),
         sections = [for (final s in (j['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>()],
         secondary = j['secondary'] as String?,
         verifiedPath = j['verifiedPath'] as String?,
         zones = (j['zones'] as List?)?.cast<String>() ?? const [];
 
-  final List<_ChipSpec> chips;
+  final List<ChipSpec> chips;
   final Map<String, dynamic>? effects;
   final List<Map<String, dynamic>> sections;
   final String? secondary;
@@ -449,7 +449,7 @@ class ItemSheet extends StatelessWidget {
     );
   }
 
-  Widget? _chip(_ChipSpec c) {
+  Widget? _chip(ChipSpec c) {
     final children = <Widget>[];
     if (c.label != null) children.add(Text(c.label!));
     if (c.symbol != null) {
@@ -651,7 +651,7 @@ class _ZoneButton extends StatelessWidget {
   }
 }
 
-/// One wide "Add to <zone>" / "In <zone>" toggle for modules with a single zone.
+/// One wide "Add to (zone)" / "In (zone)" toggle for modules with a single zone.
 class _SingleZoneButton extends StatelessWidget {
   const _SingleZoneButton({required this.zone, required this.active, required this.itemId});
   final ZoneSpec zone;

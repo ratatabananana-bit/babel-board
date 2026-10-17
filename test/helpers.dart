@@ -59,11 +59,13 @@ Future<AppState> pumpModules(
 /// Reads a provided object from inside the open module's scope.
 T scoped<T>(WidgetTester tester) => tester.element(find.byType(NavigationBar)).read<T>();
 
-/// A touch long-press drag from [from] to [to], moved in steps like a real finger.
-Future<void> longPressDrag(WidgetTester tester, Offset from, Offset to) async {
+/// A touch long-press drag from [from] to [target], moved in steps like a real finger.
+/// [target] is resolved after the pickup, so it can be a drop bar that appears while dragging.
+Future<void> longPressDrag(WidgetTester tester, Offset from, Finder target) async {
   final g = await tester.startGesture(from);
   await tester.pump(const Duration(milliseconds: 400));
   await tester.pump();
+  final to = tester.getCenter(target);
   for (var i = 1; i <= 10; i++) {
     await g.moveTo(Offset.lerp(from, to, i / 10)!);
     await tester.pump(const Duration(milliseconds: 16));

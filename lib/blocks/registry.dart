@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../modules/loaded_module.dart';
 import '../modules/module_state.dart';
+import 'board_block.dart';
 import 'flow/flow_block.dart';
 import 'flow/flow_state.dart';
 import 'gallery_block.dart';
@@ -17,6 +18,10 @@ final Map<String, BlockBuilder> blockRegistry = {
   'text': (context, spec) => TextBlock(spec: spec),
   'flow': (context, spec) => FlowBlock(spec: spec),
   'gallery': (context, spec) => GalleryBlock(spec: spec),
+  'board': (context, spec) => BoardBlock(spec: spec),
+  // A zone on its own is a one-lane board.
+  'zone': (context, spec) => BoardBlock(spec: BlockSpec(type: 'board', children: [spec])),
+  'cardList': (context, spec) => CardListBlock(spec: spec),
 };
 
 Widget buildBlock(BuildContext context, BlockSpec spec) {

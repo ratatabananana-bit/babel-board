@@ -10,8 +10,8 @@ import '../module_format/path_expr.dart';
 import '../modules/loaded_module.dart';
 import 'item_view.dart';
 
-class _FilterOption {
-  _FilterOption(Map<String, dynamic> j)
+class FilterOption {
+  FilterOption(Map<String, dynamic> j)
       : value = j['value'],
         label = j['label'] as String? ?? '${j['value']}',
         symbol = j['symbol'] as String?;
@@ -20,20 +20,20 @@ class _FilterOption {
   final String? symbol;
 }
 
-class _FilterSpec {
-  _FilterSpec(Map<String, dynamic> j)
+class FilterSpec {
+  FilterSpec(Map<String, dynamic> j)
       : path = j['path'] as String,
         label = j['label'] as String? ?? '',
         allLabel = j['allLabel'] as String? ?? 'All',
-        options = [for (final o in (j['options'] as List? ?? const [])) _FilterOption((o as Map).cast<String, dynamic>())];
+        options = [for (final o in (j['options'] as List? ?? const [])) FilterOption((o as Map).cast<String, dynamic>())];
   final String path;
   final String label;
   final String allLabel;
-  final List<_FilterOption> options;
+  final List<FilterOption> options;
 }
 
-class _SectionsSpec {
-  _SectionsSpec(Map<String, dynamic> j)
+class SectionsSpec {
+  SectionsSpec(Map<String, dynamic> j)
       : path = j['path'] as String,
         label = j['label'] as String? ?? '{value}',
         onlyWhenFiltered = j['onlyWhenFiltered'] as bool? ?? false,
@@ -52,15 +52,15 @@ class GallerySpec {
       : collection = b.settings['collection'] as String,
         search = (b.settings['search'] as List?)?.cast<String>() ?? const ['name'],
         tileName = b.settings['tileName'] as bool? ?? true,
-        filters = [for (final f in (b.settings['filters'] as List? ?? const [])) _FilterSpec((f as Map).cast<String, dynamic>())],
-        sections = b.settings['sections'] is Map ? _SectionsSpec((b.settings['sections'] as Map).cast<String, dynamic>()) : null,
+        filters = [for (final f in (b.settings['filters'] as List? ?? const [])) FilterSpec((f as Map).cast<String, dynamic>())],
+        sections = b.settings['sections'] is Map ? SectionsSpec((b.settings['sections'] as Map).cast<String, dynamic>()) : null,
         noun = b.settings['noun'] as String? ?? 'cards';
 
   final String collection;
   final List<String> search;
   final bool tileName;
-  final List<_FilterSpec> filters;
-  final _SectionsSpec? sections;
+  final List<FilterSpec> filters;
+  final SectionsSpec? sections;
 
   /// What the summary counts, e.g. "cards".
   final String noun;
@@ -170,7 +170,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
     final shown = _shown(module.items(_g.collection));
     final sections = _g.sections;
     final sectioned = sections != null && (!sections.onlyWhenFiltered || _filtered);
-    final keys = sectioned ? _sectionKeys(shown, sections!.path) : const <Object?>[];
+    final keys = sectioned ? _sectionKeys(shown, sections.path) : const <Object?>[];
 
     return Column(
       children: [
@@ -184,7 +184,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
                   return _grid(context, spec, shown, sectioned ? sections : null, keys, columns, gridW, box.maxHeight);
                 }),
               ),
-              if (sectioned && sections!.rail)
+              if (sectioned && sections.rail)
                 _SectionRail(
                   keys: keys,
                   range: sections.railRange,
@@ -217,7 +217,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
     return keys;
   }
 
-  Widget _grid(BuildContext context, CollectionSpec spec, List<Item> shown, _SectionsSpec? sections,
+  Widget _grid(BuildContext context, CollectionSpec spec, List<Item> shown, SectionsSpec? sections,
       List<Object?> keys, int columns, double gridW, double viewH) {
     final p = context.pal;
     final extra = _g.tileName ? ItemTile.nameHeight : 0.0;
@@ -397,7 +397,7 @@ class _SectionRail extends StatelessWidget {
 /// Single-select option dock at the bottom, in thumb reach.
 class _FilterDock extends StatelessWidget {
   const _FilterDock({required this.filter, required this.selected, required this.summary, required this.onPick});
-  final _FilterSpec filter;
+  final FilterSpec filter;
   final Object? selected;
   final String summary;
   final void Function(Object?) onPick;
