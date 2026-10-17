@@ -148,7 +148,15 @@ class RepoClient {
       case 403:
         throw RepoException(RepoError.tokenRejected, 'GitHub rejected the token');
       case 404:
-        throw RepoException(RepoError.notFound, "Couldn't find index.json at that link");
+        // GitHub answers "not found" (not "forbidden") for a private file and a bad token.
+        final t = config.token;
+        throw RepoException(
+          RepoError.notFound,
+          t == null || t.isEmpty
+              ? "Couldn't find index.json at that link"
+              : "Couldn't find index.json at that link, or GitHub rejected the token "
+                    '(for a private repo GitHub answers "not found" to a wrong token)',
+        );
       default:
         throw RepoException(RepoError.network, 'The repository answered HTTP ${res.statusCode}');
     }

@@ -230,9 +230,9 @@ void main() {
   group('review: block settings the app reads are type-checked', () {
     // A JSON round trip gives untyped maps, so tests can put any value anywhere.
     Map<String, dynamic> fullManifest() => jsonDecode(jsonEncode(fixture())) as Map<String, dynamic>;
-    Map<String, dynamic> block(Map<String, dynamic> m, int tab) => (m['tabs'] as List)[tab]['block'] as Map<String, dynamic>;
-    Map<String, dynamic> step0(Map<String, dynamic> m) =>
-        (block(m, 2)['children'] as List)[0] as Map<String, dynamic>;
+    Map<String, dynamic> block(Map<String, dynamic> m, int tab) =>
+        (m['tabs'] as List)[tab]['block'] as Map<String, dynamic>;
+    Map<String, dynamic> step0(Map<String, dynamic> m) => (block(m, 2)['children'] as List)[0] as Map<String, dynamic>;
 
     test('checklist rows need an id and text', () {
       final m = fullManifest();

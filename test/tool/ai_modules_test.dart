@@ -28,12 +28,21 @@ Future<LoadedModule> installOffline(String json) async {
   return loadModule(DirectoryModuleFiles(m.dir!));
 }
 
+/// The JSON of the "complete small example" in AI_INSTRUCTIONS.md.
+String exampleJson(String text) {
+  final start = text.indexOf('## A complete small example');
+  return RegExp(r'```json\r?\n([\s\S]*?)\r?\n```').firstMatch(text.substring(start))!.group(1)!;
+}
+
 void main() {
+  test('review: the example is found whatever the line endings (git may check out CRLF)', () {
+    final lf = File('modules/AI_INSTRUCTIONS.md').readAsStringSync().replaceAll('\r\n', '\n');
+    final crlf = lf.replaceAll('\n', '\r\n');
+    expect(exampleJson(crlf).replaceAll('\r\n', '\n'), exampleJson(lf));
+  });
+
   test('the complete example in AI_INSTRUCTIONS.md installs', () async {
-    final text = File('modules/AI_INSTRUCTIONS.md').readAsStringSync();
-    final start = text.indexOf('## A complete small example');
-    final block = RegExp(r'```json\n([\s\S]*?)\n```').firstMatch(text.substring(start))!.group(1)!;
-    final m = await installOffline(block);
+    final m = await installOffline(exampleJson(File('modules/AI_INSTRUCTIONS.md').readAsStringSync()));
     expect(m.manifest.id, 'example-duel');
     expect(m.manifest.tabs, hasLength(4));
   });

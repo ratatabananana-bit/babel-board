@@ -132,7 +132,10 @@ class LibraryController extends ChangeNotifier {
     return _withBusy('Installing ${label ?? 'module'}…', () async {
       final m = await s.installBytes(bytes, headersFor: headersFor);
       await refresh();
-      if (open) app.open(m.id);
+      // The game played last (before an update, or before reinstalling) opens as soon as
+      // it is installed again, so the owner lands back in it.
+      final remembered = app.active == null && prefs.getString(AppState.lastGameKey) == m.id;
+      if (open || remembered) app.open(m.id);
       messages.add('Installed ${m.name} ${m.version}');
       return m;
     });

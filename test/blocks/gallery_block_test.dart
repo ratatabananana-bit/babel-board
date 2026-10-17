@@ -45,6 +45,25 @@ void main() {
     expect(find.text('No cards match "zzz".'), findsOneWidget);
   });
 
+  testWidgets('review: a filter dock with many options scrolls instead of overflowing', (tester) async {
+    await pumpModules(
+      tester,
+      edit: (m) {
+        final filter = (m['tabs'] as List)[0]['block']['filters'][0] as Map;
+        filter['options'] = [
+          for (var i = 1; i <= 8; i++) {'value': 'opt$i', 'label': 'Opt$i'},
+        ];
+      },
+    );
+    expect(tester.takeException(), isNull);
+    final last = find.bySemanticsLabel('Family Opt8');
+    await tester.ensureVisible(last);
+    await tester.pumpAndSettle();
+    await tester.tap(last);
+    await tester.pumpAndSettle();
+    expect(find.text('Opt8 · 0 cards'), findsOneWidget);
+  });
+
   testWidgets('density toggle sets cards per row', (tester) async {
     await pumpModules(tester);
     expect(scoped<Settings>(tester).columns, 4);

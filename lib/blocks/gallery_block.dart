@@ -478,8 +478,7 @@ class _FilterDock extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          _OptionRow(
             children: [
               _OptionButton(
                 label: 'All',
@@ -509,6 +508,28 @@ class _FilterDock extends StatelessWidget {
   }
 }
 
+/// Spreads the option buttons across the dock when they fit (as today with five
+/// families); otherwise they scroll sideways so every option stays reachable.
+class _OptionRow extends StatelessWidget {
+  const _OptionRow({required this.children});
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, box) {
+        if (children.length * _OptionButton.width <= box.maxWidth) {
+          return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: children);
+        }
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: children),
+        );
+      },
+    );
+  }
+}
+
 class _OptionButton extends StatelessWidget {
   const _OptionButton({
     required this.label,
@@ -517,6 +538,8 @@ class _OptionButton extends StatelessWidget {
     required this.onTap,
     required this.child,
   });
+
+  static const width = 56.0;
   final String label;
   final String semantics;
   final bool selected;
@@ -535,7 +558,7 @@ class _OptionButton extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
-          width: 56,
+          width: width,
           child: Column(
             children: [
               AnimatedContainer(

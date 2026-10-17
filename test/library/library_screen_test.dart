@@ -223,6 +223,31 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Update'), findsNothing);
   });
 
+  testWidgets('review: the remembered last game opens once its module is installed (spec §10)', (tester) async {
+    final app = await pumpLibrary(
+      tester,
+      prefs: {'app.lastGame': 'mini'},
+      repoIndex: {
+        'name': 'Test repo',
+        'modules': [
+          {
+            'id': 'mini',
+            'name': 'Mini Game',
+            'version': '1.0.0',
+            'minAppVersion': '3.0.0',
+            'zip': 'mini.zip',
+            'size': 10,
+          },
+        ],
+      },
+      zips: {'mini.zip': miniZip()},
+    );
+    expect(app.active, isNull);
+    await tester.tap(find.widgetWithText(FilledButton, 'Install'));
+    await settleAsync(tester);
+    expect(app.active?.id, 'mini');
+  });
+
   testWidgets('repository errors are shown in words', (tester) async {
     await pumpLibrary(tester, repoIndex: null, prefs: {RepoConfigStore.urlKey: indexUrl.toString()});
     await tester.pumpAndSettle();

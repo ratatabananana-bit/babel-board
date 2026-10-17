@@ -95,6 +95,16 @@ class ModuleStore {
     try {
       if (_isZip(bytes)) {
         _unzip(bytes, staging);
+        // A zip may still carry inline items; store them as files like the single-JSON form,
+        // so their image links are downloaded too.
+        final manifestFile = _staged(staging, 'module.json');
+        final Object? j;
+        try {
+          j = jsonDecode(manifestFile.readAsStringSync());
+        } on FormatException {
+          throw InstallException('module.json in this zip is not valid JSON');
+        }
+        if (j is Map) _writeManifest(j.cast<String, dynamic>(), staging);
       } else {
         _writeSingleJson(bytes, staging);
       }
@@ -205,7 +215,12 @@ class ModuleStore {
     if (j is! Map || j['format'] == null || j['id'] == null) {
       throw InstallException('This file is neither a zip nor a module JSON file (no "format" and "id")');
     }
-    final manifest = j.cast<String, dynamic>();
+    _writeManifest(j.cast<String, dynamic>(), staging);
+  }
+
+  /// Writes `module.json` into [staging], first moving each inline collection's items to
+  /// `data/<name>.json` (names checked, so they can't point outside the module).
+  void _writeManifest(Map<String, dynamic> manifest, Directory staging) {
     final collections = manifest['collections'];
     if (collections is Map) {
       for (final e in collections.entries) {

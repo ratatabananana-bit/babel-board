@@ -69,6 +69,24 @@ void main() {
     expect(await kindFor(MockClient((_) async => throw http.ClientException('offline'))), RepoError.network);
   });
 
+  test('review: with a token set, "not found" also points at the token (GitHub hides private files)', () async {
+    Future<String> messageFor(String? token) async {
+      try {
+        await RepoClient(
+          RepoConfig(indexUrl: indexUrl, token: token),
+          client: MockClient((_) async => http.Response('', 404)),
+        ).fetchIndex();
+      } on RepoException catch (e) {
+        expect(e.kind, RepoError.notFound);
+        return e.message;
+      }
+      fail('expected a RepoException');
+    }
+
+    expect(await messageFor(null), isNot(contains('token')));
+    expect(await messageFor('tok'), contains('token'));
+  });
+
   test('Review Focus 5: the token goes only to the index host', () async {
     final seen = <Uri, Map<String, String>>{};
     final client = MockClient((req) async {

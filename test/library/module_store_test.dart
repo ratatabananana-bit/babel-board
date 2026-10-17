@@ -75,6 +75,18 @@ void main() {
     expect(root.listSync().where((e) => e.path.contains('.staging')), isEmpty, reason: 'staging cleaned up');
   });
 
+  test('review: a zip whose module.json has inline items downloads their image links too', () async {
+    final files = miniFiles();
+    final m = singleJsonMini();
+    files['module.json'] = jsonBytes(m);
+    files.remove('data/items.json');
+    final store = ModuleStore(root, client: imageServer(), imageTimeout: const Duration(milliseconds: 300));
+    final installed = await store.installBytes(zipOf(files));
+    final loaded = await loadModule(DirectoryModuleFiles(installed.dir!));
+    final ref = loaded.item('items', 'imp')!.imageRef(loaded.manifest.collections['items']!)!;
+    expect(ref, startsWith('images/remote/'), reason: 'works offline after install');
+  });
+
   test('installs a single-JSON module: inline collections written, image links downloaded', () async {
     final store = ModuleStore(root, client: imageServer(), imageTimeout: const Duration(milliseconds: 300));
     final m = await store.installBytes(jsonBytes(singleJsonMini()));
