@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
+import 'package:http/http.dart' as http;
 
 import '../module_format/validator.dart' show isSafeImageRef;
 
@@ -92,22 +93,17 @@ class ModuleFileImage extends ImageProvider<ModuleFileImage> {
 
 /// A module served over HTTP (the web preview reads `modules/<id>/` next to the app).
 class HttpModuleFiles implements ModuleFiles {
-  HttpModuleFiles(this.base, {this.headers = const {}});
+  HttpModuleFiles(this.base, {this.headers = const {}, http.Client? client}) : _client = client;
   final Uri base;
   final Map<String, String> headers;
+  final http.Client? _client;
 
   @override
   Future<String> readText(String path) async {
-    final client = HttpClient();
-    try {
-      final req = await client.getUrl(base.resolve(path));
-      headers.forEach(req.headers.set);
-      final res = await req.close();
-      if (res.statusCode != 200) throw HttpException('HTTP ${res.statusCode}', uri: base.resolve(path));
-      return res.transform(utf8.decoder).join();
-    } finally {
-      client.close();
-    }
+    final url = base.resolve(path);
+    final res = await (_client ?? http.Client()).get(url, headers: headers);
+    if (res.statusCode != 200) throw HttpException('HTTP ${res.statusCode}', uri: url);
+    return utf8.decode(res.bodyBytes);
   }
 
   @override
