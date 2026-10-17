@@ -1,0 +1,297 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://table-helper.local/module.schema.json",
+  "title": "Table Helper game module (module.json)",
+  "description": "A data-only board game module. Blocks are a fixed set built into the app; see MODULE_SPEC.md. The app's validator (dart run tool/validate.dart) also checks cross-references this schema can't: zone ids used by blocks, collection ids, unique item and step ids.",
+  "type": "object",
+  "required": ["format", "id", "name", "version", "minAppVersion", "tabs"],
+  "properties": {
+    "format": { "const": 1, "description": "Module format version. This app understands 1." },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "description": "Stable id, e.g. \"heat\". Saved state is kept per id, so never change it."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "version": { "$ref": "#/$defs/version" },
+    "minAppVersion": { "$ref": "#/$defs/version", "description": "Oldest Table Helper that can run this module, e.g. \"3.0.0\"." },
+    "icon": { "$ref": "#/$defs/imageRef" },
+    "players": { "type": "string", "description": "Player count the box supports, e.g. \"2-6\"." },
+    "source": { "type": "string", "description": "Where the rules and card text came from." },
+    "collections": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/collection" }
+    },
+    "symbols": {
+      "type": "object",
+      "description": "Named small images used in templates and filter docks.",
+      "additionalProperties": { "$ref": "#/$defs/imageRef" }
+    },
+    "zones": { "type": "array", "items": { "$ref": "#/$defs/zone" } },
+    "tabs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/tab" } }
+  },
+  "$defs": {
+    "version": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+){0,2}$" },
+    "imageRef": {
+      "type": "string",
+      "description": "An https link (downloaded once at install) or a path inside the module folder. No \"..\", no leading slash or backslash, no drive letter. An empty string means no image (text-only card).",
+      "pattern": "^$|^https://.+|^(?![/\\\\])(?![A-Za-z]:)(?!(.*[/\\\\])?\\.\\.([/\\\\]|$)).+$"
+    },
+    "icon": {
+      "type": "string",
+      "enum": ["cards", "hand", "flag", "run", "race", "table", "grid", "book", "list", "star"]
+    },
+    "collection": {
+      "type": "object",
+      "required": ["items"],
+      "properties": {
+        "items": {
+          "description": "Path to a {\"items\": [...]} file in the module, or the items inline (single-file modules).",
+          "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "object" } }]
+        },
+        "idField": { "type": "string", "default": "id" },
+        "imageField": { "type": "string", "default": "image" },
+        "imageShape": { "enum": ["card", "square"], "default": "card" },
+        "cardAspect": { "type": "number", "exclusiveMinimum": 0, "default": 0.716 },
+        "titleField": { "type": "string", "default": "name" },
+        "subtitleField": { "type": "string" },
+        "sheet": { "$ref": "#/$defs/sheet" }
+      }
+    },
+    "sheet": {
+      "type": "object",
+      "description": "How one item's bottom sheet looks.",
+      "properties": {
+        "chips": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "symbol": { "type": "string", "description": "Template giving a symbol name, e.g. \"{family}\"." },
+              "text": { "type": "string", "description": "Template, e.g. \"Cost {cost}\"." },
+              "symbols": { "type": "string", "description": "Path to a list of symbol names." },
+              "label": { "type": "string" }
+            }
+          }
+        },
+        "effects": {
+          "type": "object",
+          "properties": {
+            "path": { "type": "string" },
+            "typeLabels": { "type": "object", "additionalProperties": { "type": "string" } },
+            "typeSymbols": { "type": "object", "additionalProperties": { "type": "string" } },
+            "typeHelp": { "type": "object", "additionalProperties": { "type": "string" } }
+          }
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "path"],
+            "properties": { "label": { "type": "string" }, "path": { "type": "string" } }
+          }
+        },
+        "secondary": { "type": "string" },
+        "verifiedPath": { "type": "string" },
+        "zones": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "zone": {
+      "type": "object",
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "icon": { "$ref": "#/$defs/icon" },
+        "accent": { "enum": ["amber", "mint", "violet"], "default": "amber" },
+        "hint": { "type": "string" },
+        "band": { "type": "string" },
+        "phrase": { "type": "string", "description": "How the zone reads in a sentence, e.g. \"this race\"." }
+      }
+    },
+    "tab": {
+      "type": "object",
+      "required": ["label", "block"],
+      "properties": {
+        "label": { "type": "string" },
+        "icon": { "$ref": "#/$defs/icon" },
+        "badge": { "const": "zoneCount" },
+        "block": { "$ref": "#/$defs/block" }
+      }
+    },
+    "blockType": { "enum": ["gallery", "board", "zone", "cardList", "flow", "step", "text"] },
+    "filter": {
+      "type": "object",
+      "properties": {
+        "zone": { "type": "string" },
+        "where": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path"],
+            "properties": { "path": { "type": "string" }, "has": {}, "equals": {} }
+          }
+        }
+      }
+    },
+    "checklistRow": {
+      "type": "object",
+      "required": ["id", "text"],
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "sub": { "type": "string" },
+        "actionLabel": { "type": "string" },
+        "action": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["type", "zone"],
+              "properties": { "type": { "const": "clearZone" }, "zone": { "type": "string" } }
+            },
+            { "type": "object", "required": ["type"], "properties": { "type": { "const": "newGame" } } }
+          ]
+        }
+      }
+    },
+    "stepSettings": {
+      "type": "object",
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "short": { "type": "string" },
+        "tag": { "type": "string" },
+        "summary": { "type": "string" },
+        "listTitle": { "type": "string" },
+        "nextLabel": { "type": "string" },
+        "emptyText": { "type": "string" },
+        "how": { "type": "array", "items": { "type": "string" } },
+        "checklist": { "type": "array", "items": { "$ref": "#/$defs/checklistRow" } },
+        "cardChecklist": {
+          "type": "object",
+          "required": ["collection"],
+          "properties": {
+            "collection": { "type": "string" },
+            "filter": { "$ref": "#/$defs/filter" },
+            "sub": { "type": "string" }
+          }
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "$ref": "#/$defs/blockType" },
+        "children": { "type": "array", "items": { "$ref": "#/$defs/block" } }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "gallery" } } },
+          "then": {
+            "required": ["collection"],
+            "properties": {
+              "collection": { "type": "string" },
+              "search": { "type": "array", "items": { "type": "string" } },
+              "tileName": { "type": "boolean" },
+              "noun": { "type": "string" },
+              "searchHint": { "type": "string" },
+              "filters": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["path", "options"],
+                  "properties": {
+                    "path": { "type": "string" },
+                    "label": { "type": "string" },
+                    "position": { "const": "bottom" },
+                    "allLabel": { "type": "string" },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["value"],
+                        "properties": { "value": {}, "label": { "type": "string" }, "symbol": { "type": "string" } }
+                      }
+                    }
+                  }
+                }
+              },
+              "sections": {
+                "type": "object",
+                "required": ["path"],
+                "properties": {
+                  "path": { "type": "string" },
+                  "label": { "type": "string" },
+                  "onlyWhenFiltered": { "type": "boolean" },
+                  "rail": { "type": "boolean" },
+                  "railRange": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "board" } } },
+          "then": {
+            "properties": {
+              "title": { "type": "string" },
+              "countLabel": { "type": "string" },
+              "children": { "items": { "properties": { "type": { "const": "zone" } } } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "zone" } } },
+          "then": {
+            "required": ["zone"],
+            "properties": { "zone": { "type": "string" }, "list": { "$ref": "#/$defs/block" } }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "cardList" } } },
+          "then": {
+            "required": ["collection"],
+            "properties": {
+              "collection": { "type": "string" },
+              "style": { "enum": ["mini", "rows", "thumbs"] },
+              "columns": { "type": "integer", "minimum": 1, "maximum": 6 },
+              "filter": { "$ref": "#/$defs/filter" },
+              "removable": { "type": "boolean" },
+              "emptyText": { "type": "string" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "flow" } } },
+          "then": {
+            "required": ["children"],
+            "properties": {
+              "title": { "type": "string" },
+              "cyclic": { "type": "boolean" },
+              "reminders": { "type": "array", "items": { "type": "string" } },
+              "newGameText": { "type": "string" },
+              "setup": { "$ref": "#/$defs/stepSettings" },
+              "children": { "minItems": 1, "items": { "properties": { "type": { "const": "step" } } } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "step" } } },
+          "then": { "$ref": "#/$defs/stepSettings" }
+        },
+        {
+          "if": { "properties": { "type": { "const": "text" } } },
+          "then": {
+            "properties": {
+              "title": { "type": "string" },
+              "paragraphs": { "type": "array", "items": { "type": "string" } },
+              "bullets": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
