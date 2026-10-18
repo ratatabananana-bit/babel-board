@@ -4,18 +4,17 @@ import '../../core/theme.dart';
 import '../../module_format/block_specs.dart';
 import '../item_picture.dart';
 
-/// Single-select option dock at the bottom, in thumb reach.
+/// Single-select option dock at the bottom, in thumb reach: just the option buttons with
+/// their labels (the picked one is ringed), nothing else.
 class FilterDock extends StatelessWidget {
   const FilterDock({
     super.key,
     required this.filter,
     required this.selected,
-    required this.summary,
     required this.onPick,
   });
   final FilterSpec filter;
   final Object? selected;
-  final String summary;
   final void Function(Object?) onPick;
 
   @override
@@ -27,53 +26,28 @@ class FilterDock extends StatelessWidget {
         border: Border(top: BorderSide(color: p.surface2)),
       ),
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-      child: Column(
+      child: _OptionRow(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Row(
-              children: [
-                Text(
-                  filter.label.toUpperCase(),
-                  style: T.caption.copyWith(letterSpacing: 1, fontWeight: FontWeight.w700, color: p.muted),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    summary,
-                    textAlign: TextAlign.right,
-                    overflow: TextOverflow.ellipsis,
-                    style: T.caption.copyWith(color: p.text2, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
+          _OptionButton(
+            label: 'All',
+            semantics: '${filter.label} All',
+            selected: selected == null,
+            onTap: () => onPick(null),
+            child: Icon(Icons.apps_rounded, color: p.text, size: 22),
+          ),
+          for (final o in filter.options)
+            _OptionButton(
+              label: o.label,
+              semantics: '${filter.label} ${o.label}',
+              selected: selected == o.value,
+              onTap: () => onPick(o.value),
+              child: o.symbol == null
+                  ? Text(
+                      o.label.isEmpty ? '?' : o.label[0],
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: p.text),
+                    )
+                  : SymbolImage(o.symbol!, size: 40),
             ),
-          ),
-          const SizedBox(height: 8),
-          _OptionRow(
-            children: [
-              _OptionButton(
-                label: 'All',
-                semantics: '${filter.label} All',
-                selected: selected == null,
-                onTap: () => onPick(null),
-                child: Icon(Icons.apps_rounded, color: p.text, size: 22),
-              ),
-              for (final o in filter.options)
-                _OptionButton(
-                  label: o.label,
-                  semantics: '${filter.label} ${o.label}',
-                  selected: selected == o.value,
-                  onTap: () => onPick(o.value),
-                  child: o.symbol == null
-                      ? Text(
-                          o.label.isEmpty ? '?' : o.label[0],
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: p.text),
-                        )
-                      : SymbolImage(o.symbol!, size: 40),
-                ),
-            ],
-          ),
         ],
       ),
     );

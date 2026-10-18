@@ -204,16 +204,16 @@ class _GalleryBlockState extends State<GalleryBlock> {
           ),
         ),
         for (var i = 0; i < _g.filters.length; i++)
-          FilterDock(
-            filter: _g.filters[i],
-            selected: _selected[i],
-            summary:
-                '${_g.filters[i].options.where((o) => o.value == _selected[i]).firstOrNull?.label ?? _g.filters[i].allLabel}'
-                ' · ${shown.length} ${_g.noun}',
-            onPick: (v) => _pick(i, v),
-          ),
+          FilterDock(filter: _g.filters[i], selected: _selected[i], onPick: (v) => _pick(i, v)),
       ],
     );
+  }
+
+  /// "1 card", "3 cards": the module's noun, singular for one (plain English plurals only).
+  String _countOf(int n) {
+    final noun = _g.noun;
+    final one = noun.endsWith('s') && noun.length > 1 ? noun.substring(0, noun.length - 1) : noun;
+    return '$n ${n == 1 ? one : noun}';
   }
 
   /// The scrub bubble's text: the section label in sentence case ("COST 3" → "Cost 3").
@@ -396,18 +396,21 @@ class _GalleryBlockState extends State<GalleryBlock> {
     }
     // Grouped: a sticky header per section, then its cards in a container whose padding
     // never changes, so the pick only recolors it. Offsets let the rail jump.
-    final groupW = gridW + kGroupPad.left; // the container reaches 6 dp left of the grid, to the sliver edge
-    final innerW = groupW - kGroupPad.horizontal;
+    // The container reaches 6 dp left of the grid, to the sliver edge; its border and
+    // padding sit inside that width.
+    final groupW = gridW + kGroupPad.left;
+    final innerW = groupW - kGroupPad.horizontal - 2 * kGroupBorder;
     var y = 0.0;
     final slivers = <Widget>[];
     for (final k in keys) {
       final items = shown.where((it) => resolvePath(it.data, sections.path).firstOrNull == k).toList();
       _sectionOffsets[k] = y;
+      // Header (with the top border) + body (cards, bottom padding, bottom border) + gap.
       final h =
           _headerH +
-          kGroupPad.vertical +
-          2 * kGroupBorder +
           ReflowGrid.heightFor(items.length, innerW, columns, aspect: spec.cardAspect, extra: extra) +
+          kGroupPad.bottom +
+          kGroupBorder +
           _sectionGap;
       _sectionSpans[k] = [(y, y + h)];
       y += h;
@@ -418,7 +421,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
               pinned: true,
               delegate: SectionHeader(
                 fillTemplate(sections.label, {'value': k}),
-                '${items.length} ${_g.noun}',
+                _countOf(items.length),
                 p,
                 active: k == activeKey,
               ),
@@ -451,7 +454,11 @@ class _GalleryBlockState extends State<GalleryBlock> {
   }
 
 
-  Widget _scrollWatch(Widget child) =>
-      NotificationListener<UserScrollNotification>(onNotification: _onUserScroll, child: child);
+  /// Watches for real user scrolls, and hides the platform scrollbar: the rail is the
+  /// scrollbar here.
+  Widget _scrollWatch(Widget child) => ScrollConfiguration(
+    behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+    child: NotificationListener<UserScrollNotification>(onNotification: _onUserScroll, child: child),
+  );
 }
 

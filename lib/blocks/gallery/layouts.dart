@@ -110,8 +110,9 @@ class FlowCell extends StatelessWidget {
   }
 }
 
-/// A section's cards in the grouped layout: the same padding whether picked or not; picked
-/// gets a soft highlight fill and an inset outline.
+/// A section's cards in the grouped layout: the lower part of the group container (the
+/// sticky [SectionHeader] is the upper part). The same padding whether picked or not;
+/// picked gets a soft highlight fill and an outline that continues from the header.
 class SectionPanel extends StatelessWidget {
   const SectionPanel({super.key, required this.active, required this.child});
   final bool active;
@@ -120,23 +121,22 @@ class SectionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.pal;
+    final line = BorderSide(color: active ? p.highlight.withValues(alpha: 0.7) : Colors.transparent, width: kGroupBorder);
     return AnimatedContainer(
       duration: context.read<Settings>().anim(const Duration(milliseconds: 200)),
-      padding: kGroupPad,
+      padding: EdgeInsets.fromLTRB(kGroupPad.left, 0, kGroupPad.right, kGroupPad.bottom),
       decoration: BoxDecoration(
         color: active ? p.highlight.withValues(alpha: 0.14) : null,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: active ? p.highlight.withValues(alpha: 0.7) : Colors.transparent,
-          width: kGroupBorder,
-        ),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(14)),
+        border: Border(left: line, right: line, bottom: line),
       ),
       child: child,
     );
   }
 }
 
-/// Sticky separator above a section: label pill, a rule, and the count.
+/// Sticky top of a section's container: label pill, a rule, and the count, inset by the
+/// group padding so the label lines up with the first card. Opaque, so cards scroll under it.
 class SectionHeader extends SliverPersistentHeaderDelegate {
   SectionHeader(this.label, this.count, this.p, {this.active = false});
   final String label;
@@ -151,8 +151,14 @@ class SectionHeader extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final line = BorderSide(color: active ? p.highlight.withValues(alpha: 0.7) : Colors.transparent, width: kGroupBorder);
     return Container(
-      color: p.bg,
+      decoration: BoxDecoration(
+        color: active ? Color.alphaBlend(p.highlight.withValues(alpha: 0.14), p.bg) : p.bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+        border: Border(top: line, left: line, right: line),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: kGroupPad.left),
       alignment: Alignment.centerLeft,
       child: Row(
         children: [

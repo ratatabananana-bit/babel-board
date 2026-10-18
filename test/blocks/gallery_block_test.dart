@@ -20,15 +20,15 @@ void main() {
   ) async {
     await pumpModules(tester);
     expect(tiles(), 4);
-    expect(find.text('All families · 4 cards'), findsOneWidget);
+    expect(find.textContaining('4 cards'), findsNothing, reason: 'the dock is only the options');
 
     await tester.tap(find.bySemanticsLabel('Family Fire'));
     await tester.pumpAndSettle();
-    expect(find.text('Fire · 2 cards'), findsOneWidget);
+    expect(tiles(), 2);
 
     await tester.tap(find.bySemanticsLabel('Family Water'));
     await tester.pumpAndSettle();
-    expect(find.text('Water · 2 cards'), findsOneWidget);
+    expect(tiles(), 2);
 
     // Tapping the selected option again goes back to all.
     await tester.tap(find.bySemanticsLabel('Family Water'));
@@ -308,7 +308,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(last);
     await tester.pumpAndSettle();
-    expect(find.text('Opt8 · 0 cards'), findsOneWidget);
+    expect(tiles(), 0);
   });
 
   testWidgets('the selected cost section is highlighted', (tester) async {
@@ -422,6 +422,7 @@ void main() {
     expect(find.text('COST 2'), findsOneWidget);
     expect(find.text('COST 4'), findsOneWidget);
     expect(find.byKey(const Key('sectionRail')), findsOneWidget);
+    expect(find.text('1 card'), findsNWidgets(2), reason: 'singular count in the group headers');
 
     Finder rail(String n) => find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text(n));
     Color railColor(String n) {
