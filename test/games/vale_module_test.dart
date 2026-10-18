@@ -192,7 +192,7 @@ void main() {
         matching: find.byType(AnimatedContainer, skipOffstage: false),
       );
       if (f.evaluate().isEmpty) return false;
-      return (tester.widget<AnimatedContainer>(f).decoration as BoxDecoration?)?.color != null;
+      return (tester.widget<AnimatedContainer>(f.first).decoration as BoxDecoration?)?.color != null;
     }
 
     Future<void> fire(WidgetTester tester) async {

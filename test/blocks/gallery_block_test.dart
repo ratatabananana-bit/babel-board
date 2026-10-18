@@ -320,7 +320,7 @@ void main() {
                         of: find.byKey(Key('section-$cost'), skipOffstage: false),
                         matching: find.byType(AnimatedContainer, skipOffstage: false),
                         skipOffstage: false,
-                      ),
+                      ).first,
                     )
                     .decoration
                 as BoxDecoration?)
@@ -344,8 +344,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('COST 2'), findsNothing, reason: 'no group headers');
     expect(find.byType(AnimatedPositioned), findsWidgets);
-    expect(find.byKey(const Key('sep-2')), findsOneWidget);
-    expect(find.byKey(const Key('sep-4')), findsOneWidget);
+    expect(find.byKey(const Key('cost-pill-2')), findsOneWidget, reason: 'a number pill starts each cost run');
+    expect(find.byKey(const Key('cost-pill-4')), findsOneWidget);
     expect(scoped<Settings>(tester).flowingSections, isTrue);
     // Nothing is highlighted until a cost is picked on the rail.
     expect(find.byKey(const Key('hl-imp')), findsNothing);
@@ -519,6 +519,7 @@ void main() {
     );
     expect(find.descendant(of: find.byType(ItemPicture), matching: find.text('Imp')), findsOneWidget);
     expect(find.bySemanticsLabel('Nessie, in Lane B'), findsOneWidget);
-    expect(find.text('LANE B'), findsOneWidget);
+    expect(find.byKey(const Key('chip-nessie')), findsOneWidget, reason: 'zone chip on the corner, no band');
+    expect(find.text('LANE B'), findsNothing);
   });
 }

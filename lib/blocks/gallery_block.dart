@@ -294,9 +294,12 @@ class _GalleryBlockState extends State<GalleryBlock> {
     if (_scroll.hasClients) _scroll.jumpTo(0);
   }
 
-  /// One continuous grid in section order. A bar with a small badge marks where each
-  /// section starts; the active section's cards sit on soft panels. Offsets are the start
-  /// rows, so the rail scrolls to the row where a section begins.
+  /// One continuous grid in section order with even gutters (cells touch; each pads its
+  /// picture by [_flowInset] / 2 on both sides). A 16 dp ruler strip above every picture
+  /// carries a 2 dp line that runs across the cells of one section, with the section's
+  /// number at its start and a gap before the next section. The picked section's cards sit
+  /// on one continuous band, like a text selection. Offsets put a section's ruler at the top
+  /// of the viewport.
   Widget _flowing(
     BuildContext context,
     CollectionSpec spec,
@@ -308,77 +311,108 @@ class _GalleryBlockState extends State<GalleryBlock> {
     double gridW,
     double viewH,
     double extra,
-    Widget Function(List<Item>) grid,
   ) {
     final p = context.pal;
-    const top = 16.0; // room for the badges above the first row
+    const top = 8.0;
     final keyOf = {for (final it in shown) it.id: resolvePath(it.data, sections.path).firstOrNull};
     final ordered = [for (final k in keys) ...shown.where((it) => keyOf[it.id] == k)];
-    final tileW = ReflowGrid.tileWidth(gridW, columns);
-    final tileH = tileW / spec.cardAspect + extra;
-    double leftOf(int i) => (i % columns) * (tileW + ReflowGrid.spacing);
-    double topOf(int i) => (i ~/ columns) * (tileH + ReflowGrid.runSpacing);
+    final tileW = ReflowGrid.tileWidth(gridW, columns, spacing: 0);
+    final tileH = ReflowGrid.tileHeight(
+      gridW,
+      columns,
+      aspect: spec.cardAspect,
+      extra: extra + _FlowCell.rulerH,
+      spacing: 0,
+      cellInset: _flowInset,
+    );
+    double leftOf(int i) => (i % columns) * tileW;
+    double topOf(int i) => (i ~/ columns) * (tileH + _flowRowGap);
+    final duration = context.read<Settings>().anim(ReflowGrid.normalDuration);
 
-    final overlays = <Widget>[];
-    final panels = <Widget>[];
-    Object? previous = const Object();
+    final cells = <String, _FlowCell>{};
+    final band = <Widget>[];
     for (var i = 0; i < ordered.length; i++) {
-      final k = keyOf[ordered[i].id];
-      if (k != previous) {
-        previous = k;
-        _sectionOffsets[k] = topOf(i);
-        final x = leftOf(i) - ReflowGrid.spacing / 2;
-        overlays.add(
-          AnimatedPositioned(
-            key: Key('sep-$k'),
-            duration: context.read<Settings>().anim(ReflowGrid.normalDuration),
-            curve: ReflowGrid.curve,
-            left: x - 12,
-            top: topOf(i) - 14,
-            width: 24,
-            height: tileH + 14,
-            child: _FlowSeparator(label: '$k', active: k == activeKey),
-          ),
-        );
-      }
-      // Content coordinates include the top padding above the grid.
+      final it = ordered[i];
+      final k = keyOf[it.id];
+      final first = i == 0 || keyOf[ordered[i - 1].id] != k;
+      final last = i == ordered.length - 1 || keyOf[ordered[i + 1].id] != k;
+      if (first) _sectionOffsets[k] = (top + topOf(i) - 4).clamp(0.0, double.infinity);
       (_sectionSpans[k] ??= []).add((top + topOf(i), top + topOf(i) + tileH));
-      if (k == activeKey) {
-        panels.add(
+      final picked = k == activeKey;
+      cells[it.id] = _FlowCell(
+        item: it,
+        spec: spec,
+        collectionId: _g.collection,
+        showName: _g.tileName,
+        label: first ? '$k' : null,
+        endsRun: last,
+        picked: picked,
+      );
+      if (picked) {
+        final col = i % columns;
+        final roundLeft = first || col == 0;
+        final roundRight = last || col == columns - 1;
+        band.add(
           AnimatedPositioned(
-            key: Key('hl-${ordered[i].id}'),
-            duration: context.read<Settings>().anim(ReflowGrid.normalDuration),
+            key: Key('hl-${it.id}'),
+            duration: duration,
             curve: ReflowGrid.curve,
-            left: leftOf(i) - 4,
-            top: topOf(i) - 4,
-            width: tileW + 8,
-            height: tileH + 8,
+            left: leftOf(i),
+            top: topOf(i),
+            width: tileW,
+            height: tileH,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: p.surface2.withValues(alpha: 0.85),
-                borderRadius: BorderRadius.circular(14),
+                color: p.accent.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.horizontal(
+                  left: Radius.circular(roundLeft ? 10 : 0),
+                  right: Radius.circular(roundRight ? 10 : 0),
+                ),
               ),
             ),
           ),
         );
       }
     }
-    final totalH = ReflowGrid.heightFor(ordered.length, gridW, columns, aspect: spec.cardAspect, extra: extra);
-    final lastStart = _sectionOffsets[keys.last] ?? 0;
+    final grid = ReflowGrid<Item>(
+      items: ordered,
+      idOf: (it) => it.id,
+      columns: columns,
+      aspect: spec.cardAspect,
+      extraHeight: extra + _FlowCell.rulerH,
+      spacing: 0,
+      runSpacing: _flowRowGap,
+      cellInset: _flowInset,
+      duration: duration,
+      tileBuilder: (it) => cells[it.id]!,
+    );
+    final totalH = ReflowGrid.heightFor(
+      ordered.length,
+      gridW,
+      columns,
+      aspect: spec.cardAspect,
+      extra: extra + _FlowCell.rulerH,
+      spacing: 0,
+      runSpacing: _flowRowGap,
+      cellInset: _flowInset,
+    );
+    final lastStart = (_sectionOffsets[keys.last] ?? 0) - top;
     final tail = (viewH - (totalH - lastStart) - _pad.bottom - top).clamp(0.0, double.infinity);
     return CustomScrollView(
       controller: _scroll,
       slivers: [
         SliverPadding(
           padding: _pad.copyWith(top: top),
-          sliver: SliverToBoxAdapter(
-            child: Stack(clipBehavior: Clip.none, children: [...panels, grid(ordered), ...overlays]),
-          ),
+          sliver: SliverToBoxAdapter(child: Stack(clipBehavior: Clip.none, children: [...band, grid])),
         ),
         SliverToBoxAdapter(child: SizedBox(height: tail)),
       ],
     );
   }
+
+  /// Flowing layout: the picture is 8 dp narrower than its cell (4 dp a side); rows are 8 dp apart.
+  static const _flowInset = 8.0;
+  static const _flowRowGap = 8.0;
 
   /// Distinct section values in display order: numbers ascending, else by first appearance.
   List<Object?> _sectionKeys(List<Item> shown, String path) {
@@ -425,11 +459,12 @@ class _GalleryBlockState extends State<GalleryBlock> {
     // Highlighted cards: only what was picked on the rail (and is still shown).
     final activeKey = keys.contains(_picked) ? _picked : null;
     if (context.read<Settings>().flowingSections) {
-      return _scrollWatch(
-        _flowing(context, spec, shown, sections, keys, activeKey, columns, gridW, viewH, extra, grid),
-      );
+      return _scrollWatch(_flowing(context, spec, shown, sections, keys, activeKey, columns, gridW, viewH, extra));
     }
-    // Grouped with sticky headers; offsets are computed so the rail can jump.
+    // Grouped: a sticky header per section, then its cards in a container whose padding
+    // never changes, so the pick only recolors it. Offsets let the rail jump.
+    final groupW = gridW + _groupPad.left; // the container reaches 6 dp left of the grid, to the sliver edge
+    final innerW = groupW - _groupPad.horizontal;
     var y = 0.0;
     final slivers = <Widget>[];
     for (final k in keys) {
@@ -437,7 +472,8 @@ class _GalleryBlockState extends State<GalleryBlock> {
       _sectionOffsets[k] = y;
       final h =
           _headerH +
-          ReflowGrid.heightFor(items.length, gridW, columns, aspect: spec.cardAspect, extra: extra) +
+          _groupPad.vertical +
+          ReflowGrid.heightFor(items.length, innerW, columns, aspect: spec.cardAspect, extra: extra) +
           _sectionGap;
       _sectionSpans[k] = [(y, y + h)];
       y += h;
@@ -446,26 +482,17 @@ class _GalleryBlockState extends State<GalleryBlock> {
           slivers: [
             SliverPersistentHeader(
               pinned: true,
-              delegate: _SectionHeader(fillTemplate(sections.label, {'value': k}), p, active: k == activeKey),
+              delegate: _SectionHeader(
+                fillTemplate(sections.label, {'value': k}),
+                '${items.length} ${_g.noun}',
+                p,
+                active: k == activeKey,
+              ),
             ),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: _sectionGap),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    // The selected section sits on a soft panel; it is drawn outside the grid's
-                    // box, so section heights (and the rail's jump offsets) don't change.
-                    Positioned(
-                      left: -6,
-                      right: -6,
-                      top: -4,
-                      bottom: -4,
-                      child: _SectionPanel(key: Key('section-$k'), active: k == activeKey),
-                    ),
-                    grid(items),
-                  ],
-                ),
+                child: _SectionPanel(key: Key('section-$k'), active: k == activeKey, child: grid(items)),
               ),
             ),
           ],
@@ -480,7 +507,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
         controller: _scroll,
         slivers: [
           SliverPadding(
-            padding: _pad,
+            padding: _pad.copyWith(left: _pad.left - _groupPad.left),
             sliver: SliverMainAxisGroup(slivers: slivers),
           ),
           SliverToBoxAdapter(child: SizedBox(height: tail)),
@@ -489,74 +516,125 @@ class _GalleryBlockState extends State<GalleryBlock> {
     );
   }
 
+  /// Grouped layout: the padding every section container keeps, picked or not.
+  static const _groupPad = EdgeInsets.symmetric(vertical: 8, horizontal: 6);
+
   Widget _scrollWatch(Widget child) =>
       NotificationListener<UserScrollNotification>(onNotification: _onUserScroll, child: child);
 }
 
-/// Where a section starts in the flowing layout: a thin bar in the gap before its first
-/// card, with the section's value in a small badge on top.
-class _FlowSeparator extends StatelessWidget {
-  const _FlowSeparator({required this.label, required this.active});
-  final String label;
-  final bool active;
+/// One cell of the flowing layout: the cost ruler strip, then the tile with its side
+/// insets. The strip's 2 dp line runs the whole cell width so it joins the neighbours of
+/// the same section; the first card of a section starts it with a number pill, the last
+/// stops it 6 dp early so the next section reads as separate.
+class _FlowCell extends StatelessWidget {
+  const _FlowCell({
+    required this.item,
+    required this.spec,
+    required this.collectionId,
+    required this.showName,
+    required this.label,
+    required this.endsRun,
+    required this.picked,
+  });
+  final Item item;
+  final CollectionSpec spec;
+  final String collectionId;
+  final bool showName;
+
+  /// The section's number when this is its first card.
+  final String? label;
+  final bool endsRun;
+  final bool picked;
+
+  static const rulerH = 16.0;
 
   @override
   Widget build(BuildContext context) {
     final p = context.pal;
-    return IgnorePointer(
-      child: Column(
-        children: [
-          Container(
-            height: 22,
-            constraints: const BoxConstraints(minWidth: 22),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: active ? p.text : p.surface2, shape: BoxShape.circle),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                  color: active ? p.bg : p.text,
+    final line = picked ? p.accent : p.muted.withValues(alpha: 0.55);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: rulerH,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(
+                left: label == null ? 0 : _GalleryBlockState._flowInset / 2,
+                right: endsRun ? 6 : 0,
+                top: rulerH / 2 - 1,
+                height: 2,
+                child: ColoredBox(color: line),
+              ),
+              if (label != null)
+                Positioned(
+                  left: _GalleryBlockState._flowInset / 2,
+                  top: 0,
+                  child: Container(
+                    key: Key('cost-pill-$label'),
+                    height: rulerH,
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: picked ? p.accent : p.surface2,
+                      borderRadius: BorderRadius.circular(rulerH / 2),
+                    ),
+                    child: Text(
+                      label!,
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        height: 1,
+                        fontWeight: FontWeight.w800,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                        color: picked ? p.onAccentFill : p.text,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+            ],
           ),
-          Expanded(
-            child: Container(
-              width: 3,
-              decoration: BoxDecoration(
-                color: active ? p.text : p.text2.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: _GalleryBlockState._flowInset / 2),
+            child: ItemTile(item: item, collection: spec, collectionId: collectionId, showName: showName),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-/// Background panel behind the selected section's cards (neutral: accents are for zones).
+/// A section's cards in the grouped layout: the same padding whether picked or not; picked
+/// gets a soft accent fill and an inset outline.
 class _SectionPanel extends StatelessWidget {
-  const _SectionPanel({super.key, required this.active});
+  const _SectionPanel({super.key, required this.active, required this.child});
   final bool active;
+  final Widget child;
 
   @override
-  Widget build(BuildContext context) => AnimatedContainer(
-    duration: context.read<Settings>().anim(const Duration(milliseconds: 200)),
-    decoration: BoxDecoration(
-      color: active ? context.pal.surface2.withValues(alpha: 0.7) : null,
-      borderRadius: BorderRadius.circular(14),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return AnimatedContainer(
+      duration: context.read<Settings>().anim(const Duration(milliseconds: 200)),
+      padding: _GalleryBlockState._groupPad,
+      decoration: BoxDecoration(
+        color: active ? p.accent.withValues(alpha: 0.10) : null,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: active ? p.accent.withValues(alpha: 0.55) : Colors.transparent, width: 1.5),
+      ),
+      child: child,
+    );
+  }
 }
 
+/// Sticky separator above a section: label pill, a rule, and the count.
 class _SectionHeader extends SliverPersistentHeaderDelegate {
-  _SectionHeader(this.label, this.p, {this.active = false});
+  _SectionHeader(this.label, this.count, this.p, {this.active = false});
   final String label;
+  final String count;
   final Palette p;
   final bool active;
 
@@ -572,21 +650,39 @@ class _SectionHeader extends SliverPersistentHeaderDelegate {
       alignment: Alignment.centerLeft,
       child: Row(
         children: [
-          Text(
-            label,
-            style: T.label.copyWith(color: active ? p.text : p.text2, fontWeight: active ? FontWeight.w800 : null),
+          Container(
+            height: 20,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: active ? p.accent : p.surface2,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                height: 1,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.8,
+                color: active ? p.onAccentFill : p.text2,
+              ),
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Container(height: active ? 2 : 1, color: active ? p.text2 : p.surface2),
+            child: Container(height: 1.5, color: active ? p.accent.withValues(alpha: 0.5) : p.surface2),
           ),
+          const SizedBox(width: 8),
+          Text(count, style: T.caption.copyWith(color: p.muted, fontWeight: FontWeight.w500)),
         ],
       ),
     );
   }
 
   @override
-  bool shouldRebuild(_SectionHeader old) => old.label != label || old.p != p || old.active != active;
+  bool shouldRebuild(_SectionHeader old) =>
+      old.label != label || old.count != count || old.p != p || old.active != active;
 }
 
 /// Jump rail: slim, full height, one fixed position per value of the module's range (or

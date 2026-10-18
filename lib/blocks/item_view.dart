@@ -273,7 +273,9 @@ class _FramedCard extends StatelessWidget {
   }
 }
 
-/// Grid tile: picture, optional name below, and a zone ring + band when tracked.
+/// Grid tile: picture and an optional two-line name below. A tracked item keeps its text
+/// clear: a 2 dp outline in the zone's color just outside the picture, and a small chip
+/// with the zone's icon on the picture's top-right corner.
 class ItemTile extends StatelessWidget {
   const ItemTile({
     super.key,
@@ -288,8 +290,11 @@ class ItemTile extends StatelessWidget {
   final String collectionId;
   final bool showName;
 
-  /// Height of the name line under the picture, including the gap.
-  static const nameHeight = 23.0;
+  /// Height of the name block under the picture (two lines), including the gap.
+  static const nameHeight = 6.0 + nameLines * nameSize * nameLineHeight;
+  static const nameLines = 2;
+  static const nameSize = 12.0;
+  static const nameLineHeight = 1.2;
 
   @override
   Widget build(BuildContext context) {
@@ -299,7 +304,6 @@ class ItemTile extends StatelessWidget {
     final zone = zoneSpec(module, zoneId);
     final zc = zone == null ? null : zoneColor(context, zone);
     final title = item.title(collection);
-    final bandAtTop = collection.imageShape == 'square';
     return Semantics(
       button: true,
       label: zone == null ? title : '$title, in ${zone.label}',
@@ -310,65 +314,77 @@ class ItemTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              foregroundDecoration: zc == null
-                  ? null
-                  : BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: zc, width: 2.5),
-                    ),
-              child: Stack(
-                children: [
-                  ItemPicture(item, collection),
-                  if (zone != null)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: bandAtTop ? 0 : null,
-                      bottom: bandAtTop ? null : 0,
-                      height: 22,
-                      child: Container(
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                ItemPicture(item, collection),
+                if (zone != null && zc != null) ...[
+                  // Outline: 2 dp line, 2 dp outside the picture.
+                  Positioned(
+                    left: -4,
+                    top: -4,
+                    right: -4,
+                    bottom: -4,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: zc,
-                          borderRadius: bandAtTop
-                              ? const BorderRadius.vertical(top: Radius.circular(12))
-                              : const BorderRadius.vertical(bottom: Radius.circular(12)),
-                        ),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(moduleIcon(zone.icon), size: 14, color: p.onAccent),
-                              const SizedBox(width: 3),
-                              Text(
-                                (zone.band ?? zone.label).toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.4,
-                                  color: p.onAccent,
-                                ),
-                              ),
-                            ],
-                          ),
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: zc, width: 2),
                         ),
                       ),
                     ),
+                  ),
+                  Positioned(
+                    top: -6,
+                    right: -6,
+                    child: ZoneChip(key: Key('chip-${item.id}'), zone: zone, color: zc),
+                  ),
                 ],
-              ),
+              ],
             ),
             if (showName) ...[
               const SizedBox(height: 6),
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 13.5, height: 1.2, fontWeight: FontWeight.w600, color: p.text),
+              SizedBox(
+                height: nameLines * nameSize * nameLineHeight,
+                child: Text(
+                  title,
+                  maxLines: nameLines,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: nameSize,
+                    height: nameLineHeight,
+                    fontWeight: FontWeight.w600,
+                    color: p.text,
+                  ),
+                ),
               ),
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Zone marker on a tracked picture: a 20 dp disc in the zone's color with its icon, ringed
+/// in the background color so it reads on any art.
+class ZoneChip extends StatelessWidget {
+  const ZoneChip({super.key, required this.zone, required this.color, this.size = 20});
+  final ZoneSpec zone;
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return Container(
+      width: size + 4,
+      height: size + 4,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(color: p.bg, shape: BoxShape.circle),
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        child: Icon(moduleIcon(zone.icon), size: size * 0.62, color: p.onAccent),
       ),
     );
   }
