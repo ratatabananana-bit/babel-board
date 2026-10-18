@@ -687,7 +687,7 @@ class _HowItWorks extends StatelessWidget {
   }
 }
 
-/// Filled when every step is ticked; otherwise amber outline with "n steps left".
+/// Filled (accent) when every step is ticked; otherwise an accent outline with "n steps left".
 /// With steps left, the first tap arms it and the second tap skips them.
 class _NextButton extends StatelessWidget {
   const _NextButton({required this.label, required this.remaining, required this.armed, required this.onTap});
