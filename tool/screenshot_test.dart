@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vale_helper/blocks/item_view.dart';
+import 'package:vale_helper/core/settings.dart';
 import 'package:vale_helper/library/module_store.dart';
 import 'package:vale_helper/library/repository.dart';
 import 'package:vale_helper/main.dart';
@@ -69,7 +70,7 @@ Finder _nav(String label) => find.descendant(of: find.byType(NavigationBar), mat
 /// Taps the density button until it reads [n] cards per row (it cycles 4 → 3 → 2).
 Future<void> _density(WidgetTester tester, int n) async {
   final cycle = find.byKey(const Key('densityCycle'));
-  for (var i = 0; i < 3 && find.descendant(of: cycle, matching: find.text('$n')).evaluate().isEmpty; i++) {
+  for (var i = 0; i < 3 && find.descendant(of: cycle, matching: find.text(Settings.sizeLetter(n))).evaluate().isEmpty; i++) {
     await tester.tap(cycle);
     await tester.pumpAndSettle();
   }

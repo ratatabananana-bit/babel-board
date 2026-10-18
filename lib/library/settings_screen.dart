@@ -90,15 +90,15 @@ class SettingsScreen extends StatelessWidget {
           _Card(
             children: [
               _Labeled(
-                title: 'Cards per row',
-                subtitle: 'On a phone; tablets show proportionally more',
+                title: 'Card size',
+                subtitle: 'Small fits 4 per row on a phone; tablets fit more',
                 child: SegmentedButton<int>(
                   showSelectedIcon: false,
                   segments: [
                     for (final n in Settings.columnChoices)
                       ButtonSegment(
                         value: n,
-                        label: Text('$n', key: Key('settingsColumns$n')),
+                        label: Text(Settings.sizeLabel(n), key: Key('settingsColumns$n')),
                       ),
                   ],
                   selected: {settings.columns},

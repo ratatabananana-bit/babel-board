@@ -55,9 +55,9 @@ class SearchTopBar extends StatelessWidget {
   }
 }
 
-/// One pill with the view controls: density (a grid icon plus the cards-per-row count;
-/// tapping cycles 4 → 3 → 2 → 4) and, when the grid has sections, the grouped / flowing
-/// layout switch, whose icon shows the current layout.
+/// One pill with the view controls: card size (a grid icon plus S / M / L; tapping cycles
+/// small → medium → large; the per-row count depends on the screen) and, when the grid
+/// has sections, the grouped / flowing layout switch, whose icon shows the current layout.
 class ViewPill extends StatelessWidget {
   const ViewPill({super.key, this.onLayoutChanged});
 
@@ -81,8 +81,8 @@ class ViewPill extends StatelessWidget {
         children: [
           _PillButton(
             key: const Key('densityCycle'),
-            tooltip: '$n per row · tap for $next',
-            semantics: '$n per row',
+            tooltip: '${Settings.sizeLabel(n)} cards · tap for ${Settings.sizeLabel(next).toLowerCase()}',
+            semantics: '${Settings.sizeLabel(n)} cards',
             onTap: () => settings.columns = next,
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -90,7 +90,7 @@ class ViewPill extends StatelessWidget {
                 Icon(Icons.grid_view_rounded, size: 20, color: p.text),
                 const SizedBox(width: 4),
                 Text(
-                  '$n',
+                  Settings.sizeLetter(n),
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,

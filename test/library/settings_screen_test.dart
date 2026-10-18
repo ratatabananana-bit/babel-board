@@ -28,7 +28,7 @@ void main() {
     for (final t in [
       'Theme',
       'Animation speed',
-      'Cards per row',
+      'Card size',
       'Flowing family grid',
       'Copy instructions for AI',
       'Table Helper 3.0.0',
@@ -60,7 +60,7 @@ void main() {
     final appearance = tester.getTopLeft(find.text('APPEARANCE')).dy;
     final gallery = tester.getTopLeft(find.text('CARD GALLERY')).dy;
     final theme = tester.getTopLeft(find.text('Theme')).dy;
-    final perRow = tester.getTopLeft(find.text('Cards per row')).dy;
+    final perRow = tester.getTopLeft(find.text('Card size')).dy;
     expect(appearance < theme && theme < gallery && gallery < perRow, isTrue);
   });
 

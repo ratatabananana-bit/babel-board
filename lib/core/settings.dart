@@ -5,8 +5,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Settings extends ChangeNotifier {
   Settings(this._prefs) : _columns = _prefs.getInt(_kColumns) ?? 4;
 
-  /// Density toggle offers 4 / 3 / 2 cards per row.
+  /// Density toggle offers 4 / 3 / 2 cards per row on a phone (wider screens scale that
+  /// up, see [columnsFor]), shown to the player as small / medium / large cards.
   static const columnChoices = [4, 3, 2];
+
+  /// What the density is called in the UI: the count is a phone count, so the label is a size.
+  static String sizeLabel(int columns) => switch (columns) {
+    4 => 'Small',
+    3 => 'Medium',
+    _ => 'Large',
+  };
+
+  static String sizeLetter(int columns) => sizeLabel(columns)[0];
   static const minColumns = 2;
   static const maxColumns = 4;
   static const _kColumns = 'settings.columns';

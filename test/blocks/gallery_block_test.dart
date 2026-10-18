@@ -365,11 +365,11 @@ void main() {
     await pumpModules(tester);
     final cycle = find.byKey(const Key('densityCycle'));
     expect(scoped<Settings>(tester).columns, 4);
-    expect(find.descendant(of: cycle, matching: find.text('4')), findsOneWidget);
+    expect(find.descendant(of: cycle, matching: find.text('S')), findsOneWidget);
     await tester.tap(cycle);
     await tester.pumpAndSettle();
     expect(scoped<Settings>(tester).columns, 3);
-    expect(find.descendant(of: cycle, matching: find.text('3')), findsOneWidget);
+    expect(find.descendant(of: cycle, matching: find.text('M')), findsOneWidget);
     await tester.tap(cycle);
     await tester.pumpAndSettle();
     expect(scoped<Settings>(tester).columns, 2);

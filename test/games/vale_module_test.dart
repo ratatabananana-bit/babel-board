@@ -262,7 +262,7 @@ void main() {
     await tester.tap(find.byKey(const Key('densityCycle'))); // 2
     await tester.pumpAndSettle();
     expect(tiles(), 70);
-    expect(find.descendant(of: find.byKey(const Key('densityCycle')), matching: find.text('2')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('densityCycle')), matching: find.text('L')), findsOneWidget);
   });
 
   testWidgets("Hae-tae's interaction ruling is in its drag-up details", (tester) async {
