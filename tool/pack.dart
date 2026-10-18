@@ -31,7 +31,7 @@ Map<String, File> _moduleFiles(Directory dir) {
 ToolResult packModules(
   Directory modulesDir,
   Directory out, {
-  String name = 'Table Helper modules',
+  String name = 'Babel Board modules',
   bool unpacked = false,
 }) {
   final lines = <String>[];
@@ -120,7 +120,7 @@ ToolResult packModules(
 
 void main(List<String> args) {
   final positional = <String>[];
-  var name = 'Table Helper modules';
+  var name = 'Babel Board modules';
   var unpacked = false;
   for (var i = 0; i < args.length; i++) {
     if (args[i] == '--name' && i + 1 < args.length) {

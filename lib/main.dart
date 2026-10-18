@@ -131,7 +131,7 @@ class _HelperAppState extends State<HelperApp> {
 
   Widget _material({required Widget home, TransitionBuilder? builder, ThemeMode themeMode = ThemeMode.system}) =>
       MaterialApp(
-        title: 'Table Helper',
+        title: 'Babel Board',
         debugShowCheckedModeBanner: false,
         scaffoldMessengerKey: _messenger,
         theme: buildTheme(Palette.light, Brightness.light),

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://table-helper.local/module.schema.json",
-  "title": "Table Helper game module (module.json)",
+  "title": "Babel Board game module (module.json)",
   "description": "A data-only board game module. Blocks are a fixed set built into the app; see MODULE_SPEC.md. The app's validator (dart run tool/validate.dart) also checks cross-references this schema can't: zone ids used by blocks, collection ids, unique item and step ids.",
   "type": "object",
   "required": ["format", "id", "name", "version", "minAppVersion", "tabs"],
@@ -14,7 +14,7 @@
     },
     "name": { "type": "string", "minLength": 1 },
     "version": { "$ref": "#/$defs/version" },
-    "minAppVersion": { "$ref": "#/$defs/version", "description": "Oldest Table Helper that can run this module, e.g. \"3.0.0\"." },
+    "minAppVersion": { "$ref": "#/$defs/version", "description": "Oldest Babel Board that can run this module, e.g. \"3.0.0\"." },
     "icon": { "$ref": "#/$defs/imageRef" },
     "players": { "type": "string", "description": "Player count the box supports, e.g. \"2-6\"." },
     "source": { "type": "string", "description": "Where the rules and card text came from." },

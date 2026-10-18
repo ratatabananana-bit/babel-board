@@ -12,7 +12,7 @@ const kChecklistActions = {'clearZone', 'newGame'};
 const kCardListStyles = {'mini', 'rows', 'thumbs'};
 
 /// One node of a tab's block tree, in its typed form. [fromJson] picks the parser by
-/// `type`; a type the app does not know is an error that reads "needs a newer Table Helper".
+/// `type`; a type the app does not know is an error that reads "needs a newer Babel Board".
 sealed class BlockSpec {
   const BlockSpec();
 
@@ -23,7 +23,7 @@ sealed class BlockSpec {
     final type = Fields(j, where).text('type');
     final parse = blockParsers[type];
     if (parse == null) {
-      throw SpecFormatException(where, "Unknown block '$type' — this game needs a newer Table Helper");
+      throw SpecFormatException(where, "Unknown block '$type' — this game needs a newer Babel Board");
     }
     return parse(j, where);
   }
@@ -455,7 +455,7 @@ class TextSpec extends BlockSpec {
 // -------------------------------------------------------------------------- catalog
 
 /// Block type → parser: the one list of block types the app can draw. A module naming any
-/// other type needs a newer Table Helper. A step's checklist is a setting of `step`, not a
+/// other type needs a newer Babel Board. A step's checklist is a setting of `step`, not a
 /// block.
 final Map<String, BlockSpec Function(Map<String, dynamic> j, String where)> blockParsers = {
   'gallery': GallerySpec.fromJson,

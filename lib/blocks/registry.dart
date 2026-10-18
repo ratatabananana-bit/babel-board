@@ -49,7 +49,7 @@ class UnknownBlock extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(32),
       child: Text(
-        "This game needs a newer Table Helper (unknown block '$type').",
+        "This game needs a newer Babel Board (unknown block '$type').",
         textAlign: TextAlign.center,
         style: T.body.copyWith(color: context.pal.text2),
       ),

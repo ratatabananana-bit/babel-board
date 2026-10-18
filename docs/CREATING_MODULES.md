@@ -1,6 +1,6 @@
-# Making a game module for Table Helper
+# Making a game module for Babel Board
 
-Table Helper has no games built in. Each game is a **module**: a folder (or zip) of JSON
+Babel Board has no games built in. Each game is a **module**: a folder (or zip) of JSON
 and pictures that tells the app what to draw. You never touch the app's code. This page is
 the human walkthrough; the exact format is in [`modules/MODULE_SPEC.md`](../modules/MODULE_SPEC.md).
 
@@ -21,13 +21,13 @@ Modules contain the publisher's art, so keep them for personal use: share throug
    spec to the clipboard.
 2. Paste it into Claude or ChatGPT, then say what you want, for example:
 
-   > Write a Table Helper module for *Heat: Pedal to the Metal*. Use the official rulebook.
+   > Write a Babel Board module for *Heat: Pedal to the Metal*. Use the official rulebook.
    > Cards: the upgrade cards. Zones: hand and discard. Add a round flow with the phases
    > from the rulebook. Use the single-JSON form with image links.
 
 3. The AI answers with one JSON file. Save it (any name, `.json`).
 4. On the phone: **Settings → Install from file**, pick the file. Or share the file to
-   Table Helper from any app. The app validates it and tells you, in words, what is wrong
+   Babel Board from any app. The app validates it and tells you, in words, what is wrong
    if anything.
 5. Play. Fix wording later by editing the JSON and installing it again; your tracked cards
    and round progress survive updates (raise `version` first).
@@ -102,7 +102,7 @@ app runs the same checks at install. A green validator means the module will dra
 1. Pack every module folder into a repository folder:
 
    ```bash
-   dart run tool/pack.dart modules ../table-helper-modules --name "Our games"
+   dart run tool/pack.dart modules ../babel-board-modules --name "Our games"
    ```
 
    This validates each module, writes `<id>-<version>.zip`, copies icons, and writes
@@ -118,7 +118,7 @@ app runs the same checks at install. A green validator means the module will dra
 
 | You see | It means |
 |---|---|
-| "needs a newer Table Helper" | The module uses a block type or format this app version lacks. |
+| "needs a newer Babel Board" | The module uses a block type or format this app version lacks. |
 | "Unknown zone / collection" | A tab or sheet names an id that is not declared in `zones` / `collections`. |
 | A text-only card | The image path or link did not resolve. Check the path is inside the module and the file type is webp/png/jpg. |
 | "This file is not a valid game module" | `module.json` is missing or not JSON. The validator's first line says where. |

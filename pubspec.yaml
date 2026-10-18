@@ -1,5 +1,5 @@
 name: vale_helper
-description: "Table Helper: plays data-only game modules for board games you can't read."
+description: "Babel Board: plays data-only game modules for board games you can't read."
 publish_to: 'none'
 version: 3.0.0+3
 

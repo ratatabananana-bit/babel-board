@@ -125,13 +125,13 @@ void main() {
   });
 
   test('too-new format needs a newer app', () {
-    expect(check(fullManifest()..['format'] = 2), fatalAt('format', contains('needs a newer Table Helper')));
+    expect(check(fullManifest()..['format'] = 2), fatalAt('format', contains('needs a newer Babel Board')));
   });
 
   test('minAppVersion above the app needs a newer app', () {
     expect(
       check(fullManifest()..['minAppVersion'] = '3.1.0'),
-      fatalAt('minAppVersion', contains('needs a newer Table Helper')),
+      fatalAt('minAppVersion', contains('needs a newer Babel Board')),
     );
     expect(check(fullManifest()..['minAppVersion'] = '3.1.0', app: '3.1.0'), isEmpty);
   });
@@ -139,7 +139,7 @@ void main() {
   test('unknown block type', () {
     final m = fullManifest();
     (m['tabs'] as List)[3]['block'] = {'type': 'dice'};
-    expect(check(m), fatalAt('tabs[3].block', "Unknown block 'dice' — this game needs a newer Table Helper"));
+    expect(check(m), fatalAt('tabs[3].block', "Unknown block 'dice' — this game needs a newer Babel Board"));
   });
 
   test('gallery needs a collection that exists', () {

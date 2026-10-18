@@ -19,7 +19,7 @@ class ValidationIssue {
   String toString() => '${fatal ? 'ERROR' : 'WARN'} $path: $message';
 }
 
-const kNeedsNewerApp = 'This game needs a newer Table Helper';
+const kNeedsNewerApp = 'This game needs a newer Babel Board';
 const kZoneAccents = {'amber', 'mint', 'violet'};
 
 /// Compares `x.y.z` versions; missing parts count as 0.

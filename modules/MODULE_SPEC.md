@@ -1,6 +1,6 @@
-# Table Helper module spec (format 1)
+# Babel Board module spec (format 1)
 
-Table Helper is a phone app that helps people play board games they can't read. It has no
+Babel Board is a phone app that helps people play board games they can't read. It has no
 games built in. A **game module** describes one game as data: its cards (or racers, tiles…),
 pictures, rules text, and the screens to show, built from a fixed set of **blocks**. This
 guide is written for whoever writes a module, including an AI asked "write me a module for
@@ -171,7 +171,7 @@ Icons (tabs and zones): `cards`, `hand`, `flag`, `run`, `race`, `table`, `grid`,
 ## Blocks
 
 A tab is a tree of blocks. Every block is `{"type": …, settings…, "children": [...]}`.
-These are all the types; anything else gives "This game needs a newer Table Helper".
+These are all the types; anything else gives "This game needs a newer Babel Board".
 
 ### `gallery`
 

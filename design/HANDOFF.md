@@ -1,6 +1,6 @@
-# Table Helper — UI/UX changes for implementation
+# Babel Board — UI/UX changes for implementation
 
-Source of truth: `Table Helper Review v2.dc.html` (interactive mockups at 360 × 780 dp).
+Source of truth: `Babel Board Review v2.dc.html` (interactive mockups at 360 × 780 dp).
 Owner decisions are final; items marked **Keep** must not change.
 
 ## Priority 1 — Card sheet flick feedback (owner's note 1)

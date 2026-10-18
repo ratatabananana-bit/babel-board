@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/readme/icon.png" width="96" alt="Table Helper icon">
+  <img src="docs/readme/icon.png" width="96" alt="Babel Board icon">
 </p>
 
-# Table Helper
+# Babel Board
 
 A phone app for playing board games whose cards you can't read.
 
@@ -14,7 +14,7 @@ usual fixes are bad: a translation sheet you flip through, a phone photo you zoo
 asking every turn. Games like *Vale of Eternity* have 70 cards with effects that matter,
 and rulings for how they combine.
 
-Table Helper puts the English text one tap away from the picture, lets me track which
+Babel Board puts the English text one tap away from the picture, lets me track which
 cards are mine, and walks the round's phases with a checklist so cleanup steps are not
 forgotten. It lies on the table and gets glanced at between turns.
 
@@ -93,7 +93,7 @@ Pack the module folders into a private GitHub repository and give each friend a 
 token for it:
 
 ```bash
-dart run tool/pack.dart modules ../table-helper-modules --name "Our games"
+dart run tool/pack.dart modules ../babel-board-modules --name "Our games"
 ```
 
 Commit and push that folder. The app lists the games and offers updates whenever a module's

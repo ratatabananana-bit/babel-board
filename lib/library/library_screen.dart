@@ -62,7 +62,7 @@ class LibraryScreen extends StatelessWidget {
                   if (!hasAnything) _EmptyState(lib: lib) else ..._installed(context, lib, app),
                   if (lib.repo != null) ..._repository(context, lib),
                   const SizedBox(height: 24),
-                  Text('Table Helper $kAppVersion', style: T.caption.copyWith(color: p.muted)),
+                  Text('Babel Board $kAppVersion', style: T.caption.copyWith(color: p.muted)),
                 ],
               ),
             ),

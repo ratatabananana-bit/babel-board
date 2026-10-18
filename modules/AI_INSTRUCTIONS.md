@@ -1,6 +1,6 @@
-# Write a Table Helper game module
+# Write a Babel Board game module
 
-Table Helper is a phone app that helps people play board games they can't read (e.g. a
+Babel Board is a phone app that helps people play board games they can't read (e.g. a
 Chinese edition). It has no games built in. You will write one **game module**: a single JSON
 file describing one game's cards and screens, using only the building blocks below. The app
 validates it on install and rejects anything else.

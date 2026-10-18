@@ -121,7 +121,7 @@ class SettingsScreen extends StatelessWidget {
           const _Heading('ABOUT'),
           _Card(
             children: [
-              _Row(icon: Icons.info_outline_rounded, title: 'Table Helper $kAppVersion', subtitle: 'Module format 1'),
+              _Row(icon: Icons.info_outline_rounded, title: 'Babel Board $kAppVersion', subtitle: 'Module format 1'),
             ],
           ),
         ],

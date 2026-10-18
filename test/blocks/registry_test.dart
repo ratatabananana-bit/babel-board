@@ -52,7 +52,7 @@ void main() {
     await tester.tap(navLabel('Text'));
     await tester.pumpAndSettle();
     expect(find.byType(UnknownBlock), findsOneWidget);
-    expect(find.textContaining("This game needs a newer Table Helper (unknown block 'text')"), findsOneWidget);
+    expect(find.textContaining("This game needs a newer Babel Board (unknown block 'text')"), findsOneWidget);
   });
 
   testWidgets('tabs stay alive when switching away and back', (tester) async {

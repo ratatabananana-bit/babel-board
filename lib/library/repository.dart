@@ -105,10 +105,10 @@ class RepoClient {
     try {
       j = jsonDecode(utf8.decode(res.bodyBytes));
     } catch (_) {
-      throw RepoException(RepoError.badIndex, "That file isn't a Table Helper repository");
+      throw RepoException(RepoError.badIndex, "That file isn't a Babel Board repository");
     }
     if (j is! Map || j['modules'] is! List) {
-      throw RepoException(RepoError.badIndex, "That file isn't a Table Helper repository");
+      throw RepoException(RepoError.badIndex, "That file isn't a Babel Board repository");
     }
     final entries = <RepoEntry>[];
     for (final raw in j['modules'] as List) {

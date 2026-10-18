@@ -1,6 +1,6 @@
-# How Table Helper is put together
+# How Babel Board is put together
 
-Table Helper is a **console**: an app with no games in it. A game is a **module**, a folder
+Babel Board is a **console**: an app with no games in it. A game is a **module**, a folder
 (or zip) of JSON and pictures. The app loads modules, draws their screens from a fixed set
 of **blocks**, and remembers what the player tracked. This file is the map; the module
 format itself is in `modules/MODULE_SPEC.md`.
