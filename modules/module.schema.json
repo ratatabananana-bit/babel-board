@@ -103,6 +103,7 @@
           "type": "object",
           "description": "Drag-up details: text hidden below the zone buttons until the sheet is dragged up.",
           "properties": {
+            "hint": { "type": "string", "description": "Label next to the drag-up chevron, one per game, e.g. \"Interactions\"." },
             "sections": {
               "type": "array",
               "items": {

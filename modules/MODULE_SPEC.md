@@ -103,7 +103,7 @@ Tapping an item opens its sheet: picture, name, subtitle, then:
   "sections": [ { "label": "Ability", "path": "abilities" }, { "label": "Rulebook notes", "path": "notes" } ],
   "secondary": "{nameZh}",
   "verifiedPath": "verified",
-  "details": { "sections": [ { "label": "Interactions", "path": "interactions" } ] },
+  "details": { "hint": "Interactions", "sections": [ { "label": "Interactions", "path": "interactions" } ] },
   "swipe": { "left": "table", "right": "hand" },
   "zones": ["table", "hand", "field"]
 }
@@ -119,8 +119,9 @@ Tapping an item opens its sheet: picture, name, subtitle, then:
 - `details` (drag-up details): extra text a player only sometimes wants, such as rulings for
   tricky interactions, story or flavor text. It stays hidden below the zone buttons until the
   sheet is dragged up (a small arrow under the buttons shows there is more; tapping it also
-  opens it). `sections` has the same shape as above. Items with no text at those paths keep
-  the plain sheet.
+  opens it). `sections` has the same shape as above. `hint` is the short label next to the
+  arrow ("⌃ Interactions"), one value per game, not per item; leave it out for the bare
+  arrow. Items with no text at those paths keep the plain sheet.
 - `swipe`: flick the sheet sideways to put the item in a zone and close the sheet, e.g.
   `{"left": "table", "right": "hand"}`. Either side is optional; leave `swipe` out and
   sideways flicks do nothing. Pick the zones players fill most often.

@@ -310,8 +310,8 @@ class _GameShellState extends State<GameShell> {
                       final n = t.badge == 'zoneCount' ? context.watch<ZoneState>().total : 0;
                       return Badge(
                         isLabelVisible: n > 0,
-                        backgroundColor: p.badge,
-                        textColor: p.onAccent,
+                        backgroundColor: p.accent,
+                        textColor: p.onAccentFill,
                         label: Text('$n', style: const TextStyle(fontWeight: FontWeight.w800)),
                         child: Icon(moduleIcon(t.icon)),
                       );

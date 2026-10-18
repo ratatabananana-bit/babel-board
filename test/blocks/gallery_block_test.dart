@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vale_helper/blocks/item_view.dart';
 import 'package:vale_helper/core/settings.dart';
+import 'package:vale_helper/core/theme.dart';
 import 'package:vale_helper/modules/module_state.dart';
 
 import '../helpers.dart';
@@ -109,10 +110,18 @@ void main() {
       expect(tester.widget(find.byKey(const Key('detailsHint'))), isNot(isA<InkWell>()));
     });
 
-    testWidgets('tapping the hint also reveals and hides', (tester) async {
+    testWidgets("the hint shows the module's label next to the arrow; tapping it reveals and hides", (tester) async {
       await pumpModules(tester);
       await tester.tap(find.bySemanticsLabel('Imp'));
       await tester.pumpAndSettle();
+      final label = find.descendant(of: find.byKey(const Key('detailsHint')), matching: find.text('Interactions'));
+      expect(label, findsOneWidget);
+      await tester.tap(label);
+      await tester.pumpAndSettle();
+      expect(revealed(tester), 1);
+      await tester.tap(label);
+      await tester.pumpAndSettle();
+      expect(revealed(tester), 0);
       await tester.tap(find.byKey(const Key('detailsHint')));
       await tester.pumpAndSettle();
       expect(revealed(tester), 1);
@@ -127,6 +136,15 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('detailsReveal')), findsNothing);
       expect(find.byKey(const Key('detailsHint')), findsNothing);
+      expect(find.text('Interactions'), findsNothing, reason: 'no label without details');
+    });
+
+    testWidgets('a module without a hint shows the bare arrow', (tester) async {
+      await pumpModules(tester, edit: (m) => (m['collections']['items']['sheet']['details'] as Map).remove('hint'));
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('detailsHint')), findsOneWidget);
+      expect(find.text('Interactions'), findsNothing);
     });
   });
 
@@ -163,6 +181,59 @@ void main() {
       await tester.fling(sheet(), const Offset(-300, 0), 1500);
       await tester.pumpAndSettle();
       expect(scoped<ZoneState>(tester).zoneOf('nessie'), 'a');
+    });
+
+    testWidgets('flick feedback is on the slot the panel uncovers, not on the panel', (tester) async {
+      await pumpModules(tester);
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      final panel = find.byKey(const Key('sheetPanel'));
+      final slot = find.byKey(const Key('flickSlot'));
+      expect(slot, findsNothing, reason: 'no slot until the panel moves');
+      final restLeft = tester.getTopLeft(panel).dx;
+      final width = tester.getSize(panel).width;
+
+      final g = await tester.startGesture(tester.getCenter(panel));
+      await g.moveBy(const Offset(20, 0)); // past the touch slop (consumed by the drag start)
+      await g.moveBy(const Offset(60, 0));
+      await tester.pump();
+      expect(tester.getTopLeft(panel).dx, greaterThan(restLeft + 50), reason: 'the panel follows the finger');
+      expect(slot, findsOneWidget);
+      expect(find.descendant(of: slot, matching: find.text('Lane B')), findsOneWidget, reason: 'zone name on the slot');
+      expect(find.descendant(of: slot, matching: find.byIcon(Icons.check_circle_rounded)), findsNothing);
+      expect(find.descendant(of: panel, matching: find.byIcon(Icons.check_circle_rounded)), findsNothing);
+      // Before the threshold the slot is only tinted.
+      final tinted = tester.widget<ColoredBox>(slot).color;
+      final mint = Theme.of(tester.element(slot)).extension<Palette>()!.mint;
+      expect(tinted, isNot(mint));
+
+      // Past a third of the width: solid fill and a check.
+      await g.moveBy(Offset(width / 3, 0));
+      await tester.pump();
+      expect(tester.widget<ColoredBox>(slot).color, mint);
+      expect(find.descendant(of: slot, matching: find.byIcon(Icons.check_circle_rounded)), findsOneWidget);
+      expect(find.descendant(of: panel, matching: find.byIcon(Icons.check_circle_rounded)), findsNothing);
+
+      await g.up();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150)); // fly-out done, confirmation showing
+      expect(find.text('Added to Lane B'), findsOneWidget);
+      expect(scoped<ZoneState>(tester).zoneOf('imp'), 'b');
+      expect(find.byType(SnackBar), findsNothing);
+      await tester.pumpAndSettle();
+      expect(sheet(), findsNothing, reason: 'closes after the confirmation');
+    });
+
+    testWidgets('animation speed Instant: the flick still confirms, then closes at once', (tester) async {
+      await pumpModules(tester, prefs: {'app.lastGame': 'mini', 'settings.animationSpeed': 'instant'});
+      await tester.tap(find.bySemanticsLabel('Imp'));
+      await tester.pumpAndSettle();
+      await tester.fling(sheet(), const Offset(300, 0), 1500);
+      await tester.pump();
+      await tester.pump();
+      expect(scoped<ZoneState>(tester).zoneOf('imp'), 'b');
+      await tester.pumpAndSettle();
+      expect(sheet(), findsNothing);
     });
 
     testWidgets('a short sideways drag springs back and changes nothing', (tester) async {

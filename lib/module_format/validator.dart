@@ -245,6 +245,7 @@ List<ValidationIssue> validateModule(
       }
     }
     if (details != null) {
+      optText('$p.details.hint', details['hint']);
       for (final (dp, section) in optMapList('$p.details.sections', details['sections'])) {
         if (section['path'] is! String) fatal('$dp.path', 'Every drag-up section needs a "path"');
         optText('$dp.label', section['label']);

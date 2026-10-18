@@ -49,7 +49,7 @@ with the name under it), `cardAspect` (width ÷ height, default 0.716), `sheet`.
 - `sections`: `[{"label": "Ability", "path": "abilities"}]` (string or list of strings)
 - `secondary`: a small grey template line
 - `verifiedPath`: `"verified"` (always set it)
-- `details` (drag-up details): `{"sections": [{"label": "Rulings", "path": "rulings"}]}` — text hidden below the zone buttons until the sheet is dragged up: rulings for tricky interactions, story, flavor. Only use it for text that is not needed at first glance.
+- `details` (drag-up details): `{"hint": "Rulings", "sections": [{"label": "Rulings", "path": "rulings"}]}` — text hidden below the zone buttons until the sheet is dragged up: rulings for tricky interactions, story, flavor. Only use it for text that is not needed at first glance. `hint` is the one-word label shown next to the drag-up arrow (one per game).
 - `zones`: zone ids offered as buttons. One zone = an "Add to …" toggle; several = one toggle each.
 - `swipe`: `{"left": "table", "right": "hand"}` — flick the sheet sideways to put the item in that zone (either side optional).
 

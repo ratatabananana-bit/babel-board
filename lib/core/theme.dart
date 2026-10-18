@@ -17,11 +17,15 @@ class Palette extends ThemeExtension<Palette> {
     required this.violet,
     required this.danger,
     required this.warn,
-    required this.badge,
+    required this.accent,
   });
 
   final Color bg, surface, surface2, line, text, text2, muted;
-  final Color amber, mint, violet, danger, warn, badge;
+  final Color amber, mint, violet, danger, warn;
+
+  /// The neutral accent (cream in the dark theme, ink in the light one): picked states,
+  /// the My cards total badge, the Next button. Zone colors mean zones only.
+  final Color accent;
 
   /// The checklist card is parchment in both themes.
   static const parchment = Color(0xFFF3E9D6);
@@ -42,7 +46,7 @@ class Palette extends ThemeExtension<Palette> {
     violet: Color(0xFFB79CFF),
     danger: Color(0xFFFF8A7A),
     warn: Color(0xFFF2B544),
-    badge: Color(0xFF5ED6B4),
+    accent: Color(0xFFEDE2CC),
   );
 
   static const light = Palette(
@@ -58,11 +62,14 @@ class Palette extends ThemeExtension<Palette> {
     violet: Color(0xFF6B4FD1),
     danger: Color(0xFFC0392B),
     warn: Color(0xFFA86A00),
-    badge: Color(0xFF0E8A68),
+    accent: Color(0xFF1E1B16),
   );
 
   /// Foreground on a filled zone/badge color.
   Color get onAccent => bg == dark.bg ? const Color(0xFF121315) : Colors.white;
+
+  /// Foreground on the filled [accent]: near-black ink on cream, white on ink.
+  Color get onAccentFill => bg == dark.bg ? const Color(0xFF111115) : Colors.white;
 
   @override
   Palette copyWith() => this;
@@ -85,6 +92,9 @@ ThemeData buildTheme(Palette p, Brightness b) {
     onPrimary: p.bg,
   );
   final base = ThemeData(colorScheme: scheme, useMaterial3: true, fontFamily: 'Figtree');
+  // Modules may ship Chinese (or other CJK) text, which Figtree lacks: name the system CJK
+  // fonts as fallbacks so the glyphs come from the phone instead of showing as boxes.
+  TextTheme withFallback(TextTheme t) => t.apply(fontFamilyFallback: cjkFallback);
   return base.copyWith(
     scaffoldBackgroundColor: p.bg,
     canvasColor: p.bg,
@@ -99,9 +109,39 @@ ThemeData buildTheme(Palette p, Brightness b) {
     ),
     popupMenuTheme: PopupMenuThemeData(color: p.surface2),
     dialogTheme: DialogThemeData(backgroundColor: p.surface),
-    textTheme: base.textTheme.apply(bodyColor: p.text, displayColor: p.text),
+    textTheme: withFallback(base.textTheme.apply(bodyColor: p.text, displayColor: p.text)),
+    primaryTextTheme: withFallback(base.primaryTextTheme),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? p.accent : Colors.transparent,
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? p.onAccentFill : p.text,
+        ),
+        side: WidgetStateProperty.all(BorderSide(color: p.line)),
+        textStyle: WidgetStateProperty.all(const TextStyle(fontWeight: FontWeight.w700)),
+      ),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? p.onAccentFill : p.text2),
+      trackColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? p.accent : p.surface2),
+      trackOutlineColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? p.accent : p.muted),
+    ),
   );
 }
+
+/// System CJK font names, tried in order when Figtree has no glyph (Android, iOS, Windows).
+const cjkFallback = [
+  'Noto Sans TC',
+  'Noto Sans SC',
+  'Noto Sans CJK TC',
+  'Noto Sans CJK SC',
+  'PingFang TC',
+  'PingFang SC',
+  'Microsoft JhengHei',
+  'Microsoft YaHei',
+];
 
 /// Shared text styles (Figtree, sizes from the redesign's type scale).
 class T {

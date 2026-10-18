@@ -49,6 +49,7 @@
         },
         "verifiedPath": "verified",
         "details": {
+          "hint": "Interactions",
           "sections": [
             {
               "label": "Interactions",

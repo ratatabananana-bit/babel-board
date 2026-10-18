@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
 import '../core/settings.dart';
 import 'symbol_text.dart';
@@ -379,6 +380,10 @@ Future<void> showItemSheet(BuildContext context, Item item, String collectionId)
     context: context,
     isScrollControlled: true,
     showDragHandle: false, // the sheet draws its own handle (see ItemSheet)
+    // The sheet paints its own panel (see _SheetPanel), so a flick can slide the panel
+    // away and uncover the slot behind it.
+    backgroundColor: Colors.transparent,
+    elevation: 0,
     constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.9),
     // Speed follows the setting (Fast by default: tracking six cards in a row shouldn't mean
     // waiting on each sheet; Instant skips the slide).
@@ -533,14 +538,13 @@ class ItemSheet extends StatelessWidget {
       ],
     );
 
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: hidden.isEmpty && swipe.isEmpty
-            ? content
-            : _SheetGestures(itemId: item.id, sections: hidden, swipe: swipe, child: content),
-      ),
+    if (hidden.isEmpty && swipe.isEmpty) return _SheetPanel(child: content);
+    return _SheetGestures(
+      itemId: item.id,
+      sections: hidden,
+      hint: sheet.details?['hint'] as String?,
+      swipe: swipe,
+      child: content,
     );
   }
 
@@ -641,16 +645,49 @@ class ItemSheet extends StatelessWidget {
   }
 }
 
+/// The sheet's own panel: surface color, rounded top, padding that clears the bottom
+/// inset. Drawn here (not by the modal route) so a flick can slide it off its slot.
+class _SheetPanel extends StatelessWidget {
+  const _SheetPanel({required this.child});
+  final Widget child;
+
+  static const radius = BorderRadius.vertical(top: Radius.circular(28));
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return Container(
+      key: const Key('sheetPanel'),
+      decoration: BoxDecoration(color: p.surface, borderRadius: radius),
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + MediaQuery.paddingOf(context).bottom),
+      child: child,
+    );
+  }
+}
+
 /// Gestures on the item sheet, all optional:
 /// - drag-up details: extra text hidden below the zone buttons. Dragging the card up
 ///   uncovers it (following the finger, then snapping open or shut); dragging down hides it
-///   again, and a further drag down closes the sheet. The arrow toggles it with a tap.
+///   again, and a further drag down closes the sheet. The arrow (and its label) toggles it.
 /// - flick left / right: puts the item in the zone the module names for that side, then
-///   closes the sheet. While dragging, the card tints in that zone's color.
+///   closes the sheet. The panel follows the finger and tilts a little; the feedback is on
+///   the slot it uncovers, never on the panel: the slot tints in the zone's color and shows
+///   the zone's icon and name in the revealed strip. Past the threshold (a third of the
+///   width) the slot fills solid and the icon becomes a check. On release the panel flies
+///   out, the slot reads "Added to …" for a moment, and the sheet closes.
 class _SheetGestures extends StatefulWidget {
-  const _SheetGestures({required this.itemId, required this.sections, required this.swipe, required this.child});
+  const _SheetGestures({
+    required this.itemId,
+    required this.sections,
+    required this.hint,
+    required this.swipe,
+    required this.child,
+  });
   final String itemId;
   final List<({String label, List<String> values})> sections;
+
+  /// Label next to the drag-up arrow (from the module), or null for the bare arrow.
+  final String? hint;
 
   /// Zone for each side: 'left' / 'right'.
   final Map<String, ZoneSpec> swipe;
@@ -661,30 +698,49 @@ class _SheetGestures extends StatefulWidget {
 }
 
 class _SheetGesturesState extends State<_SheetGestures> with TickerProviderStateMixin {
+  /// How far sideways the panel must go to commit, as a fraction of its width.
+  static const threshold = 1 / 3;
+
   late final _reveal = AnimationController(vsync: this, duration: const Duration(milliseconds: 180));
 
   /// Sideways offset as a fraction of the sheet's width (-1 left … 1 right).
   late final _slide = AnimationController(vsync: this, lowerBound: -1.5, upperBound: 1.5, value: 0);
+
+  /// Times the "Added to …" confirmation (a ticker, so it runs on frames like the rest).
+  late final _confirm = AnimationController(vsync: this);
   final _detailsKey = GlobalKey();
-  Duration _snap = const Duration(milliseconds: 180);
+  Duration _spring = const Duration(milliseconds: 270);
+  Duration _hold = const Duration(milliseconds: 400);
 
   /// Set when a drag starts with the details hidden; a drag down then means "close".
   bool _startedHidden = false;
   double _pulledDown = 0;
+
+  /// True once the finger is past the threshold (for the haptic tick on crossing).
+  bool _past = false;
+
+  /// The zone the item went to on release; the slot then stays solid until the sheet closes.
+  ZoneSpec? _committed;
+
+  /// True while the slot reads "Added to …" after the fly-out.
+  bool _confirmed = false;
 
   bool get _hasDetails => widget.sections.isNotEmpty;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _snap = context.watch<Settings>().anim(const Duration(milliseconds: 360));
-    _reveal.duration = _snap;
+    final s = context.watch<Settings>();
+    _reveal.duration = s.anim(const Duration(milliseconds: 360));
+    _spring = s.anim(const Duration(milliseconds: 270));
+    _hold = s.anim(const Duration(milliseconds: 400));
   }
 
   @override
   void dispose() {
     _reveal.dispose();
     _slide.dispose();
+    _confirm.dispose();
     super.dispose();
   }
 
@@ -731,26 +787,50 @@ class _SheetGesturesState extends State<_SheetGestures> with TickerProviderState
 
   ZoneSpec? _zoneFor(double dir) => widget.swipe[dir > 0 ? 'right' : 'left'];
 
+  void _onHStart(DragStartDetails d) {
+    if (_committed != null) return;
+    _slide.stop();
+  }
+
   void _onHUpdate(DragUpdateDetails d) {
+    if (_committed != null) return;
     final next = _slide.value + (d.primaryDelta ?? 0) / _width;
     // Only follow the finger towards a side that has a zone.
     _slide.value = (_zoneFor(next) == null ? 0.0 : next).clamp(-1.0, 1.0);
+    final past = _slide.value.abs() >= threshold;
+    if (past != _past) {
+      _past = past;
+      HapticFeedback.lightImpact();
+    }
   }
 
   Future<void> _onHEnd(DragEndDetails d) async {
+    if (_committed != null) return;
     final v = (d.primaryVelocity ?? 0) / _width;
     final x = _slide.value;
     final dir = x != 0 ? x.sign : v.sign;
     final zone = dir == 0 ? null : _zoneFor(dir);
-    final commit = zone != null && (x.abs() > 0.35 || (v.abs() > 2 && v.sign == dir));
+    final commit = zone != null && (x.abs() >= threshold || (v.abs() > 2 && v.sign == dir));
     if (!commit) {
-      _slide.animateTo(0, duration: _snap, curve: Curves.easeOutCubic);
+      _past = false;
+      _slide.animateTo(0, duration: _spring, curve: Curves.easeOutCubic);
       return;
     }
-    // Put it there and fly off. The zone band on the card shows where it went.
+    // Put it there, fly the panel out, show the confirmation on the slot, close.
     final zones = context.read<ZoneState>();
     if (zones.zoneOf(widget.itemId) != zone.id) zones.put(widget.itemId, zone.id);
-    await _slide.animateTo(dir * 1.2, duration: _snap ~/ 2, curve: Curves.easeIn);
+    setState(() => _committed = zone);
+    final instant = _spring == Duration.zero;
+    if (instant) {
+      _slide.value = dir * 1.2;
+    } else {
+      await _slide.animateTo(dir * 1.2, duration: _spring ~/ 2, curve: Curves.easeIn);
+    }
+    if (!mounted) return;
+    setState(() => _confirmed = true);
+    // Instant still shows the confirmation for one frame (a zero-length run ends next tick).
+    _confirm.duration = instant ? Duration.zero : _hold;
+    await _confirm.forward(from: 0);
     if (mounted) Navigator.maybePop(context);
   }
 
@@ -762,95 +842,117 @@ class _SheetGesturesState extends State<_SheetGestures> with TickerProviderState
       onVerticalDragStart: _hasDetails ? _onVStart : null,
       onVerticalDragUpdate: _hasDetails ? _onVUpdate : null,
       onVerticalDragEnd: _hasDetails ? _onVEnd : null,
+      onHorizontalDragStart: widget.swipe.isEmpty ? null : _onHStart,
       onHorizontalDragUpdate: widget.swipe.isEmpty ? null : _onHUpdate,
       onHorizontalDragEnd: widget.swipe.isEmpty ? null : _onHEnd,
       child: AnimatedBuilder(
         animation: Listenable.merge([_reveal, _slide]),
         builder: (context, child) {
           final x = _slide.value;
-          final zone = x == 0 ? null : _zoneFor(x);
-          final strength = (x.abs() / 0.35).clamp(0.0, 1.0);
-          final body = Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Flexible(child: child!),
-              if (_hasDetails) ...[
-                // Just an arrow: there is more below. Tap it, or drag the card up.
-                GestureDetector(
-                  key: const Key('detailsHint'),
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => _settleReveal(_reveal.value < 0.5),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Center(
-                      child: Transform.rotate(
-                        angle: _reveal.value * 3.14159,
-                        child: Icon(Icons.keyboard_arrow_up_rounded, size: 26, color: p.muted),
+          final panel = _SheetPanel(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Flexible(child: child!),
+                if (_hasDetails) ...[
+                  // Arrow plus the module's label: there is more below. Tap it, or drag up.
+                  GestureDetector(
+                    key: const Key('detailsHint'),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _settleReveal(_reveal.value < 0.5),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Transform.rotate(
+                            angle: _reveal.value * 3.14159,
+                            child: Icon(Icons.keyboard_arrow_up_rounded, size: 24, color: p.muted),
+                          ),
+                          if (widget.hint case final h? when h.isNotEmpty) ...[
+                            const SizedBox(width: 2),
+                            Text(h, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.muted)),
+                          ],
+                        ],
                       ),
                     ),
                   ),
-                ),
-                ClipRect(
-                  child: Align(
-                    key: const Key('detailsReveal'),
-                    alignment: Alignment.topCenter,
-                    heightFactor: _reveal.value,
-                    child: KeyedSubtree(key: _detailsKey, child: _details(p)),
-                  ),
-                ),
-              ],
-            ],
-          );
-          if (x == 0) return body;
-          final zc = zone == null ? null : zoneColor(context, zone);
-          return Transform.translate(
-            offset: Offset(x * _width, 0),
-            child: Transform.rotate(
-              angle: x * 0.05,
-              child: Stack(
-                children: [
-                  body,
-                  if (zone != null && zc != null)
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: zc.withValues(alpha: 0.18 * strength),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: zc.withValues(alpha: strength), width: 3),
-                          ),
-                          child: Align(
-                            alignment: x > 0 ? Alignment.centerLeft : Alignment.centerRight,
-                            child: Opacity(
-                              opacity: strength,
-                              child: Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 16),
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                decoration: BoxDecoration(color: zc, borderRadius: BorderRadius.circular(16)),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(moduleIcon(zone.icon), size: 20, color: p.onAccent),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      zone.label,
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: p.onAccent),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                  ClipRect(
+                    child: Align(
+                      key: const Key('detailsReveal'),
+                      alignment: Alignment.topCenter,
+                      heightFactor: _reveal.value,
+                      child: KeyedSubtree(key: _detailsKey, child: _details(p)),
                     ),
+                  ),
                 ],
-              ),
+              ],
             ),
+          );
+          final zone = _committed ?? (x == 0 ? null : _zoneFor(x));
+          if (zone == null) return panel;
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(child: _slot(p, zone, x)),
+              Transform.translate(
+                offset: Offset(x * _width, 0),
+                // Up to 4° at the far edge.
+                child: Transform.rotate(angle: x * 0.07, child: panel),
+              ),
+            ],
           );
         },
         child: widget.child,
+      ),
+    );
+  }
+
+  /// The slot the panel slides off: the zone's tint grows with the drag, then fills solid
+  /// past the threshold. Its icon and name sit in the strip the panel has uncovered.
+  Widget _slot(Palette p, ZoneSpec zone, double x) {
+    final zc = zoneColor(context, zone);
+    final progress = (x.abs() / threshold).clamp(0.0, 1.0);
+    final past = _committed != null || x.abs() >= threshold;
+    final base = Color.lerp(p.bg, Colors.black, 0.45)!;
+    final fill = past ? zc : Color.alphaBlend(zc.withValues(alpha: 0.10 + 0.30 * progress), base);
+    final fg = past ? p.onAccent : zc;
+    final stripW = (x.abs() * _width).clamp(0.0, _width);
+    return ClipRRect(
+      borderRadius: _SheetPanel.radius,
+      child: ColoredBox(
+        key: const Key('flickSlot'),
+        color: fill,
+        child: Align(
+          alignment: x >= 0 ? Alignment.centerLeft : Alignment.centerRight,
+          child: SizedBox(
+            width: stripW,
+            child: ClipRect(
+              child: Center(
+                child: OverflowBox(
+                  minWidth: 0,
+                  maxWidth: double.infinity,
+                  child: Opacity(
+                    opacity: progress,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(past ? Icons.check_circle_rounded : moduleIcon(zone.icon), size: 30, color: fg),
+                        const SizedBox(height: 6),
+                        Text(
+                          _confirmed ? 'Added to ${zone.label}' : zone.label,
+                          softWrap: false,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: fg),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
