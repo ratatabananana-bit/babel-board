@@ -56,7 +56,7 @@ class TextOnlyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chip = SheetSpec.fromJson(collection.sheet, 'sheet').firstChipText(item.data);
+    final chip = collection.sheet.firstChipText(item.data);
     final subtitle = item.subtitle(collection);
     return LayoutBuilder(
       builder: (context, box) {
@@ -371,7 +371,7 @@ class ItemSheet extends StatelessWidget {
     final p = context.pal;
     final module = context.read<LoadedModule>();
     final collection = module.manifest.collections[collectionId]!;
-    final sheet = SheetSpec.fromJson(collection.sheet, 'sheet');
+    final sheet = collection.sheet;
     final zones = context.watch<ZoneState>();
     final current = zones.zoneOf(item.id);
     final subtitle = item.subtitle(collection);

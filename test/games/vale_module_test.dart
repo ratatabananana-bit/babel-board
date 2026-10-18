@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vale_helper/blocks/flow/flow_state.dart';
 import 'package:vale_helper/blocks/item_view.dart';
+import 'package:vale_helper/module_format/block_specs.dart';
 import 'package:vale_helper/modules/loaded_module.dart';
 import 'package:vale_helper/modules/module_state.dart';
 
@@ -90,9 +91,9 @@ void main() {
           reason: '${a['name']} before ${b['name']}',
         );
       }
-      final flow = m.manifest.tabs.firstWhere((t) => t.block.type == 'flow').block;
-      expect(flow.children.map((s) => s.settings['id']), ['hunting', 'action', 'resolution', 'end']);
-      expect(flow.settings['cyclic'], isTrue);
+      final flow = m.manifest.tabs.map((t) => t.block).whereType<FlowSpec>().single;
+      expect(flow.steps.map((s) => s.id), ['hunting', 'action', 'resolution', 'end']);
+      expect(flow.cyclic, isTrue);
     });
   });
 

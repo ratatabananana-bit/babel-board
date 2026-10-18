@@ -5,7 +5,6 @@ import '../app_version.dart';
 import 'block_specs.dart';
 import 'filter.dart';
 import 'manifest.dart';
-import 'sheet_spec.dart';
 import 'spec_json.dart';
 
 class ValidationIssue {
@@ -55,24 +54,37 @@ List<ValidationIssue> validateModule(
   Map<String, dynamic> manifestJson, {
   required Map<String, List<Map<String, dynamic>>> collections,
   String appVersion = kAppVersion,
+}) => checkModule(manifestJson, collections: collections, appVersion: appVersion).issues;
+
+/// Parses and validates in one go, so a loader can keep the manifest it checked.
+/// [manifest] is null when the header of `module.json` could not be read; every element
+/// that failed to parse is an issue and is left out of the manifest.
+({ModuleManifest? manifest, List<ValidationIssue> issues}) checkModule(
+  Map<String, dynamic> manifestJson, {
+  required Map<String, List<Map<String, dynamic>>> collections,
+  String appVersion = kAppVersion,
 }) {
   final issues = <ValidationIssue>[];
   void fatal(String path, String message) => issues.add(ValidationIssue(path, message));
+  void report(SpecFormatException e) => fatal(e.path, e.message);
 
   for (final k in ['format', 'id', 'name', 'version', 'minAppVersion']) {
     if (manifestJson[k] == null) fatal(k, 'Missing required field "$k"');
   }
-  if (issues.isNotEmpty) return issues;
+  if (issues.isNotEmpty) return (manifest: null, issues: issues);
 
   final ModuleManifest m;
   try {
-    m = ModuleManifest.fromJson(manifestJson);
+    m = ModuleManifest.parse(manifestJson, report: report);
+  } on SpecFormatException catch (e) {
+    report(e);
+    return (manifest: null, issues: issues);
   } on FormatException catch (e) {
     fatal('module.json', e.message);
-    return issues;
+    return (manifest: null, issues: issues);
   } on TypeError {
     fatal('module.json', 'A value has the wrong type (e.g. a number where text belongs)');
-    return issues;
+    return (manifest: null, issues: issues);
   }
 
   if (m.format > kModuleFormat) {
@@ -81,7 +93,9 @@ List<ValidationIssue> validateModule(
   if (compareVersions(m.minAppVersion, appVersion) > 0) {
     fatal('minAppVersion', '$kNeedsNewerApp (needs ${m.minAppVersion}, this is $appVersion)');
   }
-  if (m.tabs.isEmpty) fatal('tabs', 'A module needs at least one tab');
+  // Read from the JSON: a tab that failed to parse is already an issue of its own.
+  final rawTabs = manifestJson['tabs'];
+  if (rawTabs == null || (rawTabs is List && rawTabs.isEmpty)) fatal('tabs', 'A module needs at least one tab');
 
   void checkImage(String path, Object? ref) {
     if (ref == null) return;
@@ -146,10 +160,9 @@ List<ValidationIssue> validateModule(
     }
   }
 
-  // From here on the typed parsers do the shape checks (block_specs.dart, sheet_spec.dart):
-  // a module that parses never fails while a tab is drawn. What is left to check here is
-  // what the parsers cannot know: that the zones and collections a spec names exist.
-  void report(SpecFormatException e) => fatal(e.path, e.message);
+  // The parsers did the shape checks while the manifest was parsed, so a module that got
+  // this far never fails while a tab is drawn. What is left to check is what a parser
+  // cannot know: that the zones and collections a spec names exist.
 
   void checkZoneId(String path, String? id) {
     if (!zoneIds.contains(id)) fatal(path, 'Unknown zone "$id"');
@@ -166,13 +179,7 @@ List<ValidationIssue> validateModule(
   // Item sheets.
   for (final e in m.collections.entries) {
     final p = 'collections.${e.key}.sheet';
-    final SheetSpec sheet;
-    try {
-      sheet = SheetSpec.fromJson(e.value.sheet, p);
-    } on SpecFormatException catch (e) {
-      report(e);
-      continue;
-    }
+    final sheet = e.value.sheet;
     for (final side in sheet.swipe.sides.entries) {
       checkZoneId('$p.swipe.${side.key}', side.value);
     }
@@ -204,19 +211,7 @@ List<ValidationIssue> validateModule(
   }
 
   var flows = 0;
-  void checkBlock(String path, BlockSpec b) {
-    final parse = blockParsers[b.type];
-    if (parse == null) {
-      fatal(path, "Unknown block '${b.type}' — this game needs a newer Table Helper");
-      return;
-    }
-    final Object spec;
-    try {
-      spec = parse(b.json, path);
-    } on SpecFormatException catch (e) {
-      report(e);
-      return;
-    }
+  void checkBlock(String path, BlockSpec spec) {
     switch (spec) {
       case GallerySpec g:
         requireCollection('$path.collection', g.collection);
@@ -246,5 +241,5 @@ List<ValidationIssue> validateModule(
   for (var i = 0; i < m.tabs.length; i++) {
     checkBlock('tabs[$i].block', m.tabs[i].block);
   }
-  return issues;
+  return (manifest: m, issues: issues);
 }

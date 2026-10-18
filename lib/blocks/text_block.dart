@@ -3,20 +3,19 @@ import 'package:flutter/material.dart';
 import '../core/game_switcher.dart';
 import 'symbol_text.dart';
 import '../core/theme.dart';
-import '../module_format/manifest.dart';
+import '../module_format/block_specs.dart';
 
 /// Settings: `{title?, paragraphs?: [String], bullets?: [String]}`.
 class TextBlock extends StatelessWidget {
   const TextBlock({super.key, required this.spec});
-  final BlockSpec spec;
+  final TextSpec spec;
 
   @override
   Widget build(BuildContext context) {
     final p = context.pal;
-    final s = spec.settings;
-    final title = s['title'] as String?;
-    final paragraphs = (s['paragraphs'] as List?)?.cast<String>() ?? const [];
-    final bullets = (s['bullets'] as List?)?.cast<String>() ?? const [];
+    final title = spec.title;
+    final paragraphs = spec.paragraphs;
+    final bullets = spec.bullets;
     return Column(
       children: [
         SizedBox(

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../blocks/flow/flow_state.dart';
+import '../module_format/block_specs.dart';
 import '../modules/loaded_module.dart';
 import '../modules/module_state.dart';
 
@@ -15,8 +16,8 @@ class OpenGame {
     final id = module.manifest.id;
     FlowState? flow;
     for (final t in module.manifest.tabs) {
-      if (t.block.type == 'flow') {
-        flow = FlowState(prefs, prefix: 'mod.$id.', phaseCount: t.block.children.length.clamp(1, 1 << 20));
+      if (t.block case FlowSpec f) {
+        flow = FlowState(prefs, prefix: 'mod.$id.', phaseCount: f.steps.length.clamp(1, 1 << 20));
         break;
       }
     }

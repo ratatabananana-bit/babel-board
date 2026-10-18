@@ -16,7 +16,7 @@ import 'item_view.dart';
 /// optional sections with a jump rail.
 class GalleryBlock extends StatefulWidget {
   const GalleryBlock({super.key, required this.spec});
-  final BlockSpec spec;
+  final GallerySpec spec;
 
   @override
   State<GalleryBlock> createState() => _GalleryBlockState();
@@ -31,7 +31,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
   static const _railW = 26.0;
   static const _railEdge = 2.0;
 
-  late GallerySpec _g = GallerySpec.fromJson(widget.spec.json, 'block');
+  GallerySpec get _g => widget.spec;
   final _scroll = ScrollController();
   final _search = TextEditingController();
 
@@ -61,12 +61,6 @@ class _GalleryBlockState extends State<GalleryBlock> {
     super.initState();
     _scroll.addListener(_trackActiveSection);
     _search.addListener(() => setState(() {}));
-  }
-
-  @override
-  void didUpdateWidget(GalleryBlock old) {
-    super.didUpdateWidget(old);
-    if (old.spec != widget.spec) _g = GallerySpec.fromJson(widget.spec.json, 'block');
   }
 
   @override

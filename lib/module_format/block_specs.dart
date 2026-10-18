@@ -11,6 +11,24 @@ import 'spec_json.dart';
 const kChecklistActions = {'clearZone', 'newGame'};
 const kCardListStyles = {'mini', 'rows', 'thumbs'};
 
+/// One node of a tab's block tree, in its typed form. [fromJson] picks the parser by
+/// `type`; a type the app does not know is an error that reads "needs a newer Table Helper".
+sealed class BlockSpec {
+  const BlockSpec();
+
+  /// The block type this spec was parsed from, one of [kBlockTypes].
+  String get type;
+
+  static BlockSpec fromJson(Map<String, dynamic> j, String where) {
+    final type = Fields(j, where).text('type');
+    final parse = blockParsers[type];
+    if (parse == null) {
+      throw SpecFormatException(where, "Unknown block '$type' — this game needs a newer Table Helper");
+    }
+    return parse(j, where);
+  }
+}
+
 // ---------------------------------------------------------------------------- gallery
 
 class FilterOption {
@@ -82,7 +100,10 @@ class SectionsSpec {
 }
 
 /// `gallery`: `{collection, search?: [path], tileName?, filters?: [...], sections?: {...}, noun?, searchHint?}`.
-class GallerySpec {
+class GallerySpec extends BlockSpec {
+  @override
+  String get type => 'gallery';
+
   const GallerySpec({
     required this.collection,
     this.search = const ['name'],
@@ -122,7 +143,10 @@ class GallerySpec {
 
 /// `cardList`: `{collection, style?: mini|rows|thumbs, columns?, filter?, removable?, emptyText?, title?}`.
 /// Also the list style inside a `zone`.
-class CardListSpec {
+class CardListSpec extends BlockSpec {
+  @override
+  String get type => 'cardList';
+
   const CardListSpec({
     required this.collection,
     this.style = 'mini',
@@ -163,7 +187,10 @@ class CardListSpec {
 }
 
 /// `zone`: one lane of a board, `{zone: id, list?: {type: cardList, ...}}`.
-class ZoneBlockSpec {
+class ZoneBlockSpec extends BlockSpec {
+  @override
+  String get type => 'zone';
+
   const ZoneBlockSpec({required this.zone, this.list});
 
   /// The id of a declared zone.
@@ -187,7 +214,10 @@ class ZoneBlockSpec {
 }
 
 /// `board`: `{title?, countLabel?: template with {count}, children: [zone]}`.
-class BoardSpec {
+class BoardSpec extends BlockSpec {
+  @override
+  String get type => 'board';
+
   const BoardSpec({this.title = 'Board', this.countLabel = '{count} tracked', this.zones = const []});
 
   final String title;
@@ -276,7 +306,10 @@ class CardChecklistSpec {
 }
 
 /// One step of a flow (a `step` block, or the flow's `setup`).
-class StepSpec {
+class StepSpec extends BlockSpec {
+  @override
+  String get type => 'step';
+
   const StepSpec({
     this.id = 'step',
     this.title = '',
@@ -334,7 +367,10 @@ class StepSpec {
 
 /// `flow`: `{title?, cyclic?, reminders?, newGameText?, setup?: step, children: [step]}`.
 /// Step ids and checklist ids are unique across the whole flow (ticks are saved per id).
-class FlowSpec {
+class FlowSpec extends BlockSpec {
+  @override
+  String get type => 'flow';
+
   const FlowSpec({
     this.title = 'Round',
     this.cyclic = true,
@@ -396,7 +432,10 @@ class FlowSpec {
 // ----------------------------------------------------------------------------- text
 
 /// `text`: `{title?, paragraphs?: [String], bullets?: [String]}`.
-class TextSpec {
+class TextSpec extends BlockSpec {
+  @override
+  String get type => 'text';
+
   const TextSpec({this.title, this.paragraphs = const [], this.bullets = const []});
 
   final String? title;
@@ -418,7 +457,7 @@ class TextSpec {
 /// Block type → parser: the one list of block types the app can draw. A module naming any
 /// other type needs a newer Table Helper. A step's checklist is a setting of `step`, not a
 /// block.
-final Map<String, Object Function(Map<String, dynamic> j, String where)> blockParsers = {
+final Map<String, BlockSpec Function(Map<String, dynamic> j, String where)> blockParsers = {
   'gallery': GallerySpec.fromJson,
   'board': BoardSpec.fromJson,
   'zone': ZoneBlockSpec.fromJson,

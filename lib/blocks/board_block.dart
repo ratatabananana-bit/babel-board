@@ -10,7 +10,6 @@ import '../core/widgets/confirm.dart';
 import '../core/widgets/dashed_border.dart';
 import '../module_format/block_specs.dart';
 import '../module_format/path_expr.dart';
-import '../module_format/sheet_spec.dart';
 import '../modules/loaded_module.dart';
 import '../modules/module_state.dart';
 import 'icons.dart';
@@ -72,7 +71,7 @@ class _Drag extends ChangeNotifier {
 /// another lane, onto a card to place it before that card, or onto the bar at the top.
 class BoardBlock extends StatefulWidget {
   const BoardBlock({super.key, required this.spec});
-  final BlockSpec spec;
+  final BoardSpec spec;
 
   @override
   State<BoardBlock> createState() => _BoardBlockState();
@@ -107,7 +106,7 @@ class _BoardBlockState extends State<BoardBlock> {
   @override
   Widget build(BuildContext context) {
     final module = context.read<LoadedModule>();
-    final board = BoardSpec.fromJson(widget.spec.json, 'block');
+    final board = widget.spec;
     final lanes = boardLanes(board, module);
     final zones = context.watch<ZoneState>();
     // A single lane has nowhere to drag to, so it gets no drop bar and no drag.
@@ -643,7 +642,7 @@ class _PinnedHeader extends SliverPersistentHeaderDelegate {
 /// The text lines under an item's name: its effects (symbol + text) or its sections.
 List<Widget> _detailLines(BuildContext context, Item item, CollectionSpec spec, {required double size}) {
   final p = context.pal;
-  final sheet = SheetSpec.fromJson(spec.sheet, 'sheet');
+  final sheet = spec.sheet;
   final e = sheet.effects;
   if (e != null) {
     final symbols = e.typeSymbols;
@@ -942,14 +941,14 @@ class _Ghost extends StatelessWidget {
 /// A `cardList` used on its own (not inside a zone): the items matching its filter.
 class CardListBlock extends StatelessWidget {
   const CardListBlock({super.key, required this.spec});
-  final BlockSpec spec;
+  final CardListSpec spec;
 
   @override
   Widget build(BuildContext context) {
     final p = context.pal;
     final module = context.read<LoadedModule>();
     final zones = context.watch<ZoneState>();
-    final list = CardListSpec.fromJson(spec.json, 'block');
+    final list = spec;
     final cs = module.manifest.collections[list.collection];
     if (cs == null) return Center(child: Text('Unknown collection "${list.collection}"', style: T.body));
     final filter = list.filter;

@@ -34,24 +34,16 @@ class ChecklistItem {
 /// brightest thing on screen), then "How this step works" folded away.
 class FlowBlock extends StatefulWidget {
   const FlowBlock({super.key, required this.spec});
-  final BlockSpec spec;
+  final FlowSpec spec;
 
   @override
   State<FlowBlock> createState() => _FlowBlockState();
 }
 
 class _FlowBlockState extends State<FlowBlock> {
-  late FlowSpec _flow = FlowSpec.fromJson(widget.spec.json, 'block');
-
   /// First tap on Next with open steps arms it; the second tap skips them.
   bool _armed = false;
   bool _howOpen = false;
-
-  @override
-  void didUpdateWidget(FlowBlock old) {
-    super.didUpdateWidget(old);
-    if (old.spec != widget.spec) _flow = FlowSpec.fromJson(widget.spec.json, 'block');
-  }
 
   void _advance(FlowState state, List<ChecklistItem> items) {
     state.next(items.map((i) => i.id));
@@ -64,7 +56,7 @@ class _FlowBlockState extends State<FlowBlock> {
   @override
   Widget build(BuildContext context) {
     final p = context.pal;
-    final flow = _flow;
+    final flow = widget.spec;
     final state = context.watch<FlowState?>();
     if (state == null || flow.steps.isEmpty) {
       return Center(

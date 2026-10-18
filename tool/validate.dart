@@ -5,7 +5,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:vale_helper/module_format/manifest.dart';
 import 'package:vale_helper/module_format/validator.dart';
 
 class ToolResult {
@@ -76,12 +75,12 @@ ModuleFolder readModuleFolder(Directory dir) {
     }
   }
 
-  issues.addAll(validateModule(manifest, collections: collections));
+  final checked = checkModule(manifest, collections: collections);
+  issues.addAll(checked.issues);
 
   // Local images that don't exist are not fatal (the app draws the text-only card), but an
   // author wants to know.
-  if (issues.every((i) => !i.fatal)) {
-    final m = ModuleManifest.fromJson(manifest);
+  if (checked.manifest case final m? when issues.every((i) => !i.fatal)) {
     void checkFile(String path, Object? ref) {
       if (ref is! String || ref.isEmpty || ref.startsWith('https://') || !isSafeImageRef(ref)) return;
       if (!File(_p(dir, ref)).existsSync()) {
