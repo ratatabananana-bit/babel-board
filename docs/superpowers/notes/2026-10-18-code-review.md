@@ -4,6 +4,9 @@ Whole codebase read after the UI/UX pass (master 8375a99). Ordered by how much t
 matter, not by file. "Fix" lines are concrete; none of this is urgent, the app works and
 194 tests pass.
 
+Status 2026-10-18 (branch `claude/funny-cartwright-9986dd`): items 1, 2, 3 (first bullet) and 5
+are done, one commit each; the validator keeps every check and the screenshots are unchanged.
+
 ## What is good (so the rest is in proportion)
 
 - The split is right: `module_format` is pure Dart and the tools reuse it; `ModuleFiles`

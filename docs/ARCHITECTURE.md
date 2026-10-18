@@ -44,20 +44,24 @@ the tracked cards through `ZoneState`; nothing is passed down by hand.
 ```
 module.json  (ModuleManifest)
 ├─ collections: { cards: CollectionSpec }      items from data/cards.json; id/title/image fields;
-│                                              cardAspect, imageShape; sheet: {…} (the item sheet template)
+│                                              cardAspect, imageShape; sheet: SheetSpec (the item sheet template)
 ├─ symbols:     { stone_red: "images/…" }      named pictures for :stone_red: in text, chips, filters
 ├─ zones:       [ ZoneSpec(id, label, icon, accent, hint, phrase) ]   places a card can be tracked in
-└─ tabs:        [ TabSpec(label, icon, badge?, block: BlockSpec) ]    one block tree per tab
-                                                        └─ BlockSpec(type, settings, children)
+└─ tabs:        [ TabSpec(label, icon, badge?, block: BlockSpec) ]    one typed block per tab
+                                                        └─ GallerySpec | BoardSpec(zones) | FlowSpec(steps) | TextSpec | …
 ```
 
-`BlockSpec` is the only tree. `type` is one of `kBlockTypes`; `settings` is every other key;
-`children` are more `BlockSpec`s. Each block class parses its own settings into a typed
-`*Spec` (`GallerySpec`, `BoardSpec`, `FlowSpec`…) when it is built.
+`BlockSpec` is a sealed class: one subclass per entry of `blockParsers` (`block_specs.dart`),
+whose keys are `kBlockTypes`. `ModuleManifest.parse` turns every block and every collection's
+`sheet` into its typed spec once, through `Fields` (`spec_json.dart`), so a wrong value is a
+`SpecFormatException` with a path and widgets never see a map. `validateModule` parses the
+same way (collecting every failure) and then checks only what a parser cannot know: that the
+zones and collections a spec names exist, one flow per module.
 
 ## Blocks and what is inside them
 
-The registry (`lib/blocks/registry.dart`) maps a type to a widget:
+The registry (`lib/blocks/registry.dart`) maps a type to a widget; it is built from
+`kBlockTypes`, so a type the parsers know and the registry does not fails at startup:
 
 | type | widget | children it accepts | what it draws |
 |---|---|---|---|
@@ -69,18 +73,18 @@ The registry (`lib/blocks/registry.dart`) maps a type to a widget:
 | `step` | (data for `flow`) | — | one phase |
 | `text` | `TextBlock` | — | title, paragraphs, bullets |
 
-### gallery (`gallery_block.dart`, ~900 lines)
+### gallery (`gallery/`: `gallery_block.dart`, `layouts.dart`, `rail.dart`, `filter_dock.dart`)
 
 ```
 GalleryBlock
 ├─ SearchTopBar            game switcher · search field · ViewPill (card size S/M/L, grouped↔flowing)
 ├─ the grid, one of three:
 │   ├─ plain      ListView → ReflowGrid of ItemTile            (no filter picked)
-│   ├─ grouped    CustomScrollView: per cost  _SectionHeader (sticky pill + rule + count)
-│   │                                          _SectionPanel (container; accent when picked) → ReflowGrid
-│   └─ flowing    one ReflowGrid of _FlowCell (ruler strip + ItemTile), band behind the picked cost
-├─ _SectionRail            fixed slots for the cost range, dots for absent costs, scrub bubble
-└─ _FilterDock             family row: _OptionRow of _OptionButton (All + one per option)
+│   ├─ grouped    CustomScrollView: per cost  SectionHeader (sticky pill + rule + count)      layouts.dart
+│   │                                          SectionPanel (container; accent when picked) → ReflowGrid
+│   └─ flowing    one ReflowGrid of FlowCell (ruler strip + ItemTile), band behind the picked cost
+├─ SectionRail             fixed slots for the cost range, dots for absent costs, scrub bubble   rail.dart
+└─ FilterDock              family row: _OptionRow of _OptionButton (All + one per option)       filter_dock.dart
 ```
 
 State the gallery keeps: search text, selected filter value, `_picked` (what you chose on
@@ -92,7 +96,7 @@ build so the rail can jump and the ring can follow.
 when the column count or the item set changes. Tile height is computed, not measured, so
 every tile widget must fit `tileWidth / aspect + extraHeight`.
 
-### item tiles and the sheet (`item_view.dart`, ~1100 lines)
+### item tiles and the sheet (`item_picture.dart`, `item_tile.dart`, `item_sheet.dart`)
 
 ```
 ItemTile ─────────── picture + two-line name; when tracked: 2 dp outline + ZoneChip (corner)
@@ -176,7 +180,7 @@ colours (amber, mint, violet) mean zones only; the neutral **accent** (cream / i
 picked things, the My cards badge, Next; parchment is the checklist card in both themes.
 `T` holds the type scale. `context.pal` reaches the palette.
 
-## Tests (`test/`, 194)
+## Tests (`test/`, 224)
 
 `helpers.dart` pumps the app with the mini fixture module (`test/fixtures/mini_module`) and
 opens a tab. `test/games/` runs the real Vale and Magical Athlete modules through the same
