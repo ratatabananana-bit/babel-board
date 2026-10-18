@@ -31,6 +31,10 @@ Future<void> _loadFonts() async {
     figtree.addFont(f('assets/fonts/Figtree-$w.ttf'));
   }
   await figtree.load();
+  // The app names the system CJK fonts as fallbacks; this test runs on Windows, so load
+  // the one Windows ships (Noto Sans SC) under that name when it is there.
+  final noto = File(r'C:\Windows\Fonts\NotoSansSC-VF.ttf');
+  if (noto.existsSync()) await (FontLoader('Noto Sans SC')..addFont(f(noto.path))).load();
   final root = Platform.environment['FLUTTER_ROOT'] ?? r'C:\Users\Benny\scoop\apps\flutter\current';
   await (FontLoader(
     'MaterialIcons',

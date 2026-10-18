@@ -120,7 +120,6 @@ ThemeData buildTheme(Palette p, Brightness b) {
           (s) => s.contains(WidgetState.selected) ? p.onAccentFill : p.text,
         ),
         side: WidgetStateProperty.all(BorderSide(color: p.line)),
-        textStyle: WidgetStateProperty.all(const TextStyle(fontWeight: FontWeight.w700)),
       ),
     ),
     switchTheme: SwitchThemeData(

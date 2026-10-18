@@ -700,9 +700,10 @@ class _NextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.pal;
     final ready = remaining == 0;
+    // Accent, not amber: zone colours mean zones only.
     return Material(
-      color: ready ? p.text : Colors.transparent,
-      shape: StadiumBorder(side: BorderSide(color: ready ? p.text : p.warn, width: 2)),
+      color: ready ? p.accent : Colors.transparent,
+      shape: StadiumBorder(side: BorderSide(color: p.accent, width: 2)),
       child: InkWell(
         customBorder: const StadiumBorder(),
         onTap: onTap,
@@ -719,17 +720,21 @@ class _NextButton extends StatelessWidget {
                     child: Text(
                       label,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: ready ? p.bg : p.text),
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: ready ? p.onAccentFill : p.text,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 6),
-                  Icon(Icons.arrow_forward_rounded, size: 21, color: ready ? p.bg : p.text),
+                  Icon(Icons.arrow_forward_rounded, size: 21, color: ready ? p.onAccentFill : p.text),
                 ],
               ),
               if (!ready)
                 Text(
                   armed ? 'Tap again to skip them' : '$remaining step${remaining > 1 ? 's' : ''} left',
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: p.warn),
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: p.text2),
                 ),
             ],
           ),
