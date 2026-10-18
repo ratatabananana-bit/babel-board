@@ -93,6 +93,27 @@
         },
         "secondary": { "type": "string" },
         "verifiedPath": { "type": "string" },
+        "swipe": {
+          "type": "object",
+          "description": "Flick the sheet sideways to put the item in a zone.",
+          "properties": { "left": { "type": "string" }, "right": { "type": "string" } },
+          "additionalProperties": false
+        },
+        "details": {
+          "type": "object",
+          "description": "Drag-up details: text hidden below the zone buttons until the sheet is dragged up.",
+          "properties": {
+            "hint": { "type": "string", "description": "Label next to the drag-up chevron, one per game, e.g. \"Interactions\"." },
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["path"],
+                "properties": { "label": { "type": "string" }, "path": { "type": "string" } }
+              }
+            }
+          }
+        },
         "zones": { "type": "array", "items": { "type": "string" } }
       }
     },

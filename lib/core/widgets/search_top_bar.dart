@@ -5,16 +5,17 @@ import '../game_switcher.dart';
 import '../settings.dart';
 import '../theme.dart';
 
-/// Top row of a picture-grid tab: game switcher, search field, and the 4 / 3 / 2 per-row toggle.
+/// Top row of a picture-grid tab: game switcher, the search field (all the remaining
+/// width), and an optional [trailing] control such as the [ViewPill].
 class SearchTopBar extends StatelessWidget {
-  const SearchTopBar({super.key, required this.search, this.hint = 'Search name or effect'});
+  const SearchTopBar({super.key, required this.search, this.hint = 'Search cards', this.trailing});
   final TextEditingController search;
   final String hint;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
     final p = context.pal;
-    final settings = context.watch<Settings>();
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 6, 12, 8),
       child: Row(
@@ -47,38 +48,102 @@ class SearchTopBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(24)),
+          if (trailing != null) ...[const SizedBox(width: 8), trailing!],
+        ],
+      ),
+    );
+  }
+}
+
+/// One pill with the view controls: density (a grid icon plus the cards-per-row count;
+/// tapping cycles 4 → 3 → 2 → 4) and, when the grid has sections, the grouped / flowing
+/// layout switch, whose icon shows the current layout.
+class ViewPill extends StatelessWidget {
+  const ViewPill({super.key, this.onLayoutChanged});
+
+  /// Null hides the layout switch (galleries without sections).
+  final VoidCallback? onLayoutChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    final settings = context.watch<Settings>();
+    final n = settings.columns;
+    final choices = Settings.columnChoices;
+    final next = choices[(choices.indexOf(n) + 1) % choices.length];
+    final flowing = settings.flowingSections;
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(24)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _PillButton(
+            key: const Key('densityCycle'),
+            tooltip: '$n per row · tap for $next',
+            semantics: '$n per row',
+            onTap: () => settings.columns = next,
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                for (final (n, icon) in const [
-                  (4, Icons.apps_rounded),
-                  (3, Icons.grid_on_rounded),
-                  (2, Icons.grid_view_rounded),
-                ])
-                  Tooltip(
-                    message: '$n per row',
-                    child: GestureDetector(
-                      onTap: () => settings.columns = n,
-                      child: AnimatedContainer(
-                        key: Key('density$n'),
-                        duration: const Duration(milliseconds: 150),
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: settings.columns == n ? p.text : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Icon(icon, size: 22, color: settings.columns == n ? p.bg : p.text2),
-                      ),
-                    ),
+                Icon(Icons.grid_view_rounded, size: 20, color: p.text),
+                const SizedBox(width: 4),
+                Text(
+                  '$n',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                    color: p.text,
                   ),
+                ),
               ],
             ),
           ),
+          if (onLayoutChanged != null)
+            _PillButton(
+              key: const Key('layoutToggle'),
+              tooltip: flowing ? 'Flowing grid · tap for cost groups' : 'Cost groups · tap for a flowing grid',
+              semantics: flowing ? 'Flowing grid' : 'Cost groups',
+              onTap: () {
+                settings.flowingSections = !flowing;
+                onLayoutChanged!();
+              },
+              child: Icon(flowing ? Icons.view_quilt_rounded : Icons.view_agenda_rounded, size: 20, color: p.text),
+            ),
         ],
+      ),
+    );
+  }
+}
+
+class _PillButton extends StatelessWidget {
+  const _PillButton({super.key, required this.tooltip, required this.semantics, required this.onTap, required this.child});
+  final String tooltip;
+  final String semantics;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Semantics(
+        button: true,
+        label: semantics,
+        excludeSemantics: true,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap,
+          child: Container(
+            height: 40,
+            constraints: const BoxConstraints(minWidth: 40),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            alignment: Alignment.center,
+            child: child,
+          ),
+        ),
       ),
     );
   }

@@ -3,12 +3,13 @@
     {
       "id": "imp",
       "name": "Imp",
+      "interactions": ["Recover returns Imp to your hand; its Instant effect triggers again when you summon it."],
       "family": "fire",
       "familyLabel": "Fire",
       "cost": 2,
       "sellsFor": ["stone_red", "stone_red", "stone_red"],
       "effects": [
-        { "type": "instant", "text": "Earn 1 red stone." },
+        { "type": "instant", "text": "Earn 1 :stone_red:. Keep :unknown: as text." },
         { "type": "active", "text": "Recover." }
       ],
       "verified": true,

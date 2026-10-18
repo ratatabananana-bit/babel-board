@@ -209,7 +209,7 @@ void convertVale() {
           'search': ['name', 'effects.text'],
           'tileName': true,
           'noun': 'cards',
-          'searchHint': 'Search name or effect',
+          'searchHint': 'Search cards',
           'filters': [
             {
               'path': 'family',

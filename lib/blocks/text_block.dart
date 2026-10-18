@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/game_switcher.dart';
+import 'symbol_text.dart';
 import '../core/theme.dart';
 import '../module_format/manifest.dart';
 
@@ -38,7 +39,7 @@ class TextBlock extends StatelessWidget {
               for (final t in paragraphs)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(t, style: T.body.copyWith(color: p.text)),
+                  child: SymbolText(t, style: T.body.copyWith(color: p.text)),
                 ),
               for (final b in bullets)
                 Padding(
@@ -55,7 +56,7 @@ class TextBlock extends StatelessWidget {
                         ),
                       ),
                       Expanded(
-                        child: Text(b, style: T.body.copyWith(color: p.text)),
+                        child: SymbolText(b, style: T.body.copyWith(color: p.text)),
                       ),
                     ],
                   ),

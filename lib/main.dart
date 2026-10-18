@@ -255,7 +255,12 @@ class _GameShellState extends State<GameShell> {
 
   void _goTo(int i) {
     setState(() => _tab = i);
-    _pages.animateToPage(i, duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
+    final d = context.read<Settings>().anim(const Duration(milliseconds: 280));
+    if (d == Duration.zero) {
+      _pages.jumpToPage(i);
+    } else {
+      _pages.animateToPage(i, duration: d, curve: Curves.easeOutCubic);
+    }
   }
 
   @override
@@ -305,8 +310,8 @@ class _GameShellState extends State<GameShell> {
                       final n = t.badge == 'zoneCount' ? context.watch<ZoneState>().total : 0;
                       return Badge(
                         isLabelVisible: n > 0,
-                        backgroundColor: p.badge,
-                        textColor: p.onAccent,
+                        backgroundColor: p.accent,
+                        textColor: p.onAccentFill,
                         label: Text('$n', style: const TextStyle(fontWeight: FontWeight.w800)),
                         child: Icon(moduleIcon(t.icon)),
                       );

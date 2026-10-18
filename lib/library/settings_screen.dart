@@ -52,7 +52,7 @@ class SettingsScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          const _Heading('DISPLAY'),
+          const _Heading('APPEARANCE'),
           _Card(
             children: [
               _Labeled(
@@ -68,6 +68,27 @@ class SettingsScreen extends StatelessWidget {
                   onSelectionChanged: (s) => settings.themeMode = s.single,
                 ),
               ),
+              _Labeled(
+                title: 'Animation speed',
+                subtitle: 'Card sheets, the grid and highlights. Instant skips the animations.',
+                child: SegmentedButton<AnimationSpeed>(
+                  showSelectedIcon: false,
+                  segments: const [
+                    ButtonSegment(value: AnimationSpeed.instant, label: Text('Instant')),
+                    ButtonSegment(value: AnimationSpeed.fast, label: Text('Fast')),
+                    ButtonSegment(value: AnimationSpeed.normal, label: Text('Normal')),
+                  ],
+                  selected: {settings.animationSpeed},
+                  onSelectionChanged: (s) => settings.animationSpeed = s.single,
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const _Heading('CARD GALLERY'),
+          _Card(
+            children: [
               _Labeled(
                 title: 'Cards per row',
                 subtitle: 'On a phone; tablets show proportionally more',

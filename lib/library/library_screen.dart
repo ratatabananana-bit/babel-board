@@ -424,7 +424,12 @@ class _RepoRow extends StatelessWidget {
     if (entry.needsAppUpdate) {
       action = const FilledButton(onPressed: null, child: Text('Needs app update'));
     } else if (have != null && compareVersions(have.version, entry.version) >= 0) {
-      action = Text('Installed', style: T.caption.copyWith(color: p.muted));
+      // Say which version is here: the repository may list an older one than the installed.
+      final newer = compareVersions(have.version, entry.version) > 0;
+      action = Text(
+        newer ? 'Newer installed (${have.version})' : '${have.version} installed',
+        style: T.caption.copyWith(color: p.muted),
+      );
     } else {
       action = FilledButton(
         onPressed: lib.busy != null ? null : () => _install(context),

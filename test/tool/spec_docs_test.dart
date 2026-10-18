@@ -17,7 +17,7 @@ void main() {
     for (final t in kBlockTypes) {
       expect(text, contains(t), reason: 'block type $t');
     }
-    for (final w in ['single JSON', 'https', 'verified']) {
+    for (final w in ['single JSON', 'https', 'verified', 'Inline symbols']) {
       expect(text, contains(w));
     }
     expect(text.trimRight(), endsWith('Reply with one JSON file.'));

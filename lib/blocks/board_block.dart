@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../core/game_switcher.dart';
+import 'symbol_text.dart';
 import '../core/theme.dart';
 import '../core/widgets/confirm.dart';
 import '../core/widgets/dashed_border.dart';
@@ -161,28 +162,32 @@ class _BoardBlockState extends State<BoardBlock> {
               ),
             ),
             Expanded(
-              child: ListView(
+              child: CustomScrollView(
                 key: _listKey,
                 controller: _scroll,
-                padding: const EdgeInsets.fromLTRB(8, 4, 8, 16),
-                children: [
-                  for (final lane in board.lanes)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _Lane(
-                        lane: lane,
-                        items: _itemsIn(module, zones, lane),
-                        drag: draggable ? _drag : null,
-                        open: !_collapsed.contains(lane.zone.id) || _drag.active,
-                        onToggle: () => setState(
-                          () => _collapsed.contains(lane.zone.id)
-                              ? _collapsed.remove(lane.zone.id)
-                              : _collapsed.add(lane.zone.id),
-                        ),
-                        onDragUpdate: _autoScroll,
-                        flat: !draggable,
-                      ),
+                slivers: [
+                  SliverPadding(
+                    // Room at the end so the last card clears the bottom bar and a snackbar.
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 24),
+                    sliver: SliverMainAxisGroup(
+                      slivers: [
+                        for (final lane in board.lanes)
+                          ..._Lane(
+                            lane: lane,
+                            items: _itemsIn(module, zones, lane),
+                            drag: draggable ? _drag : null,
+                            open: !_collapsed.contains(lane.zone.id) || _drag.active,
+                            onToggle: () => setState(
+                              () => _collapsed.contains(lane.zone.id)
+                                  ? _collapsed.remove(lane.zone.id)
+                                  : _collapsed.add(lane.zone.id),
+                            ),
+                            onDragUpdate: _autoScroll,
+                            flat: !draggable,
+                          ).slivers(context),
+                      ],
                     ),
+                  ),
                 ],
               ),
             ),
@@ -205,14 +210,21 @@ void clearZoneWithUndo(BuildContext context, ZoneSpec zone) {
   final removed = zones.idsIn(zone.id);
   if (removed.isEmpty) return;
   zones.clearZone(zone.id);
+  final p = context.pal;
   final messenger = ScaffoldMessenger.maybeOf(context);
   messenger?.hideCurrentSnackBar();
   messenger?.showSnackBar(
     SnackBar(
-      content: Text('Cleared ${zone.label}'),
+      backgroundColor: p.accent,
+      duration: const Duration(seconds: 5),
+      content: Text(
+        '${zone.label} cleared',
+        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: p.onAccentFill),
+      ),
       persist: false,
       action: SnackBarAction(
         label: 'Undo',
+        textColor: p.onAccentFill,
         onPressed: () {
           for (final id in removed) {
             // Leave alone a card that was put somewhere else in the meantime.
@@ -224,32 +236,38 @@ void clearZoneWithUndo(BuildContext context, ZoneSpec zone) {
   );
 }
 
-/// Small "Clear" pill in a lane header.
+/// Small "Clear" pill in a lane header; dimmed and inert when the lane is empty.
 class _ClearPill extends StatelessWidget {
   const _ClearPill({super.key, required this.color, required this.onTap});
   final Color color;
-  final VoidCallback onTap;
+
+  /// Null when there is nothing to clear.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
+      enabled: onTap != null,
       label: 'Clear',
       excludeSemantics: true,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Container(
-          height: 28,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: color.withValues(alpha: 0.6), width: 1.5),
-          ),
-          child: Text(
-            'Clear',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color),
+      child: Opacity(
+        opacity: onTap == null ? 0.4 : 1,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Container(
+            height: 28,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: color.withValues(alpha: 0.6), width: 1.5),
+            ),
+            child: Text(
+              'Clear',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color),
+            ),
           ),
         ),
       ),
@@ -405,7 +423,10 @@ class _DropDock extends StatelessWidget {
   }
 }
 
-class _Lane extends StatelessWidget {
+/// One lane: a sticky header (icon, name, count, collapse chevron on the left; Clear on
+/// the right) and its cards below, both on the zone's tint. Builds slivers so the header
+/// stays pinned while a long lane scrolls, keeping Clear in reach.
+class _Lane {
   const _Lane({
     required this.lane,
     required this.items,
@@ -429,8 +450,10 @@ class _Lane extends StatelessWidget {
   final VoidCallback onToggle;
   final void Function(DragUpdateDetails) onDragUpdate;
 
-  @override
-  Widget build(BuildContext context) {
+  static const headerH = 44.0;
+  static const radius = 18.0;
+
+  List<Widget> slivers(BuildContext context) {
     final p = context.pal;
     final zone = lane.zone;
     final zc = zoneColor(context, zone);
@@ -442,6 +465,8 @@ class _Lane extends StatelessWidget {
     final module = context.read<LoadedModule>();
     final spec = module.manifest.collections[lane.list.collection];
     final canDrag = drag != null && lane.list.style != 'rows';
+    // Opaque tint (the header is pinned, cards scroll under it).
+    final tint = Color.alphaBlend(zc.withValues(alpha: hot ? 0.2 : 0.07), p.bg);
 
     Widget content() {
       if (spec == null) return Text('Unknown collection "${lane.list.collection}"', style: T.body);
@@ -510,80 +535,142 @@ class _Lane extends StatelessWidget {
       }
     }
 
-    if (flat) return Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: content());
+    if (flat) {
+      return [
+        SliverToBoxAdapter(
+          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: content()),
+        ),
+      ];
+    }
+
+    final dragging = drag?.active ?? false;
+    final header = Material(
+      color: tint,
+      borderRadius: BorderRadius.vertical(
+        top: const Radius.circular(radius),
+        bottom: Radius.circular(open ? 0 : radius),
+      ),
+      child: SizedBox(
+        height: headerH,
+        child: Row(
+          children: [
+            // The whole icon + name + count + chevron group is the collapse button.
+            Semantics(
+              button: true,
+              label: open ? 'Collapse ${zone.label}' : 'Expand ${zone.label}',
+              child: InkWell(
+                borderRadius: BorderRadius.circular(radius),
+                onTap: onToggle,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 6, 0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(moduleIcon(zone.icon), size: 19, color: zc),
+                      const SizedBox(width: 8),
+                      Text(zone.label, style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800)),
+                      const SizedBox(width: 8),
+                      Container(
+                        height: 20,
+                        padding: const EdgeInsets.symmetric(horizontal: 7),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(color: zc, borderRadius: BorderRadius.circular(10)),
+                        child: Text(
+                          '${items.length}',
+                          style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: p.onAccent),
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Icon(open ? Icons.expand_less_rounded : Icons.expand_more_rounded, size: 22, color: p.muted),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Text(
+                hot
+                    ? 'Release to drop here'
+                    : target
+                    ? 'Drop here'
+                    : zone.hint ?? '',
+                textAlign: TextAlign.right,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: T.caption.copyWith(color: target ? zc : p.muted, fontSize: 12),
+              ),
+            ),
+            // One tap clears the lane; the snackbar offers Undo. Hidden only while dragging.
+            if (!dragging) ...[
+              const SizedBox(width: 8),
+              _ClearPill(
+                key: Key('clear-${zone.id}'),
+                color: zc,
+                onTap: items.isEmpty ? null : () => clearZoneWithUndo(context, zone),
+              ),
+            ],
+            const SizedBox(width: 8),
+          ],
+        ),
+      ),
+    );
 
     final body = AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       padding: const EdgeInsets.fromLTRB(6, 0, 6, 6),
       decoration: BoxDecoration(
-        color: zc.withValues(alpha: hot ? 0.2 : 0.07),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: hot ? zc : Colors.transparent, width: 2),
+        color: tint,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(radius)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          InkWell(
-            onTap: onToggle,
-            borderRadius: BorderRadius.circular(14),
-            child: SizedBox(
-              height: 42,
-              child: Row(
-                children: [
-                  const SizedBox(width: 6),
-                  Icon(moduleIcon(zone.icon), size: 19, color: zc),
-                  const SizedBox(width: 8),
-                  Text(zone.label, style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800)),
-                  const SizedBox(width: 8),
-                  Container(
-                    height: 20,
-                    padding: const EdgeInsets.symmetric(horizontal: 7),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(color: zc, borderRadius: BorderRadius.circular(10)),
-                    child: Text(
-                      '${items.length}',
-                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: p.onAccent),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      hot
-                          ? 'Release to drop here'
-                          : target
-                          ? 'Drop here'
-                          : zone.hint ?? '',
-                      textAlign: TextAlign.right,
-                      overflow: TextOverflow.ellipsis,
-                      style: T.caption.copyWith(color: target ? zc : p.muted),
-                    ),
-                  ),
-                  // One tap clears the lane; the snackbar offers Undo.
-                  if (items.isNotEmpty && !(drag?.active ?? false)) ...[
-                    const SizedBox(width: 6),
-                    _ClearPill(key: Key('clear-${zone.id}'), color: zc, onTap: () => clearZoneWithUndo(context, zone)),
-                  ],
-                  Icon(open ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: p.muted),
-                ],
-              ),
-            ),
-          ),
-          if (open) content(),
-        ],
-      ),
+      child: content(),
     );
 
-    if (drag == null) return body;
-    final laneTarget = DragTarget<String>(
-      onWillAcceptWithDetails: (_) => drag.from != zone.id,
-      onMove: (_) => drag.hover(zone.id),
-      onLeave: (_) => drag.hover(null),
-      onAcceptWithDetails: (d) => zones.put(d.data, zone.id),
-      builder: (context, _, _) => body,
-    );
-    // Always wrapped (transparent when idle) so the DragTarget is never rebuilt mid-hover;
-    // swapping the wrapper in and out made hovering flicker and drops miss.
-    return DashedBorder(color: target && !hot ? zc : Colors.transparent, radius: 18, child: laneTarget);
+    // Header and body are separate slivers, so each is its own drop target. The dashed
+    // "drop here" outline goes on the body (or the header when the lane is collapsed).
+    Widget asTarget(Widget child, {required bool dashed}) {
+      if (drag == null) return child;
+      // Always wrapped (transparent when idle) so the DragTarget is never rebuilt mid-hover;
+      // swapping the wrapper in and out made hovering flicker and drops miss.
+      return DashedBorder(
+        color: dashed && target && !hot ? zc : Colors.transparent,
+        radius: radius,
+        child: DragTarget<String>(
+          onWillAcceptWithDetails: (_) => drag.from != zone.id,
+          onMove: (_) => drag.hover(zone.id),
+          onLeave: (_) => drag.hover(null),
+          onAcceptWithDetails: (d) => zones.put(d.data, zone.id),
+          builder: (context, _, _) => child,
+        ),
+      );
+    }
+
+    return [
+      SliverPersistentHeader(
+        pinned: true,
+        delegate: _PinnedHeader(headerH, asTarget(header, dashed: !open)),
+      ),
+      if (open) SliverToBoxAdapter(child: asTarget(body, dashed: true)),
+      const SliverToBoxAdapter(child: SizedBox(height: 8)),
+    ];
   }
+}
+
+/// A fixed-height sticky header built from any widget.
+class _PinnedHeader extends SliverPersistentHeaderDelegate {
+  const _PinnedHeader(this.height, this.child);
+  final double height;
+  final Widget child;
+
+  @override
+  double get minExtent => height;
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => child;
+
+  @override
+  bool shouldRebuild(_PinnedHeader old) => true;
 }
 
 /// The text lines under an item's name: its effects (symbol + text) or its sections.
@@ -609,7 +696,7 @@ List<Widget> _detailLines(BuildContext context, Item item, CollectionSpec spec, 
                   const SizedBox(width: 5),
                 ],
                 Expanded(
-                  child: Text(
+                  child: SymbolText(
                     '${raw['text'] ?? ''}',
                     style: TextStyle(fontSize: size, height: 1.3, color: p.text.withValues(alpha: 0.9)),
                   ),

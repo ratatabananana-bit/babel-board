@@ -27,11 +27,13 @@ void main() {
     expect(find.byType(SettingsScreen), findsOneWidget);
     for (final t in [
       'Theme',
+      'Animation speed',
       'Cards per row',
       'Flowing family grid',
       'Copy instructions for AI',
       'Table Helper 3.0.0',
     ]) {
+      await tester.scrollUntilVisible(find.text(t), 100, scrollable: find.byType(Scrollable).first);
       expect(find.text(t), findsOneWidget, reason: t);
     }
   });
@@ -46,6 +48,34 @@ void main() {
     expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode, ThemeMode.dark);
     final prefs = await tester.runAsync(SharedPreferences.getInstance);
     expect(Settings(prefs!).themeMode, ThemeMode.dark);
+  });
+
+  testWidgets('theme and card gallery settings are separate sections', (tester) async {
+    await pumpLibraryOnly(tester);
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+    expect(find.text('APPEARANCE'), findsOneWidget);
+    expect(find.text('CARD GALLERY'), findsOneWidget);
+    expect(find.text('DISPLAY'), findsNothing);
+    final appearance = tester.getTopLeft(find.text('APPEARANCE')).dy;
+    final gallery = tester.getTopLeft(find.text('CARD GALLERY')).dy;
+    final theme = tester.getTopLeft(find.text('Theme')).dy;
+    final perRow = tester.getTopLeft(find.text('Cards per row')).dy;
+    expect(appearance < theme && theme < gallery && gallery < perRow, isTrue);
+  });
+
+  testWidgets('animation speed is under Appearance: Instant, Fast (default), Normal', (tester) async {
+    await pumpLibraryOnly(tester);
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+    expect(settingsOf(tester).animationSpeed, AnimationSpeed.fast);
+    final speed = tester.getTopLeft(find.text('Animation speed')).dy;
+    expect(speed, lessThan(tester.getTopLeft(find.text('CARD GALLERY')).dy));
+    await tester.tap(find.text('Instant'));
+    await tester.pumpAndSettle();
+    expect(settingsOf(tester).animationSpeed, AnimationSpeed.instant);
+    final prefs = await tester.runAsync(SharedPreferences.getInstance);
+    expect(Settings(prefs!).animationSpeed, AnimationSpeed.instant);
   });
 
   testWidgets('cards per row and the flowing grid can be set here', (tester) async {

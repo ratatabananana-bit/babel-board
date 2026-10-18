@@ -34,7 +34,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 2 red stones."
+          "text": "Earn :stone_red::stone_red:."
         },
         {
           "type": "active",
@@ -58,7 +58,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "If cards with written cost of 1, 2, 3, and 4 are all in your area, earn 10 points."
+          "text": "If cards with written cost of 1, 2, 3, and 4 are all in your area, earn 10 :points:."
         }
       ],
       "verified": true,
@@ -78,7 +78,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 1 point for each card in your hand."
+          "text": "Earn 1 :points: for each card in your hand."
         }
       ],
       "verified": true,
@@ -98,7 +98,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Earn 1 red stone and 1 point."
+          "text": "Earn :stone_red: and 1 :points:."
         }
       ],
       "verified": true,
@@ -118,7 +118,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Earn 4 red stones."
+          "text": "Earn :stone_red::stone_red::stone_red::stone_red:."
         }
       ],
       "verified": true,
@@ -138,7 +138,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 1 point for each card in your area."
+          "text": "Earn 1 :points: for each card in your area."
         }
       ],
       "verified": true,
@@ -158,7 +158,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 2 points for each card with a written cost of 2 or less in your area."
+          "text": "Earn 2 :points: for each card with a written cost of 2 or less in your area."
         }
       ],
       "verified": true,
@@ -178,7 +178,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Discard one of your red stones, then earn 3 points."
+          "text": "Discard one of your :stone_red:, then earn 3 :points:."
         }
       ],
       "verified": true,
@@ -198,7 +198,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 2 points for each Fire card in your area."
+          "text": "Earn 2 :points: for each Fire card in your area."
         }
       ],
       "verified": true,
@@ -218,7 +218,7 @@
       "effects": [
         {
           "type": "permanent",
-          "text": "Whenever you summon a card, earn 1 point for each used red stone."
+          "text": "Whenever you summon a card, earn 1 :points: for each used :stone_red:."
         }
       ],
       "verified": true,
@@ -238,7 +238,7 @@
       "effects": [
         {
           "type": "permanent",
-          "text": "The value of your red stones is increased by 1."
+          "text": "The value of your :stone_red: is increased by 1."
         }
       ],
       "verified": true,
@@ -298,7 +298,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 2 points for each card family in your area."
+          "text": "Earn 2 :points: for each card family in your area."
         }
       ],
       "verified": true,
@@ -316,7 +316,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Discard all your stones and earn points equal to the total value of discarded stones."
+          "text": "Discard all your stones and earn :points: equal to the total value of discarded stones."
         }
       ],
       "verified": true,
@@ -334,7 +334,7 @@
       "effects": [
         {
           "type": "permanent",
-          "text": "Whenever you summon a card using a blue stone, earn 2 points."
+          "text": "Whenever you summon a card using a :stone_blue:, earn 2 :points:."
         }
       ],
       "verified": true,
@@ -352,7 +352,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Earn 1 point for each of your blue stones."
+          "text": "Earn 1 :points: for each of your :stone_blue:."
         }
       ],
       "verified": true,
@@ -370,7 +370,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 1 blue stone."
+          "text": "Earn :stone_blue:."
         },
         {
           "type": "active",
@@ -392,7 +392,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "If there is no Dragon card in your area, earn 2 points."
+          "text": "If there is no Dragon card in your area, earn 2 :points:."
         }
       ],
       "verified": true,
@@ -410,8 +410,11 @@
       "effects": [
         {
           "type": "permanent",
-          "text": "Value of your blue stones counts as a purple stone. Value of your purple stones counts as a blue stone."
+          "text": "Value of your :stone_blue: counts as a :stone_purple:. Value of your :stone_purple: counts as a :stone_blue:."
         }
+      ],
+      "interactions": [
+        "Only the value changes. Any card that requires a :stone_purple: still needs an actual :stone_purple:."
       ],
       "verified": true,
       "image": "images/cards/hae_tae.webp"
@@ -428,7 +431,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Exchange one of your blue stones with 1 purple stone. -or- Exchange one of your purple stones with 3 blue stones."
+          "text": "Exchange one of your :stone_blue: with :stone_purple:. -or- Exchange one of your :stone_purple: with :stone_blue::stone_blue::stone_blue:."
         }
       ],
       "verified": true,
@@ -446,7 +449,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Earn 1 blue stone."
+          "text": "Earn :stone_blue:."
         }
       ],
       "verified": true,
@@ -464,7 +467,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn points equal to the total value of your blue stones."
+          "text": "Earn :points: equal to the total value of your :stone_blue:."
         }
       ],
       "verified": true,
@@ -482,7 +485,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Choose 2 between 1 purple stone / draw a card / 2 blue stones / 4 points. Earn them."
+          "text": "Choose 2 between :stone_purple: / draw a card / :stone_blue::stone_blue: / 4 :points:. Earn them."
         }
       ],
       "verified": true,
@@ -500,7 +503,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 7 points. A player of your choice discards one of their summoned Dragon cards."
+          "text": "Earn 7 :points:. A player of your choice discards one of their summoned Dragon cards."
         }
       ],
       "verified": true,
@@ -518,7 +521,7 @@
       "effects": [
         {
           "type": "permanent",
-          "text": "Whenever you tame a Water card, earn 2 blue stones."
+          "text": "Whenever you tame a Water card, earn :stone_blue::stone_blue:."
         }
       ],
       "verified": true,
@@ -536,11 +539,11 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 2 blue stones."
+          "text": "Earn :stone_blue::stone_blue:."
         },
         {
           "type": "permanent",
-          "text": "Values of your blue stones and purple stones are each increased by 1."
+          "text": "Values of your :stone_blue: and :stone_purple: are each increased by 1."
         }
       ],
       "verified": true,
@@ -558,7 +561,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Discard one of your blue stones, then earn 5 points."
+          "text": "Discard one of your :stone_blue:, then earn 5 :points:."
         }
       ],
       "verified": true,
@@ -576,7 +579,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 3 points for each Water card in your area."
+          "text": "Earn 3 :points: for each Water card in your area."
         }
       ],
       "verified": true,
@@ -618,7 +621,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Steal 1 point from any opponent."
+          "text": "Steal 1 :points: from any opponent."
         }
       ],
       "verified": true,
@@ -639,7 +642,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Discard a card from your hand and earn points equal to the cost written on that card."
+          "text": "Discard a card from your hand and earn :points: equal to the cost written on that card."
         }
       ],
       "verified": true,
@@ -660,7 +663,7 @@
       "effects": [
         {
           "type": "permanent",
-          "text": "Whenever you summon a card using a purple stone, earn 3 points."
+          "text": "Whenever you summon a card using a :stone_purple:, earn 3 :points:."
         }
       ],
       "verified": true,
@@ -681,7 +684,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Lose 0 / 1 / 2 points, then earn 1 red stone / 1 blue stone / 1 purple stone (choose one option)."
+          "text": "Lose 0 / 1 / 2 :points:, then earn :stone_red: / :stone_blue: / :stone_purple: (choose one option)."
         }
       ],
       "verified": true,
@@ -702,7 +705,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "If you have a purple stone, earn 3 points."
+          "text": "If you have a :stone_purple:, earn 3 :points:."
         }
       ],
       "verified": true,
@@ -723,7 +726,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "If any opponent has more points than you, earn 4 points. Otherwise lose 4 points."
+          "text": "If any opponent has more :points: than you, earn 4 :points:. Otherwise lose 4 :points:."
         }
       ],
       "verified": true,
@@ -744,7 +747,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Discard a card from your hand, then earn 1 purple stone."
+          "text": "Discard a card from your hand, then earn :stone_purple:."
         }
       ],
       "verified": true,
@@ -807,7 +810,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 6 points."
+          "text": "Earn 6 :points:."
         },
         {
           "type": "active",
@@ -832,7 +835,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn points equal to the total value of your purple stones."
+          "text": "Earn :points: equal to the total value of your :stone_purple:."
         }
       ],
       "verified": true,
@@ -853,7 +856,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Exchange each of your stones with a purple stone."
+          "text": "Exchange each of your stones with a :stone_purple:."
         }
       ],
       "verified": true,
@@ -874,7 +877,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 3 points for each card family in your area."
+          "text": "Earn 3 :points: for each card family in your area."
         }
       ],
       "verified": true,
@@ -895,7 +898,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 4 points for each Earth card in your area."
+          "text": "Earn 4 :points: for each Earth card in your area."
         }
       ],
       "verified": true,
@@ -937,7 +940,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "If the number of cards in your hand is the same as the number of cards in your area, earn 3 points."
+          "text": "If the number of cards in your hand is the same as the number of cards in your area, earn 3 :points:."
         }
       ],
       "verified": true,
@@ -979,7 +982,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 6 points and put this card on the top of the draw deck."
+          "text": "Earn 6 :points: and put this card on the top of the draw deck."
         }
       ],
       "verified": true,
@@ -998,7 +1001,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 1 point for each Wind card in your area. Immediately recover this card."
+          "text": "Earn 1 :points: for each Wind card in your area. Immediately recover this card."
         }
       ],
       "verified": true,
@@ -1063,7 +1066,7 @@
         },
         {
           "type": "permanent",
-          "text": "Whenever you summon a card, earn 1 point."
+          "text": "Whenever you summon a card, earn 1 :points:."
         }
       ],
       "verified": true,
@@ -1101,7 +1104,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Earn 1 point for each card family in your area."
+          "text": "Earn 1 :points: for each card family in your area."
         }
       ],
       "verified": true,
@@ -1120,7 +1123,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "If you have less than 6 cards in your hand, earn 2 points. Otherwise, earn 1 purple stone."
+          "text": "If you have less than 6 cards in your hand, earn 2 :points:. Otherwise, earn :stone_purple:."
         }
       ],
       "verified": true,
@@ -1139,7 +1142,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Earn 1 point for each card with an Active effect in your area."
+          "text": "Earn 1 :points: for each card with an Active effect in your area."
         }
       ],
       "verified": true,
@@ -1177,7 +1180,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 2 points for each card in your hand."
+          "text": "Earn 2 :points: for each card in your hand."
         }
       ],
       "verified": true,
@@ -1196,7 +1199,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 2 points for each card in your area."
+          "text": "Earn 2 :points: for each card in your area."
         }
       ],
       "verified": true,
@@ -1232,7 +1235,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 5 points for each Dragon card in your area."
+          "text": "Earn 5 :points: for each Dragon card in your area."
         }
       ],
       "verified": true,
@@ -1250,7 +1253,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 7 points. A player of your choice discards one of their summoned Water cards."
+          "text": "Earn 7 :points:. A player of your choice discards one of their summoned Water cards."
         }
       ],
       "verified": true,
@@ -1268,7 +1271,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 7 points. A player of your choice discards one of their summoned Fire cards."
+          "text": "Earn 7 :points:. A player of your choice discards one of their summoned Fire cards."
         }
       ],
       "verified": true,
@@ -1286,7 +1289,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 8 points. A player of your choice discards one of their summoned Wind cards."
+          "text": "Earn 8 :points:. A player of your choice discards one of their summoned Wind cards."
         }
       ],
       "verified": true,
@@ -1304,7 +1307,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 8 points. A player of your choice discards one of their summoned Earth cards."
+          "text": "Earn 8 :points:. A player of your choice discards one of their summoned Earth cards."
         }
       ],
       "verified": true,
@@ -1322,7 +1325,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Recover one of your other cards and earn points equal to the cost written on that card."
+          "text": "Recover one of your other cards and earn :points: equal to the cost written on that card."
         }
       ],
       "verified": true,
@@ -1358,7 +1361,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 1 red stone, 1 blue stone, 1 purple stone and 3 points. Draw a card."
+          "text": "Earn :stone_red:, :stone_blue:, :stone_purple: and 3 :points:. Draw a card."
         }
       ],
       "verified": true,
@@ -1376,7 +1379,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 4 points for each card family in your area."
+          "text": "Earn 4 :points: for each card family in your area."
         }
       ],
       "verified": true,

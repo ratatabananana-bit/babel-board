@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
+import '../core/settings.dart';
+import 'symbol_text.dart';
 import '../core/theme.dart';
 import '../module_format/path_expr.dart';
 import '../modules/loaded_module.dart';
@@ -61,6 +64,8 @@ class SheetSpec {
       sections = [for (final s in (j['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>()],
       secondary = j['secondary'] as String?,
       verifiedPath = j['verifiedPath'] as String?,
+      details = (j['details'] as Map?)?.cast<String, dynamic>(),
+      swipe = (j['swipe'] as Map?)?.cast<String, dynamic>() ?? const {},
       zones = (j['zones'] as List?)?.cast<String>() ?? const [];
 
   final List<ChipSpec> chips;
@@ -68,6 +73,18 @@ class SheetSpec {
   final List<Map<String, dynamic>> sections;
   final String? secondary;
   final String? verifiedPath;
+
+  /// Drag-up details: `{sections: [{label, path}]}`. Extra text (rulings, story,
+  /// anything a player only sometimes wants) hidden below the zone buttons until the sheet
+  /// is dragged up.
+  final Map<String, dynamic>? details;
+
+  /// Flick the sheet left or right to put the item in a zone: `{left?: zoneId, right?: zoneId}`.
+  final Map<String, dynamic> swipe;
+
+  List<Map<String, dynamic>> get detailSections => [
+    for (final s in (details?['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>(),
+  ];
   final List<String> zones;
 
   /// Text of the first chip that resolves to something, for the text-only card.
@@ -256,7 +273,9 @@ class _FramedCard extends StatelessWidget {
   }
 }
 
-/// Grid tile: picture, optional name below, and a zone ring + band when tracked.
+/// Grid tile: picture and an optional two-line name below. A tracked item keeps its text
+/// clear: a 2 dp outline in the zone's color just outside the picture, and a small chip
+/// with the zone's icon on the picture's top-right corner.
 class ItemTile extends StatelessWidget {
   const ItemTile({
     super.key,
@@ -271,8 +290,11 @@ class ItemTile extends StatelessWidget {
   final String collectionId;
   final bool showName;
 
-  /// Height of the name line under the picture, including the gap.
-  static const nameHeight = 23.0;
+  /// Height of the name block under the picture (two lines), including the gap.
+  static const nameHeight = 6.0 + nameLines * nameSize * nameLineHeight;
+  static const nameLines = 2;
+  static const nameSize = 12.0;
+  static const nameLineHeight = 1.2;
 
   @override
   Widget build(BuildContext context) {
@@ -282,7 +304,6 @@ class ItemTile extends StatelessWidget {
     final zone = zoneSpec(module, zoneId);
     final zc = zone == null ? null : zoneColor(context, zone);
     final title = item.title(collection);
-    final bandAtTop = collection.imageShape == 'square';
     return Semantics(
       button: true,
       label: zone == null ? title : '$title, in ${zone.label}',
@@ -293,65 +314,77 @@ class ItemTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              foregroundDecoration: zc == null
-                  ? null
-                  : BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: zc, width: 2.5),
-                    ),
-              child: Stack(
-                children: [
-                  ItemPicture(item, collection),
-                  if (zone != null)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: bandAtTop ? 0 : null,
-                      bottom: bandAtTop ? null : 0,
-                      height: 22,
-                      child: Container(
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                ItemPicture(item, collection),
+                if (zone != null && zc != null) ...[
+                  // Outline: 2 dp line, 2 dp outside the picture.
+                  Positioned(
+                    left: -4,
+                    top: -4,
+                    right: -4,
+                    bottom: -4,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: zc,
-                          borderRadius: bandAtTop
-                              ? const BorderRadius.vertical(top: Radius.circular(12))
-                              : const BorderRadius.vertical(bottom: Radius.circular(12)),
-                        ),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(moduleIcon(zone.icon), size: 14, color: p.onAccent),
-                              const SizedBox(width: 3),
-                              Text(
-                                (zone.band ?? zone.label).toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.4,
-                                  color: p.onAccent,
-                                ),
-                              ),
-                            ],
-                          ),
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: zc, width: 2),
                         ),
                       ),
                     ),
+                  ),
+                  Positioned(
+                    top: -6,
+                    right: -6,
+                    child: ZoneChip(key: Key('chip-${item.id}'), zone: zone, color: zc),
+                  ),
                 ],
-              ),
+              ],
             ),
             if (showName) ...[
               const SizedBox(height: 6),
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 13.5, height: 1.2, fontWeight: FontWeight.w600, color: p.text),
+              SizedBox(
+                height: nameLines * nameSize * nameLineHeight,
+                child: Text(
+                  title,
+                  maxLines: nameLines,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: nameSize,
+                    height: nameLineHeight,
+                    fontWeight: FontWeight.w600,
+                    color: p.text,
+                  ),
+                ),
               ),
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Zone marker on a tracked picture: a 20 dp disc in the zone's color with its icon, ringed
+/// in the background color so it reads on any art.
+class ZoneChip extends StatelessWidget {
+  const ZoneChip({super.key, required this.zone, required this.color, this.size = 20});
+  final ZoneSpec zone;
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return Container(
+      width: size + 4,
+      height: size + 4,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(color: p.bg, shape: BoxShape.circle),
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        child: Icon(moduleIcon(zone.icon), size: size * 0.62, color: p.onAccent),
       ),
     );
   }
@@ -362,8 +395,18 @@ Future<void> showItemSheet(BuildContext context, Item item, String collectionId)
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    showDragHandle: true,
+    showDragHandle: false, // the sheet draws its own handle (see ItemSheet)
+    // The sheet paints its own panel (see _SheetPanel), so a flick can slide the panel
+    // away and uncover the slot behind it.
+    backgroundColor: Colors.transparent,
+    elevation: 0,
     constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.9),
+    // Speed follows the setting (Fast by default: tracking six cards in a row shouldn't mean
+    // waiting on each sheet; Instant skips the slide).
+    sheetAnimationStyle: AnimationStyle(
+      duration: context.read<Settings>().anim(const Duration(milliseconds: 250)),
+      reverseDuration: context.read<Settings>().anim(const Duration(milliseconds: 200)),
+    ),
     builder: (_) => ItemSheet(item: item, collectionId: collectionId),
   );
 }
@@ -388,116 +431,136 @@ class ItemSheet extends StatelessWidget {
         : resolvePath(item.data, sheet.verifiedPath!).firstOrNull != false;
     final zoneSpecs = [for (final id in sheet.zones) ?zoneSpec(module, id)];
 
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+    // Flick sides that have a zone in this module.
+    final swipe = {for (final e in sheet.swipe.entries) e.key: ?zoneSpec(module, e.value as String?)};
+
+    // Drag-up details that this item actually has text for.
+    final hidden = [
+      for (final s in sheet.detailSections)
+        if (resolvePath(item.data, s['path'] as String? ?? '').map((v) => '$v').where((v) => v.isNotEmpty).toList()
+            case final values when values.isNotEmpty)
+          (label: s['label'] as String? ?? '', values: values),
+    ];
+
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // The handle is part of the card, so dragging it works like dragging the card.
+        Padding(
+          key: const Key('sheetHandle'),
+          padding: const EdgeInsets.only(top: 12, bottom: 16),
+          child: Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(color: p.line, borderRadius: BorderRadius.circular(2)),
+            ),
+          ),
+        ),
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _Thumb(item: item, collection: collection),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
+                    _Thumb(item: item, collection: collection),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      item.title(collection),
-                                      style: const TextStyle(fontSize: 26, height: 1.1, fontWeight: FontWeight.w800),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    tooltip: 'Close',
-                                    visualDensity: VisualDensity.compact,
-                                    onPressed: () => Navigator.pop(context),
-                                    icon: Icon(Icons.close_rounded, color: p.text2),
-                                  ),
-                                ],
-                              ),
-                              if (subtitle != null) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  subtitle,
-                                  style: T.body.copyWith(color: p.text2, fontStyle: FontStyle.italic),
+                              Expanded(
+                                child: Text(
+                                  item.title(collection),
+                                  style: const TextStyle(fontSize: 26, height: 1.1, fontWeight: FontWeight.w800),
                                 ),
-                              ],
-                              if (secondary != null && secondary.isNotEmpty) ...[
-                                const SizedBox(height: 6),
-                                Text(secondary, style: T.caption.copyWith(color: p.muted)),
-                              ],
-                              if (sheet.chips.isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Wrap(spacing: 6, runSpacing: 6, children: [for (final c in sheet.chips) ?_chip(c)]),
-                              ],
+                              ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    if (sheet.effects != null) ..._effects(context, sheet.effects!),
-                    for (final s in sheet.sections) ..._section(context, s),
-                    if (!verified)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          '⚠ Text not verified. Check the physical card.',
-                          style: T.caption.copyWith(color: p.warn),
-                        ),
+                          if (subtitle != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              subtitle,
+                              style: T.body.copyWith(color: p.text2, fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                          if (secondary != null && secondary.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            SymbolText(secondary, style: T.caption.copyWith(color: p.muted)),
+                          ],
+                          if (sheet.chips.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Wrap(spacing: 6, runSpacing: 6, children: [for (final c in sheet.chips) ?_chip(c)]),
+                          ],
+                        ],
                       ),
+                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 18),
+                if (sheet.effects != null) ..._effects(context, sheet.effects!),
+                for (final s in sheet.sections) ..._section(context, s),
+                if (!verified)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      '⚠ Text not verified. Check the physical card.',
+                      style: T.caption.copyWith(color: p.warn),
+                    ),
+                  ),
+              ],
             ),
-            if (zoneSpecs.isNotEmpty) ...[
-              const SizedBox(height: 14),
-              if (zoneSpecs.length == 1)
-                _SingleZoneButton(zone: zoneSpecs.single, active: current == zoneSpecs.single.id, itemId: item.id)
-              else
-                Row(
-                  children: [
-                    for (final z in zoneSpecs) ...[
-                      Expanded(
-                        child: _ZoneButton(zone: z, active: current == z.id, itemId: item.id),
-                      ),
-                      const SizedBox(width: 6),
-                    ],
-                    Tooltip(
-                      message: 'Stop tracking',
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: current == null ? null : () => zones.remove(item.id),
-                        child: Container(
-                          key: const Key('untrack'),
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: p.line, width: 1.5),
-                          ),
-                          child: Icon(Icons.remove_done_rounded, color: current == null ? p.line : p.text),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          ],
+          ),
         ),
-      ),
+        if (zoneSpecs.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          if (zoneSpecs.length == 1)
+            _SingleZoneButton(zone: zoneSpecs.single, active: current == zoneSpecs.single.id, itemId: item.id)
+          else
+            Row(
+              children: [
+                for (final z in zoneSpecs) ...[
+                  Expanded(
+                    child: _ZoneButton(zone: z, active: current == z.id, itemId: item.id),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                Tooltip(
+                  message: 'Stop tracking',
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: current == null ? null : () => zones.remove(item.id),
+                    child: Container(
+                      key: const Key('untrack'),
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: p.line, width: 1.5),
+                      ),
+                      child: Icon(Icons.remove_done_rounded, color: current == null ? p.line : p.text),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ],
+    );
+
+    if (hidden.isEmpty && swipe.isEmpty) return _SheetPanel(child: content);
+    return _SheetGestures(
+      itemId: item.id,
+      sections: hidden,
+      hint: sheet.details?['hint'] as String?,
+      swipe: swipe,
+      child: content,
     );
   }
 
@@ -571,7 +634,7 @@ class ItemSheet extends StatelessWidget {
                         style: T.caption.copyWith(color: p.text2, letterSpacing: 1),
                       ),
                       const SizedBox(height: 2),
-                      Text('${raw['text'] ?? ''}', style: T.effect.copyWith(color: p.text)),
+                      SymbolText('${raw['text'] ?? ''}', style: T.effect.copyWith(color: p.text)),
                     ],
                   ),
                 ),
@@ -591,11 +654,344 @@ class ItemSheet extends StatelessWidget {
       for (final v in values)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: Text(v, style: T.effect.copyWith(color: p.text)),
+          child: SymbolText(v, style: T.effect.copyWith(color: p.text)),
         ),
       const SizedBox(height: 6),
     ];
   }
+}
+
+/// The sheet's own panel: surface color, rounded top, padding that clears the bottom
+/// inset. Drawn here (not by the modal route) so a flick can slide it off its slot.
+class _SheetPanel extends StatelessWidget {
+  const _SheetPanel({required this.child});
+  final Widget child;
+
+  static const radius = BorderRadius.vertical(top: Radius.circular(28));
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return Container(
+      key: const Key('sheetPanel'),
+      decoration: BoxDecoration(color: p.surface, borderRadius: radius),
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + MediaQuery.paddingOf(context).bottom),
+      child: child,
+    );
+  }
+}
+
+/// Gestures on the item sheet, all optional:
+/// - drag-up details: extra text hidden below the zone buttons. Dragging the card up
+///   uncovers it (following the finger, then snapping open or shut); dragging down hides it
+///   again, and a further drag down closes the sheet. The arrow (and its label) toggles it.
+/// - flick left / right: puts the item in the zone the module names for that side, then
+///   closes the sheet. The panel follows the finger and tilts a little; the feedback is on
+///   the slot it uncovers, never on the panel: the slot tints in the zone's color and shows
+///   the zone's icon and name in the revealed strip. Past the threshold (a third of the
+///   width) the slot fills solid and the icon becomes a check. On release the panel flies
+///   out, the slot reads "Added to …" for a moment, and the sheet closes.
+class _SheetGestures extends StatefulWidget {
+  const _SheetGestures({
+    required this.itemId,
+    required this.sections,
+    required this.hint,
+    required this.swipe,
+    required this.child,
+  });
+  final String itemId;
+  final List<({String label, List<String> values})> sections;
+
+  /// Label next to the drag-up arrow (from the module), or null for the bare arrow.
+  final String? hint;
+
+  /// Zone for each side: 'left' / 'right'.
+  final Map<String, ZoneSpec> swipe;
+  final Widget child;
+
+  @override
+  State<_SheetGestures> createState() => _SheetGesturesState();
+}
+
+class _SheetGesturesState extends State<_SheetGestures> with TickerProviderStateMixin {
+  /// How far sideways the panel must go to commit, as a fraction of its width.
+  static const threshold = 1 / 3;
+
+  late final _reveal = AnimationController(vsync: this, duration: const Duration(milliseconds: 180));
+
+  /// Sideways offset as a fraction of the sheet's width (-1 left … 1 right).
+  late final _slide = AnimationController(vsync: this, lowerBound: -1.5, upperBound: 1.5, value: 0);
+
+  /// Times the "Added to …" confirmation (a ticker, so it runs on frames like the rest).
+  late final _confirm = AnimationController(vsync: this);
+  final _detailsKey = GlobalKey();
+  Duration _spring = const Duration(milliseconds: 270);
+  Duration _hold = const Duration(milliseconds: 400);
+
+  /// Set when a drag starts with the details hidden; a drag down then means "close".
+  bool _startedHidden = false;
+  double _pulledDown = 0;
+
+  /// True once the finger is past the threshold (for the haptic tick on crossing).
+  bool _past = false;
+
+  /// The zone the item went to on release; the slot then stays solid until the sheet closes.
+  ZoneSpec? _committed;
+
+  /// True while the slot reads "Added to …" after the fly-out.
+  bool _confirmed = false;
+
+  bool get _hasDetails => widget.sections.isNotEmpty;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final s = context.watch<Settings>();
+    _reveal.duration = s.anim(const Duration(milliseconds: 360));
+    _spring = s.anim(const Duration(milliseconds: 270));
+    _hold = s.anim(const Duration(milliseconds: 400));
+  }
+
+  @override
+  void dispose() {
+    _reveal.dispose();
+    _slide.dispose();
+    _confirm.dispose();
+    super.dispose();
+  }
+
+  double get _detailsHeight {
+    final box = _detailsKey.currentContext?.findRenderObject() as RenderBox?;
+    return box == null || box.size.height <= 0 ? 200 : box.size.height;
+  }
+
+  void _settleReveal(bool open) {
+    if (open) {
+      _reveal.forward();
+    } else {
+      _reveal.reverse();
+    }
+  }
+
+  // Vertical: drag-up details.
+  void _onVStart(DragStartDetails d) {
+    _reveal.stop();
+    _startedHidden = _reveal.value == 0;
+    _pulledDown = 0;
+  }
+
+  void _onVUpdate(DragUpdateDetails d) {
+    final dy = d.primaryDelta ?? 0;
+    if (_startedHidden && _reveal.value == 0 && dy > 0) {
+      _pulledDown += dy;
+      return;
+    }
+    _reveal.value = (_reveal.value - dy / _detailsHeight).clamp(0.0, 1.0);
+  }
+
+  void _onVEnd(DragEndDetails d) {
+    final v = d.primaryVelocity ?? 0;
+    if (_startedHidden && _reveal.value == 0) {
+      if (_pulledDown > 60 || v > 600) Navigator.maybePop(context);
+      return;
+    }
+    _settleReveal(v < -300 || (v.abs() <= 300 && _reveal.value > 0.4));
+  }
+
+  // Horizontal: flick into a zone.
+  double get _width => (context.findRenderObject() as RenderBox?)?.size.width ?? 360;
+
+  ZoneSpec? _zoneFor(double dir) => widget.swipe[dir > 0 ? 'right' : 'left'];
+
+  void _onHStart(DragStartDetails d) {
+    if (_committed != null) return;
+    _slide.stop();
+  }
+
+  void _onHUpdate(DragUpdateDetails d) {
+    if (_committed != null) return;
+    final next = _slide.value + (d.primaryDelta ?? 0) / _width;
+    // Only follow the finger towards a side that has a zone.
+    _slide.value = (_zoneFor(next) == null ? 0.0 : next).clamp(-1.0, 1.0);
+    final past = _slide.value.abs() >= threshold;
+    if (past != _past) {
+      _past = past;
+      HapticFeedback.lightImpact();
+    }
+  }
+
+  Future<void> _onHEnd(DragEndDetails d) async {
+    if (_committed != null) return;
+    final v = (d.primaryVelocity ?? 0) / _width;
+    final x = _slide.value;
+    final dir = x != 0 ? x.sign : v.sign;
+    final zone = dir == 0 ? null : _zoneFor(dir);
+    final commit = zone != null && (x.abs() >= threshold || (v.abs() > 2 && v.sign == dir));
+    if (!commit) {
+      _past = false;
+      _slide.animateTo(0, duration: _spring, curve: Curves.easeOutCubic);
+      return;
+    }
+    // Put it there, fly the panel out, show the confirmation on the slot, close.
+    final zones = context.read<ZoneState>();
+    if (zones.zoneOf(widget.itemId) != zone.id) zones.put(widget.itemId, zone.id);
+    setState(() => _committed = zone);
+    final instant = _spring == Duration.zero;
+    if (instant) {
+      _slide.value = dir * 1.2;
+    } else {
+      await _slide.animateTo(dir * 1.2, duration: _spring ~/ 2, curve: Curves.easeIn);
+    }
+    if (!mounted) return;
+    setState(() => _confirmed = true);
+    // Instant still shows the confirmation for one frame (a zero-length run ends next tick).
+    _confirm.duration = instant ? Duration.zero : _hold;
+    await _confirm.forward(from: 0);
+    if (mounted) Navigator.maybePop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onVerticalDragStart: _hasDetails ? _onVStart : null,
+      onVerticalDragUpdate: _hasDetails ? _onVUpdate : null,
+      onVerticalDragEnd: _hasDetails ? _onVEnd : null,
+      onHorizontalDragStart: widget.swipe.isEmpty ? null : _onHStart,
+      onHorizontalDragUpdate: widget.swipe.isEmpty ? null : _onHUpdate,
+      onHorizontalDragEnd: widget.swipe.isEmpty ? null : _onHEnd,
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_reveal, _slide]),
+        builder: (context, child) {
+          final x = _slide.value;
+          final panel = _SheetPanel(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Flexible(child: child!),
+                if (_hasDetails) ...[
+                  // Arrow plus the module's label: there is more below. Tap it, or drag up.
+                  GestureDetector(
+                    key: const Key('detailsHint'),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _settleReveal(_reveal.value < 0.5),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Transform.rotate(
+                            angle: _reveal.value * 3.14159,
+                            child: Icon(Icons.keyboard_arrow_up_rounded, size: 24, color: p.muted),
+                          ),
+                          if (widget.hint case final h? when h.isNotEmpty) ...[
+                            const SizedBox(width: 2),
+                            Text(h, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.muted)),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  ClipRect(
+                    child: Align(
+                      key: const Key('detailsReveal'),
+                      alignment: Alignment.topCenter,
+                      heightFactor: _reveal.value,
+                      child: KeyedSubtree(key: _detailsKey, child: _details(p)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+          final zone = _committed ?? (x == 0 ? null : _zoneFor(x));
+          if (zone == null) return panel;
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(child: _slot(p, zone, x)),
+              Transform.translate(
+                offset: Offset(x * _width, 0),
+                // Up to 4° at the far edge.
+                child: Transform.rotate(angle: x * 0.07, child: panel),
+              ),
+            ],
+          );
+        },
+        child: widget.child,
+      ),
+    );
+  }
+
+  /// The slot the panel slides off: the zone's tint grows with the drag, then fills solid
+  /// past the threshold. Its icon and name sit in the strip the panel has uncovered.
+  Widget _slot(Palette p, ZoneSpec zone, double x) {
+    final zc = zoneColor(context, zone);
+    final progress = (x.abs() / threshold).clamp(0.0, 1.0);
+    final past = _committed != null || x.abs() >= threshold;
+    final base = Color.lerp(p.bg, Colors.black, 0.45)!;
+    final fill = past ? zc : Color.alphaBlend(zc.withValues(alpha: 0.10 + 0.30 * progress), base);
+    final fg = past ? p.onAccent : zc;
+    final stripW = (x.abs() * _width).clamp(0.0, _width);
+    return ClipRRect(
+      borderRadius: _SheetPanel.radius,
+      child: ColoredBox(
+        key: const Key('flickSlot'),
+        color: fill,
+        child: Align(
+          alignment: x >= 0 ? Alignment.centerLeft : Alignment.centerRight,
+          child: SizedBox(
+            width: stripW,
+            child: ClipRect(
+              child: Center(
+                child: OverflowBox(
+                  minWidth: 0,
+                  maxWidth: double.infinity,
+                  child: Opacity(
+                    opacity: progress,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(past ? Icons.check_circle_rounded : moduleIcon(zone.icon), size: 30, color: fg),
+                        const SizedBox(height: 6),
+                        Text(
+                          _confirmed ? 'Added to ${zone.label}' : zone.label,
+                          softWrap: false,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: fg),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _details(Palette p) => Padding(
+    padding: const EdgeInsets.only(top: 2, bottom: 4),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final s in widget.sections) ...[
+          if (s.label.isNotEmpty) ...[
+            Text(s.label.toUpperCase(), style: T.caption.copyWith(color: p.text2, letterSpacing: 1)),
+            const SizedBox(height: 4),
+          ],
+          for (final v in s.values)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: SymbolText(v, style: T.body.copyWith(color: p.text)),
+            ),
+        ],
+      ],
+    ),
+  );
 }
 
 class _Thumb extends StatelessWidget {

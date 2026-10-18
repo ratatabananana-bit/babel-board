@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vale_helper/blocks/item_view.dart';
 import 'package:vale_helper/library/module_store.dart';
 import 'package:vale_helper/library/repository.dart';
 import 'package:vale_helper/main.dart';
@@ -30,6 +31,10 @@ Future<void> _loadFonts() async {
     figtree.addFont(f('assets/fonts/Figtree-$w.ttf'));
   }
   await figtree.load();
+  // The app names the system CJK fonts as fallbacks; this test runs on Windows, so load
+  // the one Windows ships (Noto Sans SC) under that name when it is there.
+  final noto = File(r'C:\Windows\Fonts\NotoSansSC-VF.ttf');
+  if (noto.existsSync()) await (FontLoader('Noto Sans SC')..addFont(f(noto.path))).load();
   final root = Platform.environment['FLUTTER_ROOT'] ?? r'C:\Users\Benny\scoop\apps\flutter\current';
   await (FontLoader(
     'MaterialIcons',
@@ -60,6 +65,15 @@ Future<void> _shot(WidgetTester tester, String name, {bool settle = true}) async
 }
 
 Finder _nav(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
+
+/// Taps the density button until it reads [n] cards per row (it cycles 4 → 3 → 2).
+Future<void> _density(WidgetTester tester, int n) async {
+  final cycle = find.byKey(const Key('densityCycle'));
+  for (var i = 0; i < 3 && find.descendant(of: cycle, matching: find.text('$n')).evaluate().isEmpty; i++) {
+    await tester.tap(cycle);
+    await tester.pumpAndSettle();
+  }
+}
 
 Future<void> _pumpApp(WidgetTester tester, Brightness brightness, {String game = _vale}) async {
   tester.view.physicalSize = const Size(1080, 2340);
@@ -115,10 +129,9 @@ void main() {
     await _shot(tester, '03_cards_fire_jump_cost3');
     await tester.tap(find.bySemanticsLabel('Family Fire'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('density2')));
+    await _density(tester, 2);
     await _shot(tester, '04_cards_2_per_row');
-    await tester.tap(find.byKey(const Key('density4')));
-    await tester.pumpAndSettle();
+    await _density(tester, 4);
 
     // Card sheet
     await tester.tap(find.bySemanticsLabel('Imp, in Hand'));
@@ -174,10 +187,9 @@ void main() {
   testWidgets('magical athlete screenshots', (tester) async {
     await _pumpApp(tester, Brightness.dark, game: _ma);
     await _shot(tester, '17_ma_racers');
-    await tester.tap(find.byKey(const Key('density2')));
+    await _density(tester, 2);
     await _shot(tester, '18_ma_racers_2_per_row');
-    await tester.tap(find.byKey(const Key('density4')));
-    await tester.pumpAndSettle();
+    await _density(tester, 4);
     await tester.tap(find.bySemanticsLabel('Baba Yaga, in This race'));
     await _shot(tester, '19_ma_racer_sheet');
     await tester.tapAt(const Offset(200, 60));
@@ -211,6 +223,40 @@ void main() {
     tester.view.devicePixelRatio = 2;
     await tester.tap(find.bySemanticsLabel('Family Fire'));
     await _shot(tester, '27_tablet_cards');
+  });
+
+  testWidgets('drag-up details screenshot', (tester) async {
+    await _pumpApp(tester, Brightness.dark);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'hae');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(ItemTile));
+    await _shot(tester, '29_card_sheet_details_hidden');
+    await tester.tap(find.byKey(const Key('detailsHint')));
+    await _shot(tester, '30_card_sheet_details_open');
+  });
+
+  testWidgets('card sheet flick screenshots (Hae-tae)', (tester) async {
+    await _pumpApp(tester, Brightness.dark);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'hae');
+    await tester.pumpAndSettle();
+    var n = 31;
+    for (final (dx, name) in [(14.0, 'hand'), (-14.0, 'table')]) {
+      await tester.tap(find.byType(ItemTile).first);
+      await tester.pumpAndSettle();
+      // Mid-flick: the card tints in the target zone's colour.
+      final g = await tester.startGesture(tester.getCenter(find.byType(ItemSheet)));
+      for (var i = 0; i < 10; i++) {
+        await g.moveBy(Offset(dx, 0));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await _shot(tester, '${n++}_card_sheet_flick_to_$name', settle: false);
+      await g.cancel();
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(200, 60));
+      await tester.pumpAndSettle();
+    }
   });
 
   testWidgets('settings screenshot', (tester) async {

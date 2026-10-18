@@ -302,6 +302,52 @@ void main() {
       expect(check(m2), fatalAt('collections.items.sheet.chips[0]'));
     });
 
+    test('drag-up details: each section needs a path; labels are text', () {
+      final m = fullManifest();
+      (m['collections'] as Map)['items'] = {
+        'items': 'data/items.json',
+        'sheet': {
+          'details': {
+            'sections': [
+              {'label': 'Interactions'},
+            ],
+          },
+        },
+      };
+      expect(check(m), fatalAt('collections.items.sheet.details.sections[0].path'));
+      final m2 = fullManifest();
+      (m2['collections'] as Map)['items'] = {
+        'items': 'data/items.json',
+        'sheet': {
+          'details': {
+            'sections': [
+              {'label': 3, 'path': 'story'},
+            ],
+          },
+        },
+      };
+      expect(check(m2), fatalAt('collections.items.sheet.details.sections[0].label'));
+    });
+
+    test('sheet swipe: left and right name declared zones', () {
+      final m = fullManifest();
+      (m['collections'] as Map)['items'] = {
+        'items': 'data/items.json',
+        'sheet': {
+          'swipe': {'left': 'a', 'right': 'nope'},
+        },
+      };
+      expect(check(m), fatalAt('collections.items.sheet.swipe.right'));
+      final m2 = fullManifest();
+      (m2['collections'] as Map)['items'] = {
+        'items': 'data/items.json',
+        'sheet': {
+          'swipe': {'up': 'a'},
+        },
+      };
+      expect(check(m2), fatalAt('collections.items.sheet.swipe.up'));
+    });
+
     test('only one flow per module', () {
       final m = fullManifest();
       (m['tabs'] as List).add({'label': 'Again', 'icon': 'flag', 'block': block(fullManifest(), 2)});

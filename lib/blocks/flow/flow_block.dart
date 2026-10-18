@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/game_switcher.dart';
+import '../symbol_text.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/confirm.dart';
 import '../../module_format/filter.dart';
@@ -163,7 +164,7 @@ class _FlowBlockState extends State<FlowBlock> {
                     children: [
                       Text(step.title, style: T.display),
                       const SizedBox(height: 6),
-                      Text(step.summary, style: T.body.copyWith(fontSize: 16.5, color: p.text2)),
+                      SymbolText(step.summary, style: T.body.copyWith(fontSize: 16.5, color: p.text2)),
                     ],
                   ),
                 ),
@@ -315,7 +316,7 @@ class _Header extends StatelessWidget {
                       ),
                     ),
                     Expanded(
-                      child: Text(r, style: T.body.copyWith(color: p.text)),
+                      child: SymbolText(r, style: T.body.copyWith(color: p.text)),
                     ),
                   ],
                 ),
@@ -345,7 +346,7 @@ class _Header extends StatelessWidget {
                 const SizedBox(height: 4),
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
-                  child: Text(setup.summary, style: T.body.copyWith(color: context.pal.text2)),
+                  child: SymbolText(setup.summary, style: T.body.copyWith(color: context.pal.text2)),
                 ),
                 const SizedBox(height: 14),
                 ParchmentChecklist(title: setup.listTitle, items: setup.checklist),
@@ -563,7 +564,7 @@ class _ChecklistRowView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      SymbolText(
                         item.text,
                         style: TextStyle(
                           fontSize: 16.5,
@@ -574,7 +575,10 @@ class _ChecklistRowView extends StatelessWidget {
                         ),
                       ),
                       if (item.sub != null)
-                        Text(item.sub!, style: const TextStyle(fontSize: 14, height: 1.35, color: Palette.inkMuted)),
+                        SymbolText(
+                          item.sub!,
+                          style: const TextStyle(fontSize: 14, height: 1.35, color: Palette.inkMuted),
+                        ),
                     ],
                   ),
                 ),
@@ -667,7 +671,7 @@ class _HowItWorks extends StatelessWidget {
                       for (final s in steps)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
+                          child: SymbolText(
                             s,
                             style: TextStyle(fontSize: 15, height: 1.45, color: p.text.withValues(alpha: 0.85)),
                           ),
@@ -696,9 +700,10 @@ class _NextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.pal;
     final ready = remaining == 0;
+    // Accent, not amber: zone colours mean zones only.
     return Material(
-      color: ready ? p.text : Colors.transparent,
-      shape: StadiumBorder(side: BorderSide(color: ready ? p.text : p.warn, width: 2)),
+      color: ready ? p.accent : Colors.transparent,
+      shape: StadiumBorder(side: BorderSide(color: p.accent, width: 2)),
       child: InkWell(
         customBorder: const StadiumBorder(),
         onTap: onTap,
@@ -715,17 +720,21 @@ class _NextButton extends StatelessWidget {
                     child: Text(
                       label,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: ready ? p.bg : p.text),
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: ready ? p.onAccentFill : p.text,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 6),
-                  Icon(Icons.arrow_forward_rounded, size: 21, color: ready ? p.bg : p.text),
+                  Icon(Icons.arrow_forward_rounded, size: 21, color: ready ? p.onAccentFill : p.text),
                 ],
               ),
               if (!ready)
                 Text(
                   armed ? 'Tap again to skip them' : '$remaining step${remaining > 1 ? 's' : ''} left',
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: p.warn),
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: p.text2),
                 ),
             ],
           ),

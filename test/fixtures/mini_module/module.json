@@ -27,6 +27,8 @@
           "typeHelp": { "instant": "Triggers once.", "permanent": "Always on.", "active": "Once per round." }
         },
         "verifiedPath": "verified",
+        "details": { "hint": "Interactions", "sections": [ { "label": "Interactions", "path": "interactions" } ] },
+        "swipe": { "left": "a", "right": "b" },
         "zones": ["a", "b"]
       }
     }

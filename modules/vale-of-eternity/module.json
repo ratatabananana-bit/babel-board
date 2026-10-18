@@ -2,7 +2,7 @@
   "format": 1,
   "id": "vale-of-eternity",
   "name": "Vale of Eternity",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "minAppVersion": "3.0.0",
   "icon": "images/icon.webp",
   "players": "2-4",
@@ -48,6 +48,19 @@
           }
         },
         "verifiedPath": "verified",
+        "details": {
+          "hint": "Interactions",
+          "sections": [
+            {
+              "label": "Interactions",
+              "path": "interactions"
+            }
+          ]
+        },
+        "swipe": {
+          "left": "table",
+          "right": "hand"
+        },
         "zones": [
           "table",
           "hand",
@@ -67,7 +80,8 @@
     "stone_purple": "images/symbols/stone_purple.webp",
     "effect_instant": "images/symbols/instant.webp",
     "effect_permanent": "images/symbols/permanent.webp",
-    "effect_active": "images/symbols/active.webp"
+    "effect_active": "images/symbols/active.webp",
+    "points": "images/symbols/points.png"
   },
   "zones": [
     {
@@ -105,7 +119,7 @@
         ],
         "tileName": true,
         "noun": "cards",
-        "searchHint": "Search name or effect",
+        "searchHint": "Search cards",
         "filters": [
           {
             "path": "family",

@@ -26,6 +26,25 @@ class Settings extends ChangeNotifier {
     notifyListeners();
   }
 
+  static const _kSpeed = 'settings.animationSpeed';
+
+  /// How fast sheets, grid reflows, jumps and highlights animate. Fast is the default.
+  AnimationSpeed get animationSpeed =>
+      AnimationSpeed.values.where((s) => s.name == _prefs.getString(_kSpeed)).firstOrNull ?? AnimationSpeed.fast;
+
+  set animationSpeed(AnimationSpeed s) {
+    if (s == animationSpeed) return;
+    _prefs.setString(_kSpeed, s.name);
+    notifyListeners();
+  }
+
+  /// [normal] scaled by the animation speed: as is, half, or none.
+  Duration anim(Duration normal) => switch (animationSpeed) {
+    AnimationSpeed.normal => normal,
+    AnimationSpeed.fast => normal ~/ 2,
+    AnimationSpeed.instant => Duration.zero,
+  };
+
   static const _kFlowing = 'settings.flowingSections';
 
   /// Picked a family (or any filter with sections): show one flowing grid with a separator
@@ -57,3 +76,5 @@ class Settings extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+enum AnimationSpeed { instant, fast, normal }

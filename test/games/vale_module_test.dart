@@ -46,7 +46,35 @@ void main() {
       }
       expect(File('modules/$valeId/${m.manifest.icon}').existsSync(), isTrue);
       expect(m.manifest.id, valeId);
-      expect(m.manifest.version, '1.0.0');
+      expect(m.manifest.version, '1.1.1');
+    });
+
+    test('small stone counts are repeated icons, like the printed cards', () async {
+      final m = await loadVale();
+      String effect(String id) => (m.item('cards', id)!.data['effects'] as List).first['text'] as String;
+      expect(effect('imp'), 'Earn :stone_red::stone_red:.');
+      expect(effect('water_giant'), 'Earn :stone_blue::stone_blue:.');
+      final leftover = RegExp(r'\b[1-4] :stone_');
+      for (final c in m.items('cards')) {
+        for (final e in c.data['effects'] as List) {
+          expect(leftover.hasMatch(e['text'] as String), isFalse, reason: '${c.id}: ${e['text']}');
+        }
+      }
+    });
+
+    test('points use the wiki\'s points symbol inline', () async {
+      final m = await loadVale();
+      expect(m.manifest.symbols['points'], 'images/symbols/points.png');
+      expect(File('modules/$valeId/images/symbols/points.png').existsSync(), isTrue);
+      String effect(String id) => (m.item('cards', id)!.data['effects'] as List).first['text'] as String;
+      expect(effect('mud_slime'), 'Earn 6 :points:.');
+      expect(effect('rock_golem'), 'Earn :points: equal to the total value of your :stone_purple:.');
+      for (final c in m.items('cards')) {
+        for (final e in c.data['effects'] as List) {
+          final text = (e['text'] as String).replaceAll(':points:', '');
+          expect(RegExp(r'\bpoints?\b').hasMatch(text), isFalse, reason: '${c.id}: ${e['text']}');
+        }
+      }
     });
 
     test('cards are sorted by family then cost; the flow has the 4-phase cycle', () async {
@@ -140,9 +168,71 @@ void main() {
     int firstRow() =>
         tester.widgetList<AnimatedPositioned>(find.byType(AnimatedPositioned)).where((p) => p.top == 0).length;
     expect(firstRow(), 8);
-    await tester.tap(find.byKey(const Key('density2')));
+    await tester.tap(find.byKey(const Key('densityCycle'))); // 3
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('densityCycle'))); // 2
     await tester.pumpAndSettle();
     expect(firstRow(), 4);
+  });
+
+  group('grouped by cost: the highlight is what you picked, the rail is where you are', () {
+    Finder rail(String n) => find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text(n));
+    BoxDecoration pill(WidgetTester tester, String n) =>
+        tester
+                .widget<AnimatedContainer>(find.ancestor(of: rail(n), matching: find.byType(AnimatedContainer)).first)
+                .decoration
+            as BoxDecoration;
+    // Picked on the rail: the pill is filled.
+    bool railPicked(WidgetTester tester, String n) => pill(tester, n).color != Colors.transparent;
+    // Where you are while scrolling: a ring (or the filled pill when it is also the pick).
+    bool railLit(WidgetTester tester, String n) => railPicked(tester, n) || pill(tester, n).border != null;
+    bool panelLit(WidgetTester tester, String cost) {
+      final f = find.descendant(
+        of: find.byKey(Key('section-$cost'), skipOffstage: false),
+        matching: find.byType(AnimatedContainer, skipOffstage: false),
+      );
+      if (f.evaluate().isEmpty) return false;
+      return (tester.widget<AnimatedContainer>(f.first).decoration as BoxDecoration?)?.color != null;
+    }
+
+    Future<void> fire(WidgetTester tester) async {
+      await pumpGames(tester, prefs: valePrefs());
+      await tester.tap(find.bySemanticsLabel('Family Fire'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('plain scrolling moves the rail to the cost that fills the screen, not a sliver at the top', (
+      tester,
+    ) async {
+      await fire(tester);
+      expect(railLit(tester, '0'), isTrue);
+      // Scroll just enough that only the bottom of the cost-0 group stays on screen.
+      final start = tester.getCenter(find.text('COST 1'));
+      await tester.dragFrom(start, const Offset(0, -130));
+      await tester.pumpAndSettle();
+      expect(railLit(tester, '0'), isFalse, reason: 'a barely visible group does not win');
+      expect(railLit(tester, '1'), isTrue);
+      expect(panelLit(tester, '0'), isFalse, reason: 'scrolling alone never highlights cards');
+      expect(panelLit(tester, '1'), isFalse);
+    });
+
+    testWidgets('a cost picked on the rail stays highlighted while you scroll', (tester) async {
+      await fire(tester);
+      await tester.tap(rail('2'));
+      await tester.pumpAndSettle();
+      expect(panelLit(tester, '2'), isTrue);
+      expect(railPicked(tester, '2'), isTrue);
+      await tester.dragFrom(tester.getCenter(find.text('COST 3')), const Offset(0, -260));
+      await tester.pumpAndSettle();
+      expect(panelLit(tester, '2'), isTrue, reason: 'the pick stays');
+      expect(railPicked(tester, '2'), isTrue, reason: 'the filled pill is the pick, it stays too');
+      expect(railLit(tester, '3') || railLit(tester, '4'), isTrue, reason: 'the ring follows the scroll');
+      expect(railPicked(tester, '3') || railPicked(tester, '4'), isFalse);
+      // Picking another family clears the pick.
+      await tester.tap(find.bySemanticsLabel('Family Water'));
+      await tester.pumpAndSettle();
+      expect(panelLit(tester, '2'), isFalse);
+    });
   });
 
   testWidgets('flowing layout: the cost rail scrolls to that cost and highlights its cards', (tester) async {
@@ -167,10 +257,49 @@ void main() {
 
   testWidgets('density toggle sets cards per row', (tester) async {
     await pumpGames(tester, prefs: valePrefs());
-    await tester.tap(find.byKey(const Key('density2')));
+    await tester.tap(find.byKey(const Key('densityCycle'))); // 3
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('densityCycle'))); // 2
     await tester.pumpAndSettle();
     expect(tiles(), 70);
-    expect(find.byKey(const Key('density4')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('densityCycle')), matching: find.text('2')), findsOneWidget);
+  });
+
+  testWidgets("Hae-tae's interaction ruling is in its drag-up details", (tester) async {
+    await pumpGames(tester, prefs: valePrefs());
+    await tester.enterText(find.byType(TextField), 'hae');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(ItemTile)); // the only card left after the search
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('detailsHint')), findsOneWidget);
+    expect(tester.widget<Align>(find.byKey(const Key('detailsReveal'))).heightFactor, 0);
+    await tester.tap(find.byKey(const Key('detailsHint')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('still needs an actual', findRichText: true), findsOneWidget);
+    // Stones show as their symbols, like the printed card: no colour words left in the text.
+    expect(find.textContaining('blue stones', findRichText: true), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byType(ItemSheet),
+        matching: find.byWidgetPredicate((w) => w is SymbolImage && w.name.startsWith('stone_')),
+      ),
+      findsWidgets,
+    );
+  });
+
+  testWidgets('flick a card sheet right for Hand, left for Table', (tester) async {
+    await pumpGames(tester, prefs: valePrefs());
+    final zones = scoped<ZoneState>(tester);
+    await tester.tap(find.bySemanticsLabel('Imp'));
+    await tester.pumpAndSettle();
+    await tester.fling(find.byType(ItemSheet), const Offset(300, 0), 1500);
+    await tester.pumpAndSettle();
+    expect(zones.zoneOf('imp'), 'hand');
+    await tester.tap(find.bySemanticsLabel('Hestia'));
+    await tester.pumpAndSettle();
+    await tester.fling(find.byType(ItemSheet), const Offset(-300, 0), 1500);
+    await tester.pumpAndSettle();
+    expect(zones.zoneOf('hestia'), 'table');
   });
 
   testWidgets('card sheet zone buttons toggle tracking', (tester) async {
