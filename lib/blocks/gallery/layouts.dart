@@ -124,7 +124,9 @@ class SectionPanel extends StatelessWidget {
     final line = BorderSide(color: active ? p.highlight.withValues(alpha: 0.7) : Colors.transparent, width: kGroupBorder);
     return AnimatedContainer(
       duration: context.read<Settings>().anim(const Duration(milliseconds: 200)),
-      padding: EdgeInsets.fromLTRB(kGroupPad.left, 0, kGroupPad.right, kGroupPad.bottom),
+      // Top padding too: a tracked card's corner chip overhangs by 6 dp and must not slide
+      // under the pinned header.
+      padding: kGroupPad,
       decoration: BoxDecoration(
         color: active ? p.highlight.withValues(alpha: 0.14) : null,
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(14)),

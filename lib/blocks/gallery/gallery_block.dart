@@ -405,11 +405,11 @@ class _GalleryBlockState extends State<GalleryBlock> {
     for (final k in keys) {
       final items = shown.where((it) => resolvePath(it.data, sections.path).firstOrNull == k).toList();
       _sectionOffsets[k] = y;
-      // Header (with the top border) + body (cards, bottom padding, bottom border) + gap.
+      // Header (with the top border) + body (padding, cards, padding, bottom border) + gap.
       final h =
           _headerH +
           ReflowGrid.heightFor(items.length, innerW, columns, aspect: spec.cardAspect, extra: extra) +
-          kGroupPad.bottom +
+          kGroupPad.vertical +
           kGroupBorder +
           _sectionGap;
       _sectionSpans[k] = [(y, y + h)];
