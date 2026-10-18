@@ -125,5 +125,5 @@ Changes, all in the lane header:
 - "Tap again to skip them" double-tap skips open steps without showing which ones.
 - Three different Clear styles: outlined pill (lanes), filled pill (checklists), plain text (This race). Unify them.
 - Status position differs per module: IN RACE at the top (Magical Athlete) vs zone band at the bottom (Vale). Use the corner chip + ring everywhere.
-- Library: "INSTALLED" (caps) vs "From Benny's games" (sentence case); letter avatars where a logo exists; "Needs app update" styled as a disabled button.
+- Library: "INSTALLED" (caps) vs "From Our games" (sentence case); letter avatars where a logo exists; "Needs app update" styled as a disabled button.
 - Settings: "4 3 2" order reads backwards; the off-switch has low contrast.

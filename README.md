@@ -1,78 +1,81 @@
+<p align="center">
+  <img src="docs/readme/icon.png" width="96" alt="Table Helper icon">
+</p>
+
 # Table Helper
 
-A phone app for playing board games you can't read. Table Helper itself has no games built
-in: each game is a **module**, data only (cards, pictures, rules text, and screens made from a
-fixed set of blocks). Modules install from a private repository, a link, or a file.
+A phone app for playing board games whose cards you can't read.
 
-Version 3.0.0. Android APK (sideloaded) plus a web preview.
+## The problem it was built for
 
-## Layout
+I play with someone who reads only Chinese. I read only English. Our games are Chinese
+editions, so at the table I can recognise a card by its art but not read what it does. The
+usual fixes are bad: a translation sheet you flip through, a phone photo you zoom into, or
+asking every turn. Games like *Vale of Eternity* have 70 cards with effects that matter,
+and rulings for how they combine.
 
-| Folder | What's there |
-|---|---|
-| `lib/module_format/` | Pure-Dart module model, path/filter language and validator (shared with `tool/`). |
-| `lib/modules/` | Loading a module from disk, HTTP or memory; per-module saved state. |
-| `lib/blocks/` | The fixed block catalog: gallery, board, zone, card list, flow, step, text. |
-| `lib/library/` | Module store (install/update/uninstall), repository client, Library screen, migration. |
-| `modules/` | `MODULE_SPEC.md`, `AI_INSTRUCTIONS.md`, `module.schema.json`, and the two games as modules. |
-| `tool/` | `validate.dart`, `pack.dart`, `screenshot_test.dart`, and the one-off `convert_legacy.dart`. |
+Table Helper puts the English text one tap away from the picture, lets me track which
+cards are mine, and walks the round's phases with a checklist so cleanup steps are not
+forgotten. It lies on the table and gets glanced at between turns.
 
-## Writing a module
+## Who it is for
 
-Read `modules/MODULE_SPEC.md`. On the phone, the Library's ⋮ menu has **Copy instructions for
-AI**: paste that into Claude or ChatGPT with "write me a module for *Heat*", save the JSON it
-replies with, and open it with Table Helper (or use **Install from file**).
+- Anyone playing a board game in a language they don't read: imported editions, a
+  partner's copy, a game bought abroad.
+- Mixed-language tables, where one player needs the text and the other doesn't.
+- People who want a rules companion for a specific game without waiting for an official app.
 
-Check a module before publishing:
+It is not a digital version of the game and it has no scoring, timers, or online play. It
+is the card-text lookup and the "what do I do now" checklist, nothing more.
 
-```bash
-dart run tool/validate.dart modules/vale-of-eternity
-```
+## What it does
 
-## Making modules
+<p align="center">
+  <img src="design/screenshots/01_cards_all.png" width="200" alt="Card gallery">
+  <img src="design/screenshots/05_card_sheet.png" width="200" alt="Card sheet with English text">
+  <img src="design/screenshots/06_my_cards.png" width="200" alt="My cards, three zones">
+  <img src="design/screenshots/08_round_hunting.png" width="200" alt="Round tracker with checklist">
+</p>
 
-See [docs/CREATING_MODULES.md](docs/CREATING_MODULES.md): the quick way (paste the
-copied instructions into an AI, install the JSON it answers with) and the full way (a module
-folder, the validator, packing a repository for friends).
+1. **Find the card by its picture.** A grid of all the cards, filtered by family and cost,
+   with a rail to jump to a cost. Search by name or by a word in the effect.
+2. **Read it in English.** Tap a card: its effect, with the game's own icons drawn inline,
+   and the rulings for tricky interactions a drag away.
+3. **Track your cards.** Put a card in Table, Hand or Field with a tap or a flick; move it
+   between zones by dragging. The round's Resolution step lists the cards you have that
+   need resolving.
+4. **Follow the round.** Phases with a parchment checklist, "how this phase works" if you
+   need it, and a Next button that nags when steps are unticked.
 
-## Publishing to the private repository
+Everything works offline. Dark and light themes.
 
-The repository is a private GitHub repo holding static files: zips, icons and `index.json`.
+## Games as modules
 
-1. Pack every module into a checkout of the private repo:
+The app ships with no games. Each game is a **module**: a folder (or a single JSON file) of
+card data, pictures and rules text, built from a fixed set of screen types. Two are in this
+repository, *Vale of Eternity* and *Magical Athlete*, and they are the worked examples for
+adding your own.
 
-   ```bash
-   dart run tool/pack.dart modules ../table-helper-modules --name "Benny's games"
-   ```
+Making a module needs no programming. Paste the instructions the app gives you into an AI
+chat, describe the game, and install the file it answers with. The walkthrough is in
+[docs/CREATING_MODULES.md](docs/CREATING_MODULES.md); the exact format is in
+[modules/MODULE_SPEC.md](modules/MODULE_SPEC.md).
 
-2. Commit and push that checkout. Raise a module's `version` in its `module.json` before
-   packing, or the app won't offer the update.
-3. On GitHub, create a **fine-grained personal access token** for that one repository with
-   **Contents: Read-only** and nothing else.
-4. On the phone: Library → ⋮ → **Add repository**. Paste the raw link to the index, e.g.
-   `https://raw.githubusercontent.com/<owner>/<repo>/main/index.json`, and the token. Save
-   checks the connection and says what's wrong if it can't read it.
+Modules contain the publishers' card art, so they are for personal use and shared privately.
 
-The token is kept in Android's secure storage and only sent to the index's own host. Raw
-GitHub links can take a few minutes to show a fresh push.
+## Getting it
 
-## Rolling out 3.0.0 (from 2.x with built-in games)
-
-1. Publish both modules to the private repository first (steps above).
-2. Install the new APK. The Library opens empty; add the repository.
-3. Install Vale of Eternity and Magical Athlete from it. Saved progress (tracked cards, the
-   race lineup, round/flow position) moves into each module the first time it's installed,
-   and the app reopens the last game you played.
-
-## Building
+Android only, sideloaded (no store). Build it yourself:
 
 ```bash
 flutter build apk --release --split-per-abi
 ```
 
-The arm64 APK is copied to `TableHelper.apk` for sideloading.
+Install `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`. Then add a module: from a
+file, a link, or a private repository (Settings → Repository, paste the raw link to its
+`index.json` and a read-only token).
 
-Web preview (shows the modules from `modules/`, no installing):
+A web preview of the bundled games, for looking without a phone:
 
 ```bash
 flutter build web --release
@@ -82,7 +85,24 @@ flutter build web --release
 dart run tool/pack.dart modules build/web/modules --unpacked
 ```
 
-## Tests and screenshots
+then serve `build/web` (for example `node tool/serve.mjs build/web 8765`).
+
+## Sharing modules with friends
+
+Pack the module folders into a private GitHub repository and give each friend a read-only
+token for it:
+
+```bash
+dart run tool/pack.dart modules ../table-helper-modules --name "Our games"
+```
+
+Commit and push that folder. The app lists the games and offers updates whenever a module's
+`version` rises.
+
+## For developers
+
+How the code is put together: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Flutter,
+Android plus web preview, `provider` and `shared_preferences`, no backend.
 
 ```bash
 flutter test
@@ -92,4 +112,4 @@ flutter test
 flutter test tool/screenshot_test.dart
 ```
 
-Screenshots land in `design/screenshots/`.
+The second writes the screenshots in `design/screenshots/`.

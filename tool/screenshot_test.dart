@@ -37,10 +37,23 @@ Future<void> _loadFonts() async {
   // the one Windows ships (Noto Sans SC) under that name when it is there.
   final noto = File(r'C:\Windows\Fonts\NotoSansSC-VF.ttf');
   if (noto.existsSync()) await (FontLoader('Noto Sans SC')..addFont(f(noto.path))).load();
-  final root = Platform.environment['FLUTTER_ROOT'] ?? r'C:\Users\Benny\scoop\apps\flutter\current';
+  // The Material icon font ships with the SDK; FLUTTER_ROOT points at it (scoop's shim sets it).
+  final root = Platform.environment['FLUTTER_ROOT'] ?? _sdkRootFromPath();
   await (FontLoader(
     'MaterialIcons',
   )..addFont(f('$root/bin/cache/artifacts/material_fonts/materialicons-regular.otf'))).load();
+}
+
+/// The SDK folder, found from the `flutter` on PATH (`<sdk>/bin/flutter`), when FLUTTER_ROOT is unset.
+String _sdkRootFromPath() {
+  final sep = Platform.isWindows ? ';' : ':';
+  for (final dir in (Platform.environment['PATH'] ?? '').split(sep)) {
+    if (File('$dir${Platform.pathSeparator}flutter').existsSync() ||
+        File('$dir${Platform.pathSeparator}flutter.bat').existsSync()) {
+      return Directory(dir).parent.path;
+    }
+  }
+  throw StateError('Set FLUTTER_ROOT to your Flutter SDK folder');
 }
 
 /// Decodes every visible image (file decoding needs real async in tests), then captures.
@@ -316,7 +329,7 @@ void main() {
       if (req.url != indexUrl) return http.Response('', 404);
       return http.Response(
         jsonEncode({
-          'name': "Benny's games",
+          'name': 'Our games',
           'modules': [
             {
               'id': _vale,

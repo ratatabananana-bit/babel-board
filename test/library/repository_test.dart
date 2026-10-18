@@ -10,7 +10,7 @@ import 'package:vale_helper/library/repository.dart';
 final indexUrl = Uri.parse('https://raw.githubusercontent.com/owner/repo/main/index.json');
 
 Map<String, dynamic> index() => {
-  'name': 'Benny\'s games',
+  'name': 'Our games',
   'modules': [
     {
       'id': 'vale-of-eternity',
@@ -40,7 +40,7 @@ void main() {
       client: client,
     );
     final listing = await repo.fetchIndex();
-    expect(listing.name, "Benny's games");
+    expect(listing.name, 'Our games');
     final v = listing.entries[0];
     expect(v.zipUrl.toString(), 'https://raw.githubusercontent.com/owner/repo/main/vale-of-eternity-1.0.0.zip');
     expect(v.iconUrl.toString(), 'https://raw.githubusercontent.com/owner/repo/main/icons/vale-of-eternity.webp');
