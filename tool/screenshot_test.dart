@@ -62,6 +62,15 @@ Future<void> _shot(WidgetTester tester, String name, {bool settle = true}) async
 
 Finder _nav(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
 
+/// Taps the density button until it reads [n] cards per row (it cycles 4 → 3 → 2).
+Future<void> _density(WidgetTester tester, int n) async {
+  final cycle = find.byKey(const Key('densityCycle'));
+  for (var i = 0; i < 3 && find.descendant(of: cycle, matching: find.text('$n')).evaluate().isEmpty; i++) {
+    await tester.tap(cycle);
+    await tester.pumpAndSettle();
+  }
+}
+
 Future<void> _pumpApp(WidgetTester tester, Brightness brightness, {String game = _vale}) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 2.75;
@@ -116,10 +125,9 @@ void main() {
     await _shot(tester, '03_cards_fire_jump_cost3');
     await tester.tap(find.bySemanticsLabel('Family Fire'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('density2')));
+    await _density(tester, 2);
     await _shot(tester, '04_cards_2_per_row');
-    await tester.tap(find.byKey(const Key('density4')));
-    await tester.pumpAndSettle();
+    await _density(tester, 4);
 
     // Card sheet
     await tester.tap(find.bySemanticsLabel('Imp, in Hand'));
@@ -175,10 +183,9 @@ void main() {
   testWidgets('magical athlete screenshots', (tester) async {
     await _pumpApp(tester, Brightness.dark, game: _ma);
     await _shot(tester, '17_ma_racers');
-    await tester.tap(find.byKey(const Key('density2')));
+    await _density(tester, 2);
     await _shot(tester, '18_ma_racers_2_per_row');
-    await tester.tap(find.byKey(const Key('density4')));
-    await tester.pumpAndSettle();
+    await _density(tester, 4);
     await tester.tap(find.bySemanticsLabel('Baba Yaga, in This race'));
     await _shot(tester, '19_ma_racer_sheet');
     await tester.tapAt(const Offset(200, 60));

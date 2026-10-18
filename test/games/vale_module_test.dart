@@ -168,23 +168,24 @@ void main() {
     int firstRow() =>
         tester.widgetList<AnimatedPositioned>(find.byType(AnimatedPositioned)).where((p) => p.top == 0).length;
     expect(firstRow(), 8);
-    await tester.tap(find.byKey(const Key('density2')));
+    await tester.tap(find.byKey(const Key('densityCycle'))); // 3
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('densityCycle'))); // 2
     await tester.pumpAndSettle();
     expect(firstRow(), 4);
   });
 
   group('grouped by cost: the highlight is what you picked, the rail is where you are', () {
     Finder rail(String n) => find.descendant(of: find.byKey(const Key('sectionRail')), matching: find.text(n));
-    // A rail number is lit when its pill is filled.
-    bool railLit(WidgetTester tester, String n) =>
-        (tester
-                    .widget<AnimatedContainer>(
-                      find.ancestor(of: rail(n), matching: find.byType(AnimatedContainer)).first,
-                    )
-                    .decoration
-                as BoxDecoration)
-            .color !=
-        Colors.transparent;
+    BoxDecoration pill(WidgetTester tester, String n) =>
+        tester
+                .widget<AnimatedContainer>(find.ancestor(of: rail(n), matching: find.byType(AnimatedContainer)).first)
+                .decoration
+            as BoxDecoration;
+    // Picked on the rail: the pill is filled.
+    bool railPicked(WidgetTester tester, String n) => pill(tester, n).color != Colors.transparent;
+    // Where you are while scrolling: a ring (or the filled pill when it is also the pick).
+    bool railLit(WidgetTester tester, String n) => railPicked(tester, n) || pill(tester, n).border != null;
     bool panelLit(WidgetTester tester, String cost) {
       final f = find.descendant(
         of: find.byKey(Key('section-$cost'), skipOffstage: false),
@@ -220,11 +221,13 @@ void main() {
       await tester.tap(rail('2'));
       await tester.pumpAndSettle();
       expect(panelLit(tester, '2'), isTrue);
-      expect(railLit(tester, '2'), isTrue);
+      expect(railPicked(tester, '2'), isTrue);
       await tester.dragFrom(tester.getCenter(find.text('COST 3')), const Offset(0, -260));
       await tester.pumpAndSettle();
       expect(panelLit(tester, '2'), isTrue, reason: 'the pick stays');
-      expect(railLit(tester, '2'), isFalse, reason: 'the rail follows the scroll');
+      expect(railPicked(tester, '2'), isTrue, reason: 'the filled pill is the pick, it stays too');
+      expect(railLit(tester, '3') || railLit(tester, '4'), isTrue, reason: 'the ring follows the scroll');
+      expect(railPicked(tester, '3') || railPicked(tester, '4'), isFalse);
       // Picking another family clears the pick.
       await tester.tap(find.bySemanticsLabel('Family Water'));
       await tester.pumpAndSettle();
@@ -254,10 +257,12 @@ void main() {
 
   testWidgets('density toggle sets cards per row', (tester) async {
     await pumpGames(tester, prefs: valePrefs());
-    await tester.tap(find.byKey(const Key('density2')));
+    await tester.tap(find.byKey(const Key('densityCycle'))); // 3
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('densityCycle'))); // 2
     await tester.pumpAndSettle();
     expect(tiles(), 70);
-    expect(find.byKey(const Key('density4')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('densityCycle')), matching: find.text('2')), findsOneWidget);
   });
 
   testWidgets("Hae-tae's interaction ruling is in its drag-up details", (tester) async {

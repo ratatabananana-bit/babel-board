@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vale_helper/blocks/item_view.dart';
 import 'package:vale_helper/core/settings.dart';
 import 'package:vale_helper/core/theme.dart';
+import 'package:vale_helper/core/widgets/search_top_bar.dart';
 import 'package:vale_helper/modules/module_state.dart';
 
 import '../helpers.dart';
@@ -360,15 +361,53 @@ void main() {
     expect(scoped<Settings>(tester).flowingSections, isFalse);
   });
 
-  testWidgets('density toggle sets cards per row', (tester) async {
+  testWidgets('the density button cycles cards per row 4 → 3 → 2 → 4 and shows the count', (tester) async {
     await pumpModules(tester);
+    final cycle = find.byKey(const Key('densityCycle'));
     expect(scoped<Settings>(tester).columns, 4);
-    await tester.tap(find.byKey(const Key('density2')));
-    await tester.pumpAndSettle();
-    expect(scoped<Settings>(tester).columns, 2);
-    await tester.tap(find.byKey(const Key('density3')));
+    expect(find.descendant(of: cycle, matching: find.text('4')), findsOneWidget);
+    await tester.tap(cycle);
     await tester.pumpAndSettle();
     expect(scoped<Settings>(tester).columns, 3);
+    expect(find.descendant(of: cycle, matching: find.text('3')), findsOneWidget);
+    await tester.tap(cycle);
+    await tester.pumpAndSettle();
+    expect(scoped<Settings>(tester).columns, 2);
+    await tester.tap(cycle);
+    await tester.pumpAndSettle();
+    expect(scoped<Settings>(tester).columns, 4);
+    // The view pill sits in the top bar; the family dock has no layout switch any more.
+    expect(find.byKey(const Key('layoutToggle')), findsOneWidget);
+    expect(find.descendant(of: find.byType(SearchTopBar), matching: find.byKey(const Key('layoutToggle'))), findsOneWidget);
+  });
+
+  testWidgets('the rail: fixed slots for the whole range, dots for missing costs, a bubble while scrubbing', (
+    tester,
+  ) async {
+    await pumpModules(tester);
+    await tester.tap(find.bySemanticsLabel('Family Fire'));
+    await tester.pumpAndSettle();
+    final rail = find.byKey(const Key('sectionRail'));
+    // Fire has costs 2 and 4 only; the range is 0–12, so the other slots are dots, not numbers.
+    expect(find.descendant(of: rail, matching: find.text('2')), findsOneWidget);
+    expect(find.descendant(of: rail, matching: find.text('4')), findsOneWidget);
+    expect(find.descendant(of: rail, matching: find.text('0')), findsNothing);
+    expect(find.descendant(of: rail, matching: find.text('12')), findsNothing);
+    expect(tester.getSize(rail).width, 26);
+    final grid = tester.getRect(find.byType(CustomScrollView));
+    expect(grid.right, lessThanOrEqualTo(tester.getRect(rail).left), reason: 'the rail has its own column');
+    expect(find.byKey(const Key('railBubble')), findsNothing);
+
+    // Press and hold: the bubble names the cost under the finger and the grid jumps live.
+    final g = await tester.startGesture(tester.getCenter(find.descendant(of: rail, matching: find.text('4'))));
+    await tester.pump(const Duration(milliseconds: 150));
+    expect(find.byKey(const Key('railBubble')), findsOneWidget);
+    expect(find.text('Cost 4'), findsOneWidget);
+    expect(tester.getRect(find.byKey(const Key('railBubble'))).right, lessThan(tester.getRect(rail).left));
+    await g.up();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('railBubble')), findsNothing, reason: 'the bubble goes with the finger');
+    expect(find.byKey(const Key('section-4')), findsOneWidget);
   });
 
   testWidgets('sections appear only when filtered; the rail jumps and keeps the last section lit', (tester) async {
