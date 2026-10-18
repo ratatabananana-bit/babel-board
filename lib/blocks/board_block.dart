@@ -8,8 +8,9 @@ import 'symbol_text.dart';
 import '../core/theme.dart';
 import '../core/widgets/confirm.dart';
 import '../core/widgets/dashed_border.dart';
-import '../module_format/filter.dart';
+import '../module_format/block_specs.dart';
 import '../module_format/path_expr.dart';
+import '../module_format/sheet_spec.dart';
 import '../modules/loaded_module.dart';
 import '../modules/module_state.dart';
 import 'icons.dart';
@@ -18,28 +19,6 @@ import 'item_view.dart';
 /// Marker for the Remove drop target.
 const _remove = 'remove';
 
-/// `cardList` settings: `{collection, style: mini|rows|thumbs, columns?, filter?, removable?}`.
-class CardListSpec {
-  CardListSpec(Map<String, dynamic> s)
-    : collection = s['collection'] as String? ?? '',
-      style = s['style'] as String? ?? 'mini',
-      columns = (s['columns'] as num?)?.toInt() ?? 2,
-      filter = s['filter'] is Map ? ItemFilter.fromJson((s['filter'] as Map).cast<String, dynamic>()) : null,
-      removable = s['removable'] as bool? ?? false,
-      emptyText = s['emptyText'] as String?;
-
-  final String collection;
-  final String style;
-  final int columns;
-  final ItemFilter? filter;
-  final bool removable;
-
-  /// Shown in the lane when it has no items (and nothing can be dragged in).
-  final String? emptyText;
-
-  static CardListSpec? fromSetting(Object? v) => v is Map ? CardListSpec(v.cast<String, dynamic>()) : null;
-}
-
 /// One lane of a board: a declared zone plus how its items are listed.
 class LaneSpec {
   LaneSpec({required this.zone, required this.list});
@@ -47,27 +26,16 @@ class LaneSpec {
   final CardListSpec list;
 }
 
-/// `board` settings: `{title, countLabel: template with {count}, children: [zone]}`.
-class BoardSpec {
-  BoardSpec(BlockSpec b, LoadedModule module)
-    : title = b.settings['title'] as String? ?? 'Board',
-      countLabel = b.settings['countLabel'] as String? ?? '{count} tracked',
-      lanes = [
-        for (final c in b.children)
-          if (c.type == 'zone')
-            if (zoneSpec(module, c.settings['zone'] as String?) case final z?)
-              LaneSpec(
-                zone: z,
-                list:
-                    CardListSpec.fromSetting(c.settings['list']) ??
-                    CardListSpec({'collection': module.manifest.collections.keys.firstOrNull ?? ''}),
-              ),
-      ];
-
-  final String title;
-  final String countLabel;
-  final List<LaneSpec> lanes;
-}
+/// The lanes of a board: its zones that the module declares, each with its list style
+/// (a plain list of the first collection when the zone names none).
+List<LaneSpec> boardLanes(BoardSpec board, LoadedModule module) => [
+  for (final z in board.zones)
+    if (zoneSpec(module, z.zone) case final zone?)
+      LaneSpec(
+        zone: zone,
+        list: z.list ?? CardListSpec(collection: module.manifest.collections.keys.firstOrNull ?? ''),
+      ),
+];
 
 /// What is being dragged and what it is over, shared by every drop target for visuals.
 class _Drag extends ChangeNotifier {
@@ -139,11 +107,12 @@ class _BoardBlockState extends State<BoardBlock> {
   @override
   Widget build(BuildContext context) {
     final module = context.read<LoadedModule>();
-    final board = BoardSpec(widget.spec, module);
+    final board = BoardSpec.fromJson(widget.spec.json, 'block');
+    final lanes = boardLanes(board, module);
     final zones = context.watch<ZoneState>();
     // A single lane has nowhere to drag to, so it gets no drop bar and no drag.
-    final draggable = board.lanes.length > 1;
-    final total = board.lanes.fold(0, (n, l) => n + zones.count(l.zone.id));
+    final draggable = lanes.length > 1;
+    final total = lanes.fold(0, (n, l) => n + zones.count(l.zone.id));
 
     // Claims horizontal drags so they don't swipe to another tab.
     return GestureDetector(
@@ -157,8 +126,8 @@ class _BoardBlockState extends State<BoardBlock> {
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 150),
                 child: _drag.active && draggable
-                    ? _DropDock(key: const ValueKey('dock'), drag: _drag, lanes: board.lanes)
-                    : _Header(key: const ValueKey('header'), board: board, total: total),
+                    ? _DropDock(key: const ValueKey('dock'), drag: _drag, lanes: lanes)
+                    : _Header(key: const ValueKey('header'), board: board, lanes: lanes, total: total),
               ),
             ),
             Expanded(
@@ -171,7 +140,7 @@ class _BoardBlockState extends State<BoardBlock> {
                     padding: const EdgeInsets.fromLTRB(8, 4, 8, 24),
                     sliver: SliverMainAxisGroup(
                       slivers: [
-                        for (final lane in board.lanes)
+                        for (final lane in lanes)
                           ..._Lane(
                             lane: lane,
                             items: _itemsIn(module, zones, lane),
@@ -276,8 +245,9 @@ class _ClearPill extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({super.key, required this.board, required this.total});
+  const _Header({super.key, required this.board, required this.lanes, required this.total});
   final BoardSpec board;
+  final List<LaneSpec> lanes;
   final int total;
 
   @override
@@ -310,12 +280,9 @@ class _Header extends StatelessWidget {
             ),
           ),
           // One lane: a plain Clear button, as on the old This race screen.
-          if (board.lanes.length == 1) ...[
+          if (lanes.length == 1) ...[
             if (total > 0)
-              TextButton(
-                onPressed: () => clearZoneWithUndo(context, board.lanes.single.zone),
-                child: const Text('Clear'),
-              ),
+              TextButton(onPressed: () => clearZoneWithUndo(context, lanes.single.zone), child: const Text('Clear')),
             const SizedBox(width: 4),
           ] else
             PopupMenuButton<String>(
@@ -323,7 +290,7 @@ class _Header extends StatelessWidget {
               icon: Icon(Icons.more_vert_rounded, color: p.text2),
               onSelected: (v) async {
                 if (v == '*') {
-                  final labels = board.lanes.map((l) => l.zone.label).join(', ');
+                  final labels = lanes.map((l) => l.zone.label).join(', ');
                   final ok = await confirm(
                     context,
                     'Clear everything?',
@@ -331,7 +298,7 @@ class _Header extends StatelessWidget {
                     'Clear all',
                   );
                   if (ok) {
-                    for (final l in board.lanes) {
+                    for (final l in lanes) {
                       zones.clearZone(l.zone.id);
                     }
                   }
@@ -340,7 +307,7 @@ class _Header extends StatelessWidget {
                 }
               },
               itemBuilder: (_) => [
-                for (final l in board.lanes) PopupMenuItem(value: l.zone.id, child: Text('Clear ${l.zone.label}')),
+                for (final l in lanes) PopupMenuItem(value: l.zone.id, child: Text('Clear ${l.zone.label}')),
                 PopupMenuItem(
                   value: '*',
                   child: Text('Clear everything', style: TextStyle(color: p.danger)),
@@ -676,22 +643,22 @@ class _PinnedHeader extends SliverPersistentHeaderDelegate {
 /// The text lines under an item's name: its effects (symbol + text) or its sections.
 List<Widget> _detailLines(BuildContext context, Item item, CollectionSpec spec, {required double size}) {
   final p = context.pal;
-  final sheet = SheetSpec(spec.sheet);
+  final sheet = SheetSpec.fromJson(spec.sheet, 'sheet');
   final e = sheet.effects;
   if (e != null) {
-    final symbols = (e['typeSymbols'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final symbols = e.typeSymbols;
     return [
-      for (final raw in resolvePath(item.data, e['path'] as String? ?? 'effects'))
+      for (final raw in resolvePath(item.data, e.path))
         if (raw is Map)
           Padding(
             padding: const EdgeInsets.only(bottom: 3),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (symbols[raw['type']] is String) ...[
+                if (symbols[raw['type']] case final symbol?) ...[
                   Padding(
                     padding: const EdgeInsets.only(top: 1),
-                    child: SymbolImage(symbols[raw['type']] as String, size: size + 3),
+                    child: SymbolImage(symbol, size: size + 3),
                   ),
                   const SizedBox(width: 5),
                 ],
@@ -710,7 +677,7 @@ List<Widget> _detailLines(BuildContext context, Item item, CollectionSpec spec, 
   final first = sheet.sections.firstOrNull;
   if (first == null) return const [];
   return [
-    for (final v in resolvePath(item.data, first['path'] as String? ?? ''))
+    for (final v in resolvePath(item.data, first.path))
       Padding(
         padding: const EdgeInsets.only(bottom: 4),
         child: Text(
@@ -982,7 +949,7 @@ class CardListBlock extends StatelessWidget {
     final p = context.pal;
     final module = context.read<LoadedModule>();
     final zones = context.watch<ZoneState>();
-    final list = CardListSpec(spec.settings);
+    final list = CardListSpec.fromJson(spec.json, 'block');
     final cs = module.manifest.collections[list.collection];
     if (cs == null) return Center(child: Text('Unknown collection "${list.collection}"', style: T.body));
     final filter = list.filter;
@@ -994,8 +961,7 @@ class CardListBlock extends StatelessWidget {
         if (filter?.matches(it.data, zones.zoneOf(it.id)) ?? true) it,
     ];
     final zone =
-        zoneSpec(module, filter?.zone) ??
-        ZoneSpec(id: '', label: spec.settings['title'] as String? ?? '', icon: 'list', accent: 'amber');
+        zoneSpec(module, filter?.zone) ?? ZoneSpec(id: '', label: list.title ?? '', icon: 'list', accent: 'amber');
     final lane = LaneSpec(zone: zone, list: list);
     return ListView(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),

@@ -229,6 +229,13 @@ class BlockSpec {
   final Map<String, dynamic> settings;
   final List<BlockSpec> children;
 
+  /// The block as JSON again, for the typed parsers in `block_specs.dart`.
+  Map<String, dynamic> get json => {
+    'type': type,
+    ...settings,
+    if (children.isNotEmpty) 'children': [for (final c in children) c.json],
+  };
+
   static BlockSpec fromJson(Map<String, dynamic> j, String where) {
     final kids = _mapList(j['children'], '$where.children');
     return BlockSpec(

@@ -6,6 +6,7 @@ import '../core/settings.dart';
 import 'symbol_text.dart';
 import '../core/theme.dart';
 import '../module_format/path_expr.dart';
+import '../module_format/sheet_spec.dart';
 import '../modules/loaded_module.dart';
 import '../modules/module_state.dart';
 import 'icons.dart';
@@ -46,57 +47,6 @@ class SymbolImage extends StatelessWidget {
   }
 }
 
-/// One chip of an item's template: text, a symbol, or a labeled row of symbols.
-class ChipSpec {
-  ChipSpec(Map<String, dynamic> j)
-    : symbol = j['symbol'] as String?,
-      text = j['text'] as String?,
-      symbols = j['symbols'] as String?,
-      label = j['label'] as String?;
-  final String? symbol, text, symbols, label;
-}
-
-/// The sheet template of a collection, read from `CollectionSpec.sheet`.
-class SheetSpec {
-  SheetSpec(Map<String, dynamic> j)
-    : chips = [for (final c in (j['chips'] as List? ?? const [])) ChipSpec((c as Map).cast<String, dynamic>())],
-      effects = (j['effects'] as Map?)?.cast<String, dynamic>(),
-      sections = [for (final s in (j['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>()],
-      secondary = j['secondary'] as String?,
-      verifiedPath = j['verifiedPath'] as String?,
-      details = (j['details'] as Map?)?.cast<String, dynamic>(),
-      swipe = (j['swipe'] as Map?)?.cast<String, dynamic>() ?? const {},
-      zones = (j['zones'] as List?)?.cast<String>() ?? const [];
-
-  final List<ChipSpec> chips;
-  final Map<String, dynamic>? effects;
-  final List<Map<String, dynamic>> sections;
-  final String? secondary;
-  final String? verifiedPath;
-
-  /// Drag-up details: `{sections: [{label, path}]}`. Extra text (rulings, story,
-  /// anything a player only sometimes wants) hidden below the zone buttons until the sheet
-  /// is dragged up.
-  final Map<String, dynamic>? details;
-
-  /// Flick the sheet left or right to put the item in a zone: `{left?: zoneId, right?: zoneId}`.
-  final Map<String, dynamic> swipe;
-
-  List<Map<String, dynamic>> get detailSections => [
-    for (final s in (details?['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>(),
-  ];
-  final List<String> zones;
-
-  /// Text of the first chip that resolves to something, for the text-only card.
-  String? firstChipText(Map<String, dynamic> item) {
-    for (final c in chips) {
-      final t = c.text == null ? null : fillTemplate(c.text!, item).trim();
-      if (t != null && t.isNotEmpty) return t;
-    }
-    return null;
-  }
-}
-
 /// A clean card with the name and key fields, for items with no (or a broken) picture.
 class TextOnlyCard extends StatelessWidget {
   const TextOnlyCard(this.item, this.collection, {super.key, this.radius = 12});
@@ -106,7 +56,7 @@ class TextOnlyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chip = SheetSpec(collection.sheet).firstChipText(item.data);
+    final chip = SheetSpec.fromJson(collection.sheet, 'sheet').firstChipText(item.data);
     final subtitle = item.subtitle(collection);
     return LayoutBuilder(
       builder: (context, box) {
@@ -421,7 +371,7 @@ class ItemSheet extends StatelessWidget {
     final p = context.pal;
     final module = context.read<LoadedModule>();
     final collection = module.manifest.collections[collectionId]!;
-    final sheet = SheetSpec(collection.sheet);
+    final sheet = SheetSpec.fromJson(collection.sheet, 'sheet');
     final zones = context.watch<ZoneState>();
     final current = zones.zoneOf(item.id);
     final subtitle = item.subtitle(collection);
@@ -432,14 +382,14 @@ class ItemSheet extends StatelessWidget {
     final zoneSpecs = [for (final id in sheet.zones) ?zoneSpec(module, id)];
 
     // Flick sides that have a zone in this module.
-    final swipe = {for (final e in sheet.swipe.entries) e.key: ?zoneSpec(module, e.value as String?)};
+    final swipe = {for (final e in sheet.swipe.sides.entries) e.key: ?zoneSpec(module, e.value)};
 
     // Drag-up details that this item actually has text for.
     final hidden = [
       for (final s in sheet.detailSections)
-        if (resolvePath(item.data, s['path'] as String? ?? '').map((v) => '$v').where((v) => v.isNotEmpty).toList()
-            case final values when values.isNotEmpty)
-          (label: s['label'] as String? ?? '', values: values),
+        if (resolvePath(item.data, s.path).map((v) => '$v').where((v) => v.isNotEmpty).toList() case final values
+            when values.isNotEmpty)
+          (label: s.label, values: values),
     ];
 
     final content = Column(
@@ -555,13 +505,7 @@ class ItemSheet extends StatelessWidget {
     );
 
     if (hidden.isEmpty && swipe.isEmpty) return _SheetPanel(child: content);
-    return _SheetGestures(
-      itemId: item.id,
-      sections: hidden,
-      hint: sheet.details?['hint'] as String?,
-      swipe: swipe,
-      child: content,
-    );
+    return _SheetGestures(itemId: item.id, sections: hidden, hint: sheet.details?.hint, swipe: swipe, child: content);
   }
 
   Widget? _chip(ChipSpec c) {
@@ -603,12 +547,12 @@ class ItemSheet extends StatelessWidget {
     return _Chip(children: children);
   }
 
-  List<Widget> _effects(BuildContext context, Map<String, dynamic> e) {
+  List<Widget> _effects(BuildContext context, EffectsSpec e) {
     final p = context.pal;
-    final labels = (e['typeLabels'] as Map?)?.cast<String, dynamic>() ?? const {};
-    final symbols = (e['typeSymbols'] as Map?)?.cast<String, dynamic>() ?? const {};
-    final help = (e['typeHelp'] as Map?)?.cast<String, dynamic>() ?? const {};
-    final list = resolvePath(item.data, e['path'] as String? ?? 'effects');
+    final labels = e.typeLabels;
+    final symbols = e.typeSymbols;
+    final help = e.typeHelp;
+    final list = resolvePath(item.data, e.path);
     return [
       for (final raw in list)
         if (raw is Map)
@@ -618,11 +562,11 @@ class ItemSheet extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Tooltip(
-                  message: '${help[raw['type']] ?? ''}',
+                  message: help[raw['type']] ?? '',
                   triggerMode: TooltipTriggerMode.longPress,
-                  child: symbols[raw['type']] is String
-                      ? SymbolImage(symbols[raw['type']] as String, size: 38)
-                      : const SizedBox(width: 38, height: 38),
+                  child: symbols[raw['type']] == null
+                      ? const SizedBox(width: 38, height: 38)
+                      : SymbolImage(symbols[raw['type']]!, size: 38),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -644,12 +588,12 @@ class ItemSheet extends StatelessWidget {
     ];
   }
 
-  List<Widget> _section(BuildContext context, Map<String, dynamic> s) {
+  List<Widget> _section(BuildContext context, SheetSectionSpec s) {
     final p = context.pal;
-    final values = resolvePath(item.data, s['path'] as String? ?? '').map((v) => '$v').where((v) => v.isNotEmpty);
+    final values = resolvePath(item.data, s.path).map((v) => '$v').where((v) => v.isNotEmpty);
     if (values.isEmpty) return const [];
     return [
-      Text('${s['label'] ?? ''}'.toUpperCase(), style: T.caption.copyWith(color: p.text2, letterSpacing: 1)),
+      Text(s.label.toUpperCase(), style: T.caption.copyWith(color: p.text2, letterSpacing: 1)),
       const SizedBox(height: 4),
       for (final v in values)
         Padding(

@@ -7,71 +7,10 @@ import '../core/settings.dart';
 import '../core/theme.dart';
 import '../core/widgets/reflow_grid.dart';
 import '../core/widgets/search_top_bar.dart';
+import '../module_format/block_specs.dart';
 import '../module_format/path_expr.dart';
 import '../modules/loaded_module.dart';
 import 'item_view.dart';
-
-class FilterOption {
-  FilterOption(Map<String, dynamic> j)
-    : value = j['value'],
-      label = j['label'] as String? ?? '${j['value']}',
-      symbol = j['symbol'] as String?;
-  final Object? value;
-  final String label;
-  final String? symbol;
-}
-
-class FilterSpec {
-  FilterSpec(Map<String, dynamic> j)
-    : path = j['path'] as String,
-      label = j['label'] as String? ?? '',
-      allLabel = j['allLabel'] as String? ?? 'All',
-      options = [for (final o in (j['options'] as List? ?? const [])) FilterOption((o as Map).cast<String, dynamic>())];
-  final String path;
-  final String label;
-  final String allLabel;
-  final List<FilterOption> options;
-}
-
-class SectionsSpec {
-  SectionsSpec(Map<String, dynamic> j)
-    : path = j['path'] as String,
-      label = j['label'] as String? ?? '{value}',
-      onlyWhenFiltered = j['onlyWhenFiltered'] as bool? ?? false,
-      rail = j['rail'] as bool? ?? false,
-      railRange = (j['railRange'] as List?)?.cast<int>();
-  final String path;
-  final String label;
-  final bool onlyWhenFiltered;
-  final bool rail;
-  final List<int>? railRange;
-}
-
-/// Settings: `{collection, search: [path], tileName: bool, filters?: [...], sections?: {...}}`.
-class GallerySpec {
-  GallerySpec(BlockSpec b)
-    : collection = b.settings['collection'] as String,
-      search = (b.settings['search'] as List?)?.cast<String>() ?? const ['name'],
-      tileName = b.settings['tileName'] as bool? ?? true,
-      filters = [
-        for (final f in (b.settings['filters'] as List? ?? const [])) FilterSpec((f as Map).cast<String, dynamic>()),
-      ],
-      sections = b.settings['sections'] is Map
-          ? SectionsSpec((b.settings['sections'] as Map).cast<String, dynamic>())
-          : null,
-      noun = b.settings['noun'] as String? ?? 'cards',
-      searchHint = b.settings['searchHint'] as String? ?? 'Search ${b.settings['noun'] ?? 'cards'}';
-
-  final String collection;
-  final List<String> search;
-  final bool tileName;
-  final List<FilterSpec> filters;
-  final SectionsSpec? sections;
-
-  /// What the summary counts, e.g. "cards".
-  final String noun;
-  final String searchHint;
-}
 
 /// A grid of item pictures with search, density, optional single-select filter docks and
 /// optional sections with a jump rail.
@@ -92,7 +31,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
   static const _railW = 26.0;
   static const _railEdge = 2.0;
 
-  late GallerySpec _g = GallerySpec(widget.spec);
+  late GallerySpec _g = GallerySpec.fromJson(widget.spec.json, 'block');
   final _scroll = ScrollController();
   final _search = TextEditingController();
 
@@ -127,7 +66,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
   @override
   void didUpdateWidget(GalleryBlock old) {
     super.didUpdateWidget(old);
-    if (old.spec != widget.spec) _g = GallerySpec(widget.spec);
+    if (old.spec != widget.spec) _g = GallerySpec.fromJson(widget.spec.json, 'block');
   }
 
   @override
