@@ -115,7 +115,7 @@ void main() {
     await tester.pump();
     expect(zones.count('a'), 0);
     expect(zones.zoneOf('undine'), 'b');
-    expect(find.text('Cleared Lane A'), findsOneWidget);
+    expect(find.text('Lane A cleared'), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 500)); // let the snackbar slide in
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
@@ -125,8 +125,13 @@ void main() {
     for (var i = 0; i < 8; i++) {
       await tester.pump(const Duration(seconds: 1)); // slide in, start the 4 s timer, slide out
     }
-    expect(find.text('Cleared Lane B'), findsNothing);
-    expect(find.byKey(const Key('clear-b')), findsNothing, reason: 'no Clear on an empty lane');
+    expect(find.text('Lane B cleared'), findsNothing);
+    expect(find.byKey(const Key('clear-b')), findsOneWidget, reason: 'Clear stays, dimmed');
+    expect(
+      tester.widget<InkWell>(find.descendant(of: find.byKey(const Key('clear-b')), matching: find.byType(InkWell))).onTap,
+      isNull,
+      reason: 'an empty lane has nothing to clear',
+    );
   });
 
   testWidgets('a one-lane board has a Clear button in its header instead of the ⋮ menu', (tester) async {
@@ -184,6 +189,36 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Clear all'));
     await tester.pumpAndSettle();
     expect(zones.total, 0);
+  });
+
+  testWidgets('lane headers stick while a long lane scrolls, so Clear stays in reach', (tester) async {
+    await pumpModules(
+      tester,
+      tab: 'Board',
+      prefs: prefsWith({'imp': 'a', 'nessie': 'a', 'undine': 'a', 'ghost': 'a'}),
+      edit: (m) {
+        // One column per lane so Lane A is taller than the screen.
+        final lanes = (m['tabs'] as List)[1]['block']['children'] as List;
+        for (final l in lanes) {
+          (l as Map)['list'] = {'type': 'cardList', 'collection': 'items', 'style': 'mini', 'columns': 1};
+        }
+      },
+    );
+    // A short screen, so Lane A is taller than the viewport and its header pins while its cards scroll.
+    tester.view.physicalSize = const Size(1080, 1100);
+    await tester.pumpAndSettle();
+    final headerTop = tester.getTopLeft(find.byKey(const Key('clear-a'))).dy;
+    final impTop = tester.getTopLeft(find.text('Imp')).dy;
+    await tester.drag(find.text('Imp'), const Offset(0, -120));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('clear-a')), findsOneWidget);
+    expect(tester.getTopLeft(find.byKey(const Key('clear-a'))).dy, closeTo(headerTop, 6), reason: 'the header stays');
+    expect(tester.getTopLeft(find.text('Imp')).dy, lessThan(impTop - 60), reason: 'the cards did');
+    // The chevron sits by the name on the left, Clear on the right.
+    final chevron = tester.getCenter(find.byIcon(Icons.expand_less_rounded).first).dx;
+    final clear = tester.getCenter(find.byKey(const Key('clear-a'))).dx;
+    expect(chevron, lessThan(200));
+    expect(clear, greaterThan(300));
   });
 
   testWidgets('tapping a mini card opens its sheet', (tester) async {
