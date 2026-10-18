@@ -84,8 +84,8 @@ class GalleryBlock extends StatefulWidget {
 }
 
 class _GalleryBlockState extends State<GalleryBlock> {
-  static const _headerH = 36.0;
-  static const _sectionGap = 8.0;
+  static const _headerH = 30.0;
+  static const _sectionGap = 4.0;
 
   /// Grid padding; the right side plus the rail column make the 32 dp the rail owns.
   static const _pad = EdgeInsets.fromLTRB(16, 0, 4, 16);
@@ -363,7 +363,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
             height: tileH,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: p.accent.withValues(alpha: 0.16),
+                color: p.highlight.withValues(alpha: 0.22),
                 borderRadius: BorderRadius.horizontal(
                   left: Radius.circular(roundLeft ? 10 : 0),
                   right: Radius.circular(roundRight ? 10 : 0),
@@ -403,7 +403,9 @@ class _GalleryBlockState extends State<GalleryBlock> {
       slivers: [
         SliverPadding(
           padding: _pad.copyWith(top: top),
-          sliver: SliverToBoxAdapter(child: Stack(clipBehavior: Clip.none, children: [...band, grid])),
+          sliver: SliverToBoxAdapter(
+            child: Stack(clipBehavior: Clip.none, children: [...band, grid]),
+          ),
         ),
         SliverToBoxAdapter(child: SizedBox(height: tail)),
       ],
@@ -473,6 +475,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
       final h =
           _headerH +
           _groupPad.vertical +
+          2 * _groupBorder +
           ReflowGrid.heightFor(items.length, innerW, columns, aspect: spec.cardAspect, extra: extra) +
           _sectionGap;
       _sectionSpans[k] = [(y, y + h)];
@@ -517,7 +520,8 @@ class _GalleryBlockState extends State<GalleryBlock> {
   }
 
   /// Grouped layout: the padding every section container keeps, picked or not.
-  static const _groupPad = EdgeInsets.symmetric(vertical: 8, horizontal: 6);
+  static const _groupPad = EdgeInsets.symmetric(vertical: 6, horizontal: 6);
+  static const _groupBorder = 1.5;
 
   Widget _scrollWatch(Widget child) =>
       NotificationListener<UserScrollNotification>(onNotification: _onUserScroll, child: child);
@@ -547,7 +551,12 @@ class _FlowCell extends StatelessWidget {
   final bool endsRun;
   final bool picked;
 
-  static const rulerH = 16.0;
+  /// The strip: a 16 dp pill (or line) plus 6 dp of air before the card, so nothing touches.
+  static const pillH = 16.0;
+  static const rulerH = pillH + 6;
+
+  /// A run ends this far before the cell edge: well inside the card's rounded corner.
+  static const tailGap = 14.0;
 
   @override
   Widget build(BuildContext context) {
@@ -563,8 +572,8 @@ class _FlowCell extends StatelessWidget {
             children: [
               Positioned(
                 left: label == null ? 0 : _GalleryBlockState._flowInset / 2,
-                right: endsRun ? 6 : 0,
-                top: rulerH / 2 - 1,
+                right: endsRun ? tailGap : 0,
+                top: pillH / 2 - 1,
                 height: 2,
                 child: ColoredBox(color: line),
               ),
@@ -574,12 +583,12 @@ class _FlowCell extends StatelessWidget {
                   top: 0,
                   child: Container(
                     key: Key('cost-pill-$label'),
-                    height: rulerH,
+                    height: pillH,
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: picked ? p.accent : p.surface2,
-                      borderRadius: BorderRadius.circular(rulerH / 2),
+                      borderRadius: BorderRadius.circular(pillH / 2),
                     ),
                     child: Text(
                       label!,
@@ -621,9 +630,12 @@ class _SectionPanel extends StatelessWidget {
       duration: context.read<Settings>().anim(const Duration(milliseconds: 200)),
       padding: _GalleryBlockState._groupPad,
       decoration: BoxDecoration(
-        color: active ? p.accent.withValues(alpha: 0.10) : null,
+        color: active ? p.highlight.withValues(alpha: 0.14) : null,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: active ? p.accent.withValues(alpha: 0.55) : Colors.transparent, width: 1.5),
+        border: Border.all(
+          color: active ? p.highlight.withValues(alpha: 0.7) : Colors.transparent,
+          width: _GalleryBlockState._groupBorder,
+        ),
       ),
       child: child,
     );
@@ -639,9 +651,9 @@ class _SectionHeader extends SliverPersistentHeaderDelegate {
   final bool active;
 
   @override
-  double get minExtent => 36;
+  double get minExtent => _GalleryBlockState._headerH;
   @override
-  double get maxExtent => 36;
+  double get maxExtent => _GalleryBlockState._headerH;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
@@ -654,10 +666,7 @@ class _SectionHeader extends SliverPersistentHeaderDelegate {
             height: 20,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: active ? p.accent : p.surface2,
-              borderRadius: BorderRadius.circular(10),
-            ),
+            decoration: BoxDecoration(color: active ? p.accent : p.surface2, borderRadius: BorderRadius.circular(10)),
             child: Text(
               label,
               style: TextStyle(
@@ -670,11 +679,12 @@ class _SectionHeader extends SliverPersistentHeaderDelegate {
             ),
           ),
           const SizedBox(width: 8),
-          Expanded(
-            child: Container(height: 1.5, color: active ? p.accent.withValues(alpha: 0.5) : p.surface2),
-          ),
+          Expanded(child: Container(height: 1.5, color: active ? p.accent.withValues(alpha: 0.5) : p.surface2)),
           const SizedBox(width: 8),
-          Text(count, style: T.caption.copyWith(color: p.muted, fontWeight: FontWeight.w500)),
+          Text(
+            count,
+            style: T.caption.copyWith(color: p.muted, fontWeight: FontWeight.w500),
+          ),
         ],
       ),
     );
@@ -807,7 +817,10 @@ class _SectionRailState extends State<_SectionRail> {
                               : Container(
                                   width: 3,
                                   height: 3,
-                                  decoration: BoxDecoration(color: p.muted.withValues(alpha: 0.6), shape: BoxShape.circle),
+                                  decoration: BoxDecoration(
+                                    color: p.muted.withValues(alpha: 0.6),
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                         ),
                       ),
@@ -878,12 +891,7 @@ class _SectionRailState extends State<_SectionRail> {
 
 /// Single-select option dock at the bottom, in thumb reach.
 class _FilterDock extends StatelessWidget {
-  const _FilterDock({
-    required this.filter,
-    required this.selected,
-    required this.summary,
-    required this.onPick,
-  });
+  const _FilterDock({required this.filter, required this.selected, required this.summary, required this.onPick});
   final FilterSpec filter;
   final Object? selected;
   final String summary;

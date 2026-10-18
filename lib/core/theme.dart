@@ -27,6 +27,10 @@ class Palette extends ThemeExtension<Palette> {
   /// the My cards total badge, the Next button. Zone colors mean zones only.
   final Color accent;
 
+  /// A light, colourful tint for the picked cost's cards (band in the flowing grid, panel in
+  /// the grouped one). Sky blue: not one of the three zone colours, and visible on dark art.
+  Color get highlight => bg == dark.bg ? const Color(0xFF7CC4FF) : const Color(0xFF2F7FD6);
+
   /// The checklist card is parchment in both themes.
   static const parchment = Color(0xFFF3E9D6);
   static const ink = Color(0xFF1E1B16);
