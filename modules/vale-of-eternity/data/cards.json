@@ -87,9 +87,6 @@
           "text": "Earn 1 :points: for each card in your hand."
         }
       ],
-      "interactions": [
-        "Firefox is already in your area when it scores, so it does not count itself."
-      ],
       "verified": true,
       "image": "images/cards/firefox.webp"
     },
@@ -376,7 +373,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Earn 1 :points: for each your :stone_blue:."
+          "text": "Earn 1 :points: for each of your :stone_blue:."
         }
       ],
       "verified": true,
@@ -582,8 +579,7 @@
         }
       ],
       "interactions": [
-        "Also counts when paying for summons, but only while Water Giant is in your area.",
-        "With Hae-tae: :stone_blue: worth 7, :stone_purple: worth 4."
+        "Also counts when paying for summons, but only while Water Giant is in your area."
       ],
       "verified": true,
       "image": "images/cards/water_giant.webp"
@@ -853,7 +849,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Choose any :earth: card from discard pile. Add it into your hand."
+          "text": "Choose any :earth: card from the discard pile. Add it into your hand."
         }
       ],
       "verified": true,
@@ -903,8 +899,7 @@
         }
       ],
       "interactions": [
-        "It counts the :stone_purple: you have left after paying for it.",
-        "Water Giant makes each :stone_purple: worth 7, Hae-tae 3, both together 4."
+        "It counts the :stone_purple: you have left after paying for it."
       ],
       "verified": true,
       "image": "images/cards/rock_golem.webp"
@@ -1034,7 +1029,7 @@
         },
         {
           "type": "permanent",
-          "text": "The cost of your card is decreased by 1."
+          "text": "The cost of your cards is decreased by 1."
         }
       ],
       "interactions": [
@@ -1102,7 +1097,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Activate all available Active effect of cards in your area."
+          "text": "Activate all available Active effects of cards in your area."
         }
       ],
       "interactions": [
@@ -1129,7 +1124,7 @@
         },
         {
           "type": "permanent",
-          "text": "The cost of your :wind: card is decreased by 2."
+          "text": "The cost of your :wind: cards is decreased by 2."
         }
       ],
       "verified": true,
@@ -1277,9 +1272,6 @@
           "text": "Earn 2 :points: for each card in your hand."
         }
       ],
-      "interactions": [
-        "Rudra is already in your area when it scores, so it does not count itself."
-      ],
       "verified": true,
       "image": "images/cards/rudra.webp"
     },
@@ -1359,8 +1351,7 @@
       ],
       "interactions": [
         "Pick any player with a summoned :water: card, yourself included. With none in play, you can't summon it.",
-        "That player picks which card to discard.",
-        "You pay first, so you can spend boosted :stone_blue: and then discard your own Water Giant or Hae-tae."
+        "That player picks which card to discard."
       ],
       "verified": true,
       "image": "images/cards/ember.webp"
@@ -1382,8 +1373,7 @@
       ],
       "interactions": [
         "Pick any player with a summoned :fire: card, yourself included. With none in play, you can't summon it.",
-        "That player picks which card to discard.",
-        "You pay first, so your own Agni or Hestia still helps before you discard it."
+        "That player picks which card to discard."
       ],
       "verified": true,
       "image": "images/cards/marina.webp"
@@ -1405,8 +1395,7 @@
       ],
       "interactions": [
         "Pick any player with a summoned :wind: card, yourself included. With none in play, you can't summon it.",
-        "That player picks which card to discard.",
-        "You pay first, so your own Pegasus discount still applies before you discard it."
+        "That player picks which card to discard."
       ],
       "verified": true,
       "image": "images/cards/boulder.webp"

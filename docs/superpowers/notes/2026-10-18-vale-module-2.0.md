@@ -94,3 +94,13 @@ Tidal, Eternity, Valkyrie and Freyja, which were left out to keep the details sh
 
 Re-pack the module to the private repo: `dart run tool/pack.dart modules <checkout>`. Then
 push it, so phones get 2.0.0.
+
+## Owner's edits after review (same day, on master)
+
+- Five printed typos are smoothed, meaning kept: Sea Spirit "for each of your", Genie "Active
+  effects", Mimic "from the discard pile", Pegasus and Hippogriff "your cards is decreased".
+  The printed cards have the errors; the app is for reading them in English.
+- Interactions trimmed to rulings only: Firefox and Rudra ("does not count itself") removed;
+  the "You pay first, so…" strategy line dropped from Ember, Marina and Boulder; the
+  Water Giant / Hae-tae arithmetic dropped from Rock Golem and Water Giant (Hae-tae keeps it).
+  31 cards have interactions, none longer than two lines.
