@@ -17,6 +17,9 @@
           "text": "You can keep two more stones."
         }
       ],
+      "interactions": [
+        "If Hestia leaves your area, discard down to 4 stones right away."
+      ],
       "verified": true,
       "image": "images/cards/hestia.webp"
     },
@@ -61,6 +64,9 @@
           "text": "If cards with written cost of 1, 2, 3, and 4 are all in your area, earn 10 :points:."
         }
       ],
+      "interactions": [
+        "You can summon it without all four costs in your area. It then earns nothing."
+      ],
       "verified": true,
       "image": "images/cards/succubus.webp"
     },
@@ -80,6 +86,9 @@
           "type": "instant",
           "text": "Earn 1 :points: for each card in your hand."
         }
+      ],
+      "interactions": [
+        "Firefox is already in your area when it scores, so it does not count itself."
       ],
       "verified": true,
       "image": "images/cards/firefox.webp"
@@ -198,7 +207,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 2 :points: for each Fire card in your area."
+          "text": "Earn 2 :points: for each :fire: card in your area."
         }
       ],
       "verified": true,
@@ -221,6 +230,10 @@
           "text": "Whenever you summon a card, earn 1 :points: for each used :stone_red:."
         }
       ],
+      "interactions": [
+        "It does not score for its own summon, only later ones.",
+        "You can't overpay to score more (no :stone_red: on a cost-0 card)."
+      ],
       "verified": true,
       "image": "images/cards/phoenix.webp"
     },
@@ -240,6 +253,9 @@
           "type": "permanent",
           "text": "The value of your :stone_red: is increased by 1."
         }
+      ],
+      "interactions": [
+        "Each :stone_red: is worth 2, also when paying for summons. Only while Agni is in your area."
       ],
       "verified": true,
       "image": "images/cards/agni.webp"
@@ -278,7 +294,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Recover one of your Fire cards with an Instant effect."
+          "text": "Recover one of your :fire: cards with an Instant effect."
         }
       ],
       "verified": true,
@@ -319,6 +335,10 @@
           "text": "Discard all your stones and earn :points: equal to the total value of discarded stones."
         }
       ],
+      "interactions": [
+        "You can't keep some stones back: all of them go.",
+        "It costs 0 and uses no stones, so it never triggers Phoenix, Kappa or Gargoyle."
+      ],
       "verified": true,
       "image": "images/cards/yuki_onna.webp"
     },
@@ -334,8 +354,12 @@
       "effects": [
         {
           "type": "permanent",
-          "text": "Whenever you summon a card using a :stone_blue:, earn 2 :points:."
+          "text": "Whenever you summon a card using :stone_blue:, earn 2 :points:."
         }
+      ],
+      "interactions": [
+        "It does not score for its own summon, only later ones.",
+        "Only 2 :points: per summon, however many :stone_blue: you use. You can't overpay to trigger it."
       ],
       "verified": true,
       "image": "images/cards/kappa.webp"
@@ -352,7 +376,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Earn 1 :points: for each of your :stone_blue:."
+          "text": "Earn 1 :points: for each your :stone_blue:."
         }
       ],
       "verified": true,
@@ -392,7 +416,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "If there is no Dragon card in your area, earn 2 :points:."
+          "text": "If there is no :dragon: card in your area, earn 2 :points:."
         }
       ],
       "verified": true,
@@ -410,11 +434,12 @@
       "effects": [
         {
           "type": "permanent",
-          "text": "Value of your :stone_blue: counts as a :stone_purple:. Value of your :stone_purple: counts as a :stone_blue:."
+          "text": "Value of your :stone_blue: counts as :stone_purple:. Value of your :stone_purple: counts as :stone_blue:."
         }
       ],
       "interactions": [
-        "Only the value changes. Any card that requires a :stone_purple: still needs an actual :stone_purple:."
+        "Only the value changes. Any card that requires a :stone_purple: still needs an actual :stone_purple:.",
+        "Your :stone_purple: are worth only 3 while Hae-tae is out, also when paying."
       ],
       "verified": true,
       "image": "images/cards/hae_tae.webp"
@@ -470,6 +495,9 @@
           "text": "Earn :points: equal to the total value of your :stone_blue:."
         }
       ],
+      "interactions": [
+        "It counts the :stone_blue: you have left after paying for it."
+      ],
       "verified": true,
       "image": "images/cards/yuki_onna_exalted.webp"
     },
@@ -503,8 +531,12 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 7 :points:. A player of your choice discards one of their summoned Dragon cards."
+          "text": "Earn 7 :points:. A player of your choice discards one of their summoned :dragon: cards."
         }
+      ],
+      "interactions": [
+        "Pick any player with a summoned :dragon: card, yourself included. With none in play, you can't summon it.",
+        "That player picks which card to discard."
       ],
       "verified": true,
       "image": "images/cards/leviathan.webp"
@@ -521,8 +553,11 @@
       "effects": [
         {
           "type": "permanent",
-          "text": "Whenever you tame a Water card, earn :stone_blue::stone_blue:."
+          "text": "Whenever you tame a :water: card, earn :stone_blue::stone_blue:."
         }
+      ],
+      "interactions": [
+        "Only taming counts: not selling, summoning or recovering a Water card."
       ],
       "verified": true,
       "image": "images/cards/triton.webp"
@@ -545,6 +580,10 @@
           "type": "permanent",
           "text": "Values of your :stone_blue: and :stone_purple: are each increased by 1."
         }
+      ],
+      "interactions": [
+        "Also counts when paying for summons, but only while Water Giant is in your area.",
+        "With Hae-tae: :stone_blue: worth 7, :stone_purple: worth 4."
       ],
       "verified": true,
       "image": "images/cards/water_giant.webp"
@@ -579,7 +618,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 3 :points: for each Water card in your area."
+          "text": "Earn 3 :points: for each :water: card in your area."
         }
       ],
       "verified": true,
@@ -603,6 +642,10 @@
           "text": "Discard a card from your hand and summon another card for free."
         }
       ],
+      "interactions": [
+        "You need 2 open spaces and 2 other cards in hand.",
+        "The free card must still meet its own conditions (Dragon Egg, discard dragons)."
+      ],
       "verified": true,
       "image": "images/cards/young_forest_spirit.webp"
     },
@@ -624,6 +667,9 @@
           "text": "Steal 1 :points: from any opponent."
         }
       ],
+      "interactions": [
+        "Pick an opponent with at least 1 :points:. If nobody has any, you get nothing."
+      ],
       "verified": true,
       "image": "images/cards/goblin.webp"
     },
@@ -642,8 +688,11 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Discard a card from your hand and earn :points: equal to the cost written on that card."
+          "text": "Discard a card from your hand and earn :points: equal to the cost written on the card."
         }
+      ],
+      "interactions": [
+        "You can't summon it if it is the only card in your hand."
       ],
       "verified": true,
       "image": "images/cards/forest_spirit.webp"
@@ -663,8 +712,12 @@
       "effects": [
         {
           "type": "permanent",
-          "text": "Whenever you summon a card using a :stone_purple:, earn 3 :points:."
+          "text": "Whenever you summon a card using :stone_purple:, earn 3 :points:."
         }
+      ],
+      "interactions": [
+        "It does not score for its own summon. Only 3 :points: per summon, however many :stone_purple: you use.",
+        "You may pay with a :stone_purple: when a smaller stone would do, but you can't add extra stones."
       ],
       "verified": true,
       "image": "images/cards/gargoyle.webp"
@@ -684,8 +737,12 @@
       "effects": [
         {
           "type": "active",
-          "text": "Lose 0 / 1 / 2 :points:, then earn :stone_red: / :stone_blue: / :stone_purple: (choose one option)."
+          "text": "Lose 0 / 1 / 2 :points:, then earn :stone_red: / :stone_blue: / :stone_purple:."
         }
+      ],
+      "interactions": [
+        "Pick one: lose 0 for :stone_red:, 1 for :stone_blue:, or 2 for :stone_purple:.",
+        "Points can't go below 0, so you can only pick an option you can pay."
       ],
       "verified": true,
       "image": "images/cards/basilisk.webp"
@@ -705,7 +762,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "If you have a :stone_purple:, earn 3 :points:."
+          "text": "If you have :stone_purple:, earn 3 :points:."
         }
       ],
       "verified": true,
@@ -729,6 +786,9 @@
           "text": "If any opponent has more :points: than you, earn 4 :points:. Otherwise lose 4 :points:."
         }
       ],
+      "interactions": [
+        "A tie for the lead still loses 4 :points:."
+      ],
       "verified": true,
       "image": "images/cards/goblin_soldier.webp"
     },
@@ -749,6 +809,10 @@
           "type": "active",
           "text": "Discard a card from your hand, then earn :stone_purple:."
         }
+      ],
+      "interactions": [
+        "If your hand is empty, Medusa does nothing.",
+        "A card drawn or recovered earlier in Resolution can still be forced out."
       ],
       "verified": true,
       "image": "images/cards/medusa.webp"
@@ -789,7 +853,7 @@
       "effects": [
         {
           "type": "active",
-          "text": "Choose any Earth card from the discard pile. Add it into your hand."
+          "text": "Choose any :earth: card from discard pile. Add it into your hand."
         }
       ],
       "verified": true,
@@ -838,6 +902,10 @@
           "text": "Earn :points: equal to the total value of your :stone_purple:."
         }
       ],
+      "interactions": [
+        "It counts the :stone_purple: you have left after paying for it.",
+        "Water Giant makes each :stone_purple: worth 7, Hae-tae 3, both together 4."
+      ],
       "verified": true,
       "image": "images/cards/rock_golem.webp"
     },
@@ -856,8 +924,11 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Exchange each of your stones with a :stone_purple:."
+          "text": "Exchange each of your stones with :stone_purple:."
         }
+      ],
+      "interactions": [
+        "It exchanges the stones you have left after paying for it."
       ],
       "verified": true,
       "image": "images/cards/stone_golem.webp"
@@ -898,7 +969,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 4 :points: for each Earth card in your area."
+          "text": "Earn 4 :points: for each :earth: card in your area."
         }
       ],
       "verified": true,
@@ -963,8 +1034,11 @@
         },
         {
           "type": "permanent",
-          "text": "The cost of your cards is decreased by 1."
+          "text": "The cost of your card is decreased by 1."
         }
+      ],
+      "interactions": [
+        "Only what you pay changes. \"Written cost\" on other cards still means the printed cost."
       ],
       "verified": true,
       "image": "images/cards/pegasus.webp"
@@ -985,6 +1059,10 @@
           "text": "Earn 6 :points: and put this card on the top of the draw deck."
         }
       ],
+      "interactions": [
+        "It never stays in your area, but you still need an open space to summon it.",
+        "The next card drawn by anyone is Tengu."
+      ],
       "verified": true,
       "image": "images/cards/tengu.webp"
     },
@@ -1001,8 +1079,12 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 1 :points: for each Wind card in your area. Immediately recover this card."
+          "text": "Earn 1 :points: for each :wind: card in your area. Immediately recover this card."
         }
+      ],
+      "interactions": [
+        "It counts itself, then goes back to your hand. Summon it again as often as you can pay.",
+        "It never stays in your area, so it never counts for other cards."
       ],
       "verified": true,
       "image": "images/cards/boreas.webp"
@@ -1020,8 +1102,12 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Activate all available Active effects of cards in your area."
+          "text": "Activate all available Active effect of cards in your area."
         }
+      ],
+      "interactions": [
+        "Works like Resolution: any order, and effects that can't be completed are skipped.",
+        "A Recover effect sends its own card back to your hand."
       ],
       "verified": true,
       "image": "images/cards/genie.webp"
@@ -1043,7 +1129,7 @@
         },
         {
           "type": "permanent",
-          "text": "The cost of your Wind cards is decreased by 2."
+          "text": "The cost of your :wind: card is decreased by 2."
         }
       ],
       "verified": true,
@@ -1069,6 +1155,10 @@
           "text": "Whenever you summon a card, earn 1 :points:."
         }
       ],
+      "interactions": [
+        "It does not score for its own summon. It scores before the new card's Instant effect.",
+        "A card summoned by Dragon Egg or Young Forest Spirit counts as a summon too."
+      ],
       "verified": true,
       "image": "images/cards/sylph.webp"
     },
@@ -1087,6 +1177,10 @@
           "type": "active",
           "text": "Copy one Active effect of another card in your area and activate it."
         }
+      ],
+      "interactions": [
+        "Genie Exalted does the copied effect itself: a copied Recover returns Genie Exalted.",
+        "You can copy before or after that card resolves, even an effect that can't be completed."
       ],
       "verified": true,
       "image": "images/cards/genie_exalted.webp"
@@ -1183,6 +1277,9 @@
           "text": "Earn 2 :points: for each card in your hand."
         }
       ],
+      "interactions": [
+        "Rudra is already in your area when it scores, so it does not count itself."
+      ],
       "verified": true,
       "image": "images/cards/rudra.webp"
     },
@@ -1217,8 +1314,12 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Discard this card and summon a Dragon card for free."
+          "text": "Discard this card and summon a :dragon: card for free."
         }
+      ],
+      "interactions": [
+        "You need another Dragon in hand, and that Dragon's own conditions must be met.",
+        "One open space is enough: the Egg discards itself."
       ],
       "verified": true,
       "image": "images/cards/dragon_egg.webp"
@@ -1235,7 +1336,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 5 :points: for each Dragon card in your area."
+          "text": "Earn 5 :points: for each :dragon: card in your area."
         }
       ],
       "verified": true,
@@ -1253,8 +1354,13 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 7 :points:. A player of your choice discards one of their summoned Water cards."
+          "text": "Earn 7 :points:. A player of your choice discards one of their summoned :water: cards."
         }
+      ],
+      "interactions": [
+        "Pick any player with a summoned :water: card, yourself included. With none in play, you can't summon it.",
+        "That player picks which card to discard.",
+        "You pay first, so you can spend boosted :stone_blue: and then discard your own Water Giant or Hae-tae."
       ],
       "verified": true,
       "image": "images/cards/ember.webp"
@@ -1271,8 +1377,13 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 7 :points:. A player of your choice discards one of their summoned Fire cards."
+          "text": "Earn 7 :points:. A player of your choice discards one of their summoned :fire: cards."
         }
+      ],
+      "interactions": [
+        "Pick any player with a summoned :fire: card, yourself included. With none in play, you can't summon it.",
+        "That player picks which card to discard.",
+        "You pay first, so your own Agni or Hestia still helps before you discard it."
       ],
       "verified": true,
       "image": "images/cards/marina.webp"
@@ -1289,8 +1400,13 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 8 :points:. A player of your choice discards one of their summoned Wind cards."
+          "text": "Earn 8 :points:. A player of your choice discards one of their summoned :wind: cards."
         }
+      ],
+      "interactions": [
+        "Pick any player with a summoned :wind: card, yourself included. With none in play, you can't summon it.",
+        "That player picks which card to discard.",
+        "You pay first, so your own Pegasus discount still applies before you discard it."
       ],
       "verified": true,
       "image": "images/cards/boulder.webp"
@@ -1307,8 +1423,12 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn 8 :points:. A player of your choice discards one of their summoned Earth cards."
+          "text": "Earn 8 :points:. A player of your choice discards one of their summoned :earth: cards."
         }
+      ],
+      "interactions": [
+        "Pick any player with a summoned :earth: card, yourself included. With none in play, you can't summon it.",
+        "That player picks which card to discard."
       ],
       "verified": true,
       "image": "images/cards/gust.webp"
@@ -1325,7 +1445,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Recover one of your other cards and earn :points: equal to the cost written on that card."
+          "text": "Recover one of your other cards and earn :points: equal to the cost written on the card."
         }
       ],
       "verified": true,
@@ -1361,7 +1481,7 @@
       "effects": [
         {
           "type": "instant",
-          "text": "Earn :stone_red:, :stone_blue:, :stone_purple: and 3 :points:. Draw a card."
+          "text": "Earn :stone_red::stone_blue::stone_purple: and 3 :points:. Draw a card."
         }
       ],
       "verified": true,
