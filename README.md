@@ -29,6 +29,12 @@ Check a module before publishing:
 dart run tool/validate.dart modules/vale-of-eternity
 ```
 
+## Making modules
+
+See [docs/CREATING_MODULES.md](docs/CREATING_MODULES.md): the quick way (paste the
+copied instructions into an AI, install the JSON it answers with) and the full way (a module
+folder, the validator, packing a repository for friends).
+
 ## Publishing to the private repository
 
 The repository is a private GitHub repo holding static files: zips, icons and `index.json`.
