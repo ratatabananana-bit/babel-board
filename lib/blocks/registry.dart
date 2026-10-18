@@ -8,7 +8,7 @@ import '../modules/module_state.dart';
 import 'board_block.dart';
 import 'flow/flow_block.dart';
 import 'flow/flow_state.dart';
-import 'gallery_block.dart';
+import 'gallery/gallery_block.dart';
 import 'text_block.dart';
 
 typedef BlockBuilder = Widget Function(BuildContext context, BlockSpec spec);

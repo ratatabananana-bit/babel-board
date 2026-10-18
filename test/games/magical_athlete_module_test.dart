@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vale_helper/blocks/item_view.dart';
+import 'package:vale_helper/blocks/item_tile.dart';
 import 'package:vale_helper/module_format/block_specs.dart';
 import 'package:vale_helper/core/app_state.dart';
 import 'package:vale_helper/modules/module_state.dart';

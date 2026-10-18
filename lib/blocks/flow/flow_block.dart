@@ -9,7 +9,7 @@ import '../../module_format/block_specs.dart';
 import '../../module_format/path_expr.dart';
 import '../../modules/loaded_module.dart';
 import '../../modules/module_state.dart';
-import '../item_view.dart';
+import '../item_picture.dart';
 import 'flow_state.dart';
 
 /// A row of the parchment checklist: a [ChecklistRow] from module data, or an item row

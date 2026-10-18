@@ -13,7 +13,8 @@ import '../module_format/path_expr.dart';
 import '../modules/loaded_module.dart';
 import '../modules/module_state.dart';
 import 'icons.dart';
-import 'item_view.dart';
+import 'item_picture.dart';
+import 'item_sheet.dart';
 
 /// Marker for the Remove drop target.
 const _remove = 'remove';
