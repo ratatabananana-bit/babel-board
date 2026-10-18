@@ -2,11 +2,11 @@
   "format": 1,
   "id": "vale-of-eternity",
   "name": "Vale of Eternity",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "minAppVersion": "3.0.0",
   "icon": "images/icon.webp",
   "players": "2-4",
-  "source": "Official rulebook (Renegade Game Studios) + valeofeternity.wiki.gg",
+  "source": "Card text and rulings: valeofeternity.wiki.gg (card images and card pages, 2026-10-18). Rules: official rulebook (Renegade Game Studios)",
   "collections": {
     "cards": {
       "items": "data/cards.json",
