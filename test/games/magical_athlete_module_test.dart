@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vale_helper/blocks/item_view.dart';
+import 'package:vale_helper/blocks/item_tile.dart';
+import 'package:vale_helper/module_format/block_specs.dart';
 import 'package:vale_helper/core/app_state.dart';
 import 'package:vale_helper/modules/module_state.dart';
 
@@ -28,14 +29,14 @@ void main() {
 
     test('flow: draft, 4 races (Mild/Wild), final; unique checklist ids; runs once', () async {
       final m = await loadMa();
-      final flow = m.manifest.tabs.firstWhere((t) => t.block.type == 'flow').block;
-      expect(flow.settings['cyclic'], isFalse);
-      expect(flow.children.map((s) => s.settings['id']), ['draft', 'race1', 'race2', 'race3', 'race4', 'final']);
-      expect(flow.children.map((s) => s.settings['tag']), [null, 'Mild', 'Wild', 'Mild', 'Wild', null]);
+      final flow = m.manifest.tabs.map((t) => t.block).whereType<FlowSpec>().single;
+      expect(flow.cyclic, isFalse);
+      expect(flow.steps.map((s) => s.id), ['draft', 'race1', 'race2', 'race3', 'race4', 'final']);
+      expect(flow.steps.map((s) => s.tag), [null, 'Mild', 'Wild', 'Mild', 'Wild', null]);
       final ids = [
-        for (final i in (flow.settings['setup']['checklist'] as List)) i['id'],
-        for (final s in flow.children)
-          for (final i in (s.settings['checklist'] as List)) i['id'],
+        for (final i in flow.setup!.checklist) i.id,
+        for (final s in flow.steps)
+          for (final i in s.checklist) i.id,
       ];
       expect(ids.toSet(), hasLength(ids.length));
     });

@@ -2,28 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/theme.dart';
+import '../module_format/block_specs.dart';
 import '../modules/loaded_module.dart';
 import '../modules/module_state.dart';
 import 'board_block.dart';
 import 'flow/flow_block.dart';
 import 'flow/flow_state.dart';
-import 'gallery_block.dart';
+import 'gallery/gallery_block.dart';
 import 'text_block.dart';
 
 typedef BlockBuilder = Widget Function(BuildContext context, BlockSpec spec);
 
-/// Block type → widget. The keys are a subset of `kBlockTypes`; each block file adds its
-/// own entry here. Tests may remove an entry to exercise [UnknownBlock].
+/// Block type → widget, keyed by [kBlockTypes] (the parsers' list), so a type the parser
+/// knows and this file does not fails loudly at startup. `step` has no widget of its own
+/// (it is data for `flow`), so a tab holding one shows [UnknownBlock]. Tests may remove an
+/// entry to exercise [UnknownBlock].
 final Map<String, BlockBuilder> blockRegistry = {
-  'text': (context, spec) => TextBlock(spec: spec),
-  'flow': (context, spec) => FlowBlock(spec: spec),
-  'gallery': (context, spec) => GalleryBlock(spec: spec),
-  'board': (context, spec) => BoardBlock(spec: spec),
+  for (final t in kBlockTypes)
+    t: ?_builderFor(t),
+};
+
+BlockBuilder? _builderFor(String type) => switch (type) {
+  'text' => (_, s) => TextBlock(spec: s as TextSpec),
+  'flow' => (_, s) => FlowBlock(spec: s as FlowSpec),
+  'gallery' => (_, s) => GalleryBlock(spec: s as GallerySpec),
+  'board' => (_, s) => BoardBlock(spec: s as BoardSpec),
   // A zone on its own is a one-lane board.
-  'zone': (context, spec) => BoardBlock(
-    spec: BlockSpec(type: 'board', children: [spec]),
-  ),
-  'cardList': (context, spec) => CardListBlock(spec: spec),
+  'zone' => (_, s) => BoardBlock(spec: BoardSpec(zones: [s as ZoneBlockSpec])),
+  'cardList' => (_, s) => CardListBlock(spec: s as CardListSpec),
+  'step' => null,
+  _ => throw StateError("No widget for block type '$type'; add it to blockRegistry"),
 };
 
 Widget buildBlock(BuildContext context, BlockSpec spec) {

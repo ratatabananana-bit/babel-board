@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../modules/loaded_module.dart';
-import 'item_view.dart';
+import 'item_picture.dart';
 
 final _marker = RegExp(r':([A-Za-z0-9_-]+):');
 

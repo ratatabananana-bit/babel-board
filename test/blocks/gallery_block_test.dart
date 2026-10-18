@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vale_helper/blocks/item_view.dart';
+import 'package:vale_helper/blocks/item_picture.dart';
+import 'package:vale_helper/blocks/item_sheet.dart';
+import 'package:vale_helper/blocks/item_tile.dart';
 import 'package:vale_helper/core/settings.dart';
 import 'package:vale_helper/core/theme.dart';
 import 'package:vale_helper/core/widgets/search_top_bar.dart';

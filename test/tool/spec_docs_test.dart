@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vale_helper/library/library_screen.dart';
 import 'package:vale_helper/main.dart';
-import 'package:vale_helper/module_format/block_types.dart';
+import 'package:vale_helper/module_format/block_specs.dart';
 
 void main() {
   final ai = File('modules/AI_INSTRUCTIONS.md');

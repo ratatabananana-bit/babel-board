@@ -5,115 +5,47 @@ import '../../core/game_switcher.dart';
 import '../symbol_text.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/confirm.dart';
-import '../../module_format/filter.dart';
+import '../../module_format/block_specs.dart';
 import '../../module_format/path_expr.dart';
 import '../../modules/loaded_module.dart';
 import '../../modules/module_state.dart';
-import '../item_view.dart';
+import '../item_picture.dart';
 import 'flow_state.dart';
 
-/// One step of a flow, read from a `step` block's settings (or the flow's `setup`).
-class StepSpec {
-  StepSpec(Map<String, dynamic> s)
-    : id = s['id'] as String? ?? 'step',
-      title = s['title'] as String? ?? '',
-      short = s['short'] as String?,
-      tag = s['tag'] as String?,
-      summary = s['summary'] as String? ?? '',
-      listTitle = s['listTitle'] as String? ?? 'Checklist',
-      nextLabel = s['nextLabel'] as String?,
-      emptyText = s['emptyText'] as String?,
-      how = (s['how'] as List?)?.cast<String>() ?? const [],
-      checklist = [
-        for (final r in (s['checklist'] as List? ?? const []))
-          ChecklistRow.fromJson((r as Map).cast<String, dynamic>()),
-      ],
-      cardChecklist = (s['cardChecklist'] as Map?)?.cast<String, dynamic>();
+/// A row of the parchment checklist: a [ChecklistRow] from module data, or an item row
+/// with its picture.
+class ChecklistItem {
+  const ChecklistItem({required this.id, required this.text, this.sub, this.action, this.actionLabel, this.leading});
 
-  final String id;
-  final String title;
-  final String? short;
-  final String? tag;
-  final String summary;
-  final String listTitle;
-  final String? nextLabel;
-  final String? emptyText;
-  final List<String> how;
-  final List<ChecklistRow> checklist;
-
-  /// `{collection, filter, sub}`: when set, the rows are the matching items.
-  final Map<String, dynamic>? cardChecklist;
-}
-
-/// A checklist row from module data: `{id, text, sub?, action?: {type, zone?}, actionLabel?}`.
-class ChecklistRow {
-  const ChecklistRow({required this.id, required this.text, this.sub, this.action, this.actionLabel, this.leading});
+  ChecklistItem.of(ChecklistRow r)
+    : this(id: r.id, text: r.text, sub: r.sub, action: r.action, actionLabel: r.actionLabel);
 
   final String id;
   final String text;
   final String? sub;
-
-  /// `{"type": "clearZone", "zone": id}` or `{"type": "newGame"}`.
-  final Map<String, dynamic>? action;
+  final ChecklistAction? action;
   final String? actionLabel;
 
   /// Optional picture before the text (an item thumbnail).
   final Widget? leading;
-
-  static ChecklistRow fromJson(Map<String, dynamic> j) => ChecklistRow(
-    id: j['id'] as String,
-    text: j['text'] as String? ?? '',
-    sub: j['sub'] as String?,
-    action: (j['action'] as Map?)?.cast<String, dynamic>(),
-    actionLabel: j['actionLabel'] as String?,
-  );
-}
-
-/// The flow block's settings.
-class FlowSpec {
-  FlowSpec(BlockSpec b)
-    : title = b.settings['title'] as String? ?? 'Round',
-      cyclic = b.settings['cyclic'] as bool? ?? true,
-      reminders = (b.settings['reminders'] as List?)?.cast<String>() ?? const [],
-      newGameText = b.settings['newGameText'] as String? ?? 'Clears everything you tracked and starts over.',
-      setup = b.settings['setup'] is Map ? StepSpec((b.settings['setup'] as Map).cast<String, dynamic>()) : null,
-      steps = [
-        for (final c in b.children)
-          if (c.type == 'step') StepSpec(c.settings),
-      ];
-
-  final String title;
-  final bool cyclic;
-  final List<String> reminders;
-  final String newGameText;
-  final StepSpec? setup;
-  final List<StepSpec> steps;
 }
 
 /// Flow tab: step progress, then the checklist for the current step (parchment, the
 /// brightest thing on screen), then "How this step works" folded away.
 class FlowBlock extends StatefulWidget {
   const FlowBlock({super.key, required this.spec});
-  final BlockSpec spec;
+  final FlowSpec spec;
 
   @override
   State<FlowBlock> createState() => _FlowBlockState();
 }
 
 class _FlowBlockState extends State<FlowBlock> {
-  late FlowSpec _flow = FlowSpec(widget.spec);
-
   /// First tap on Next with open steps arms it; the second tap skips them.
   bool _armed = false;
   bool _howOpen = false;
 
-  @override
-  void didUpdateWidget(FlowBlock old) {
-    super.didUpdateWidget(old);
-    if (old.spec != widget.spec) _flow = FlowSpec(widget.spec);
-  }
-
-  void _advance(FlowState state, List<ChecklistRow> items) {
+  void _advance(FlowState state, List<ChecklistItem> items) {
     state.next(items.map((i) => i.id));
     setState(() {
       _armed = false;
@@ -124,7 +56,7 @@ class _FlowBlockState extends State<FlowBlock> {
   @override
   Widget build(BuildContext context) {
     final p = context.pal;
-    final flow = _flow;
+    final flow = widget.spec;
     final state = context.watch<FlowState?>();
     if (state == null || flow.steps.isEmpty) {
       return Center(
@@ -205,16 +137,16 @@ class _FlowBlockState extends State<FlowBlock> {
 }
 
 /// The rows of a step: its checklist, or the items matching its `cardChecklist`.
-List<ChecklistRow> stepItems(BuildContext context, StepSpec step) {
+List<ChecklistItem> stepItems(BuildContext context, StepSpec step) {
   final cc = step.cardChecklist;
-  if (cc == null) return step.checklist;
+  if (cc == null) return [for (final r in step.checklist) ChecklistItem.of(r)];
   final module = context.read<LoadedModule>();
   final zones = context.watch<ZoneState>();
-  final collection = cc['collection'] as String;
+  final collection = cc.collection;
   final spec = module.manifest.collections[collection];
   if (spec == null) return const [];
-  final filter = ItemFilter.fromJson((cc['filter'] as Map?)?.cast<String, dynamic>() ?? const {});
-  final sub = cc['sub'] as String?;
+  final filter = cc.filter;
+  final sub = cc.sub;
   // In zone order when the filter names a zone (what you tracked, in order), else data order.
   final candidates = filter.zone != null
       ? [for (final id in zones.idsIn(filter.zone!)) ?module.item(collection, id)]
@@ -222,7 +154,7 @@ List<ChecklistRow> stepItems(BuildContext context, StepSpec step) {
   return [
     for (final it in candidates)
       if (filter.matches(it.data, zones.zoneOf(it.id)))
-        ChecklistRow(
+        ChecklistItem(
           id: 'card.${it.id}',
           text: it.title(spec),
           sub: sub == null ? null : fillTemplate(sub, it.data),
@@ -349,7 +281,10 @@ class _Header extends StatelessWidget {
                   child: SymbolText(setup.summary, style: T.body.copyWith(color: context.pal.text2)),
                 ),
                 const SizedBox(height: 14),
-                ParchmentChecklist(title: setup.listTitle, items: setup.checklist),
+                ParchmentChecklist(
+                  title: setup.listTitle,
+                  items: [for (final r in setup.checklist) ChecklistItem.of(r)],
+                ),
                 const SizedBox(height: 14),
                 _HowItWorks(steps: setup.how, open: true, onToggle: null),
               ],
@@ -372,11 +307,11 @@ Future<bool> confirmNewGame(BuildContext context, String body) async {
 }
 
 /// Runs a checklist row's action. Returns true when done (the row then ticks).
-Future<bool> runChecklistAction(BuildContext context, Map<String, dynamic> action) async {
-  switch (action['type']) {
+Future<bool> runChecklistAction(BuildContext context, ChecklistAction action) async {
+  switch (action.type) {
     case 'clearZone':
-      final zone = action['zone'];
-      if (zone is! String) return false;
+      final zone = action.zone;
+      if (zone == null) return false;
       context.read<ZoneState>().clearZone(zone);
       return true;
     case 'newGame':
@@ -454,7 +389,7 @@ class ParchmentChecklist extends StatelessWidget {
   const ParchmentChecklist({super.key, required this.title, required this.items, this.emptyText, this.onToggle});
 
   final String title;
-  final List<ChecklistRow> items;
+  final List<ChecklistItem> items;
   final String? emptyText;
   final VoidCallback? onToggle;
 
@@ -524,7 +459,7 @@ class ParchmentChecklist extends StatelessWidget {
 
 class _ChecklistRowView extends StatelessWidget {
   const _ChecklistRowView({required this.item, this.onToggle});
-  final ChecklistRow item;
+  final ChecklistItem item;
   final VoidCallback? onToggle;
 
   @override
@@ -595,11 +530,11 @@ class _ChecklistRowView extends StatelessWidget {
 /// Inline app action on a checklist row; doing it also ticks the row.
 class _ActionPill extends StatelessWidget {
   const _ActionPill({required this.item});
-  final ChecklistRow item;
+  final ChecklistItem item;
 
   @override
   Widget build(BuildContext context) {
-    final label = item.actionLabel ?? (item.action!['type'] == 'newGame' ? 'New game' : 'Do it');
+    final label = item.actionLabel ?? (item.action!.type == 'newGame' ? 'New game' : 'Do it');
     return Material(
       color: Palette.ink,
       borderRadius: BorderRadius.circular(20),

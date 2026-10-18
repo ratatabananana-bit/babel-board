@@ -2,6 +2,7 @@
 library;
 
 import 'path_expr.dart';
+import 'spec_json.dart';
 
 class FieldRule {
   FieldRule({required this.path, this.has, this.equals});
@@ -21,8 +22,10 @@ class FieldRule {
     return true;
   }
 
-  static FieldRule fromJson(Map<String, dynamic> j) =>
-      FieldRule(path: j['path'] as String, has: j['has'], equals: j['equals']);
+  static FieldRule fromJson(Map<String, dynamic> j, [String where = 'rule']) {
+    final f = Fields(j, where);
+    return FieldRule(path: f.text('path'), has: j['has'], equals: j['equals']);
+  }
 }
 
 class ItemFilter {
@@ -37,8 +40,11 @@ class ItemFilter {
     return where.every((r) => r.matches(item));
   }
 
-  static ItemFilter fromJson(Map<String, dynamic> j) => ItemFilter(
-    zone: j['zone'] as String?,
-    where: [for (final r in (j['where'] as List? ?? const [])) FieldRule.fromJson((r as Map).cast<String, dynamic>())],
-  );
+  static ItemFilter fromJson(Map<String, dynamic> j, [String where = 'filter']) {
+    final f = Fields(j, where);
+    return ItemFilter(
+      zone: f.optText('zone'),
+      where: [for (final r in f.objectList('where')) FieldRule.fromJson(r.json, r.where)],
+    );
+  }
 }

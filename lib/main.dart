@@ -112,11 +112,22 @@ class HelperApp extends StatefulWidget {
 }
 
 class _HelperAppState extends State<HelperApp> {
-  late final Future<AppData> _data = widget.loader();
+  late final Future<AppData> _data;
   final _messenger = GlobalKey<ScaffoldMessengerState>();
   AppState? _app;
   LibraryController? _library;
   List<String> _shortcutIds = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _data = widget.loader();
+    // The controllers are created here, once, when the data arrives; build only draws.
+    // Errors are left to the FutureBuilder, which shows them.
+    _data.then((d) {
+      if (mounted) setState(() => _start(d));
+    }, onError: (Object _) {});
+  }
 
   Widget _material({required Widget home, TransitionBuilder? builder, ThemeMode themeMode = ThemeMode.system}) =>
       MaterialApp(
@@ -192,18 +203,19 @@ class _HelperAppState extends State<HelperApp> {
           );
         }
         final d = snap.data;
-        if (d == null) {
+        final app = _app;
+        final library = _library;
+        if (d == null || app == null || library == null) {
           return _material(
             home: const Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
-        if (_app == null) _start(d);
         // Shared providers sit above MaterialApp; the active module's scope wraps the
         // Navigator (via builder) so its sheets and dialogs can read it too.
         return MultiProvider(
           providers: [
-            ChangeNotifierProvider.value(value: _app!),
-            ChangeNotifierProvider.value(value: _library!),
+            ChangeNotifierProvider.value(value: app),
+            ChangeNotifierProvider.value(value: library),
             ChangeNotifierProvider(create: (_) => Settings(d.prefs)),
           ],
           child: Consumer2<AppState, Settings>(

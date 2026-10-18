@@ -115,10 +115,11 @@ Future<LoadedModule> loadModule(ModuleFiles files) async {
     }
   }
 
-  final issues = [...readIssues, ...validateModule(manifestJson, collections: lists)];
-  if (issues.any((i) => i.fatal)) throw ModuleLoadException(issues);
+  final checked = checkModule(manifestJson, collections: lists);
+  final issues = [...readIssues, ...checked.issues];
+  final manifest = checked.manifest;
+  if (manifest == null || issues.any((i) => i.fatal)) throw ModuleLoadException(issues);
 
-  final manifest = ModuleManifest.fromJson(manifestJson);
   return LoadedModule(
     manifest: manifest,
     files: files,

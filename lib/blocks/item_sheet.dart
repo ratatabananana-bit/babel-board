@@ -1,394 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../core/settings.dart';
-import 'symbol_text.dart';
 import '../core/theme.dart';
 import '../module_format/path_expr.dart';
+import '../module_format/sheet_spec.dart';
 import '../modules/loaded_module.dart';
 import '../modules/module_state.dart';
 import 'icons.dart';
-
-/// The accent color of a zone: amber, mint or violet (tracking state only).
-Color zoneColor(BuildContext context, ZoneSpec z) {
-  final p = context.pal;
-  return switch (z.accent) {
-    'mint' => p.mint,
-    'violet' => p.violet,
-    _ => p.amber,
-  };
-}
-
-ZoneSpec? zoneSpec(LoadedModule m, String? id) => m.manifest.zones.where((z) => z.id == id).firstOrNull;
-
-/// A named symbol image declared in the module's `symbols`.
-class SymbolImage extends StatelessWidget {
-  const SymbolImage(this.name, {super.key, this.size = 24, this.label});
-  final String name;
-  final double size;
-  final String? label;
-
-  @override
-  Widget build(BuildContext context) {
-    final m = context.read<LoadedModule>();
-    final img = m.files.image(m.manifest.symbols[name]);
-    final w = img == null
-        ? SizedBox(width: size, height: size)
-        : Image(
-            image: img,
-            width: size,
-            height: size,
-            fit: BoxFit.contain,
-            errorBuilder: (_, _, _) => SizedBox(width: size, height: size),
-          );
-    return label == null ? w : Semantics(label: label, child: w);
-  }
-}
-
-/// One chip of an item's template: text, a symbol, or a labeled row of symbols.
-class ChipSpec {
-  ChipSpec(Map<String, dynamic> j)
-    : symbol = j['symbol'] as String?,
-      text = j['text'] as String?,
-      symbols = j['symbols'] as String?,
-      label = j['label'] as String?;
-  final String? symbol, text, symbols, label;
-}
-
-/// The sheet template of a collection, read from `CollectionSpec.sheet`.
-class SheetSpec {
-  SheetSpec(Map<String, dynamic> j)
-    : chips = [for (final c in (j['chips'] as List? ?? const [])) ChipSpec((c as Map).cast<String, dynamic>())],
-      effects = (j['effects'] as Map?)?.cast<String, dynamic>(),
-      sections = [for (final s in (j['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>()],
-      secondary = j['secondary'] as String?,
-      verifiedPath = j['verifiedPath'] as String?,
-      details = (j['details'] as Map?)?.cast<String, dynamic>(),
-      swipe = (j['swipe'] as Map?)?.cast<String, dynamic>() ?? const {},
-      zones = (j['zones'] as List?)?.cast<String>() ?? const [];
-
-  final List<ChipSpec> chips;
-  final Map<String, dynamic>? effects;
-  final List<Map<String, dynamic>> sections;
-  final String? secondary;
-  final String? verifiedPath;
-
-  /// Drag-up details: `{sections: [{label, path}]}`. Extra text (rulings, story,
-  /// anything a player only sometimes wants) hidden below the zone buttons until the sheet
-  /// is dragged up.
-  final Map<String, dynamic>? details;
-
-  /// Flick the sheet left or right to put the item in a zone: `{left?: zoneId, right?: zoneId}`.
-  final Map<String, dynamic> swipe;
-
-  List<Map<String, dynamic>> get detailSections => [
-    for (final s in (details?['sections'] as List? ?? const [])) (s as Map).cast<String, dynamic>(),
-  ];
-  final List<String> zones;
-
-  /// Text of the first chip that resolves to something, for the text-only card.
-  String? firstChipText(Map<String, dynamic> item) {
-    for (final c in chips) {
-      final t = c.text == null ? null : fillTemplate(c.text!, item).trim();
-      if (t != null && t.isNotEmpty) return t;
-    }
-    return null;
-  }
-}
-
-/// A clean card with the name and key fields, for items with no (or a broken) picture.
-class TextOnlyCard extends StatelessWidget {
-  const TextOnlyCard(this.item, this.collection, {super.key, this.radius = 12});
-  final Item item;
-  final CollectionSpec collection;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) {
-    final chip = SheetSpec(collection.sheet).firstChipText(item.data);
-    final subtitle = item.subtitle(collection);
-    return LayoutBuilder(
-      builder: (context, box) {
-        final w = box.maxWidth;
-        return Container(
-          padding: EdgeInsets.all(w * 0.07),
-          decoration: BoxDecoration(color: Palette.parchment, borderRadius: BorderRadius.circular(radius)),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  item.title(collection),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: w * 0.12, fontWeight: FontWeight.w800, color: Palette.ink, height: 1.1),
-                ),
-                if (subtitle != null)
-                  Text(
-                    subtitle,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: w * 0.08,
-                      fontStyle: FontStyle.italic,
-                      color: Palette.inkMuted,
-                      height: 1.3,
-                    ),
-                  ),
-                if (chip != null)
-                  Padding(
-                    padding: EdgeInsets.only(top: w * 0.05),
-                    child: Text(
-                      chip,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: w * 0.075, fontWeight: FontWeight.w600, color: Palette.inkMuted),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// An item's picture in its printed shape: `card` fills the shape with the picture,
-/// `square` frames square art above the title and subtitle. No picture → [TextOnlyCard].
-class ItemPicture extends StatelessWidget {
-  const ItemPicture(this.item, this.collection, {super.key, this.radius = 12, this.artOnly = false});
-
-  /// For the `square` shape: draw just the square art, without the card frame (list rows).
-  final bool artOnly;
-
-  final Item item;
-  final CollectionSpec collection;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) {
-    final img = context.read<LoadedModule>().files.image(item.imageRef(collection));
-    final textOnly = TextOnlyCard(item, collection, radius: radius);
-    Widget body;
-    if (img == null) {
-      body = textOnly;
-    } else if (collection.imageShape == 'square' && artOnly) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: Image(image: img, fit: BoxFit.cover, errorBuilder: (_, _, _) => textOnly),
-        ),
-      );
-    } else if (collection.imageShape == 'square') {
-      body = _FramedCard(item: item, collection: collection, image: img, radius: radius, fallback: textOnly);
-    } else {
-      body = ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: Image(image: img, fit: BoxFit.cover, errorBuilder: (_, _, _) => textOnly),
-      );
-    }
-    return AspectRatio(aspectRatio: collection.cardAspect, child: body);
-  }
-}
-
-/// Square art on parchment with the title and subtitle below (Magical Athlete style).
-class _FramedCard extends StatelessWidget {
-  const _FramedCard({
-    required this.item,
-    required this.collection,
-    required this.image,
-    required this.radius,
-    required this.fallback,
-  });
-  final Item item;
-  final CollectionSpec collection;
-  final ImageProvider image;
-  final double radius;
-  final Widget fallback;
-
-  @override
-  Widget build(BuildContext context) {
-    final subtitle = item.subtitle(collection);
-    return LayoutBuilder(
-      builder: (context, box) {
-        final w = box.maxWidth;
-        final pad = w * 0.05;
-        return Container(
-          padding: EdgeInsets.all(pad),
-          decoration: BoxDecoration(color: Palette.parchment, borderRadius: BorderRadius.circular(radius)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(radius * 0.6),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Image(
-                    image: image,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => ColoredBox(color: context.pal.surface2),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: pad),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            item.title(collection),
-                            style: TextStyle(
-                              fontSize: w * 0.11,
-                              fontWeight: FontWeight.w800,
-                              color: Palette.ink,
-                              height: 1.1,
-                            ),
-                          ),
-                          if (subtitle != null)
-                            Text(
-                              subtitle,
-                              style: TextStyle(
-                                fontSize: w * 0.075,
-                                fontStyle: FontStyle.italic,
-                                color: Palette.inkMuted,
-                                height: 1.2,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Grid tile: picture and an optional two-line name below. A tracked item keeps its text
-/// clear: a 2 dp outline in the zone's color just outside the picture, and a small chip
-/// with the zone's icon on the picture's top-right corner.
-class ItemTile extends StatelessWidget {
-  const ItemTile({
-    super.key,
-    required this.item,
-    required this.collection,
-    required this.collectionId,
-    this.showName = true,
-  });
-
-  final Item item;
-  final CollectionSpec collection;
-  final String collectionId;
-  final bool showName;
-
-  /// Height of the name block under the picture (two lines), including the gap.
-  static const nameHeight = 6.0 + nameLines * nameSize * nameLineHeight;
-  static const nameLines = 2;
-  static const nameSize = 12.0;
-  static const nameLineHeight = 1.2;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.pal;
-    final module = context.read<LoadedModule>();
-    final zoneId = context.select<ZoneState, String?>((z) => z.zoneOf(item.id));
-    final zone = zoneSpec(module, zoneId);
-    final zc = zone == null ? null : zoneColor(context, zone);
-    final title = item.title(collection);
-    return Semantics(
-      button: true,
-      label: zone == null ? title : '$title, in ${zone.label}',
-      excludeSemantics: true,
-      child: GestureDetector(
-        onTap: () => showItemSheet(context, item, collectionId),
-        behavior: HitTestBehavior.opaque,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                ItemPicture(item, collection),
-                if (zone != null && zc != null) ...[
-                  // Outline: 2 dp line, 2 dp outside the picture.
-                  Positioned(
-                    left: -4,
-                    top: -4,
-                    right: -4,
-                    bottom: -4,
-                    child: IgnorePointer(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: zc, width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: -6,
-                    right: -6,
-                    child: ZoneChip(key: Key('chip-${item.id}'), zone: zone, color: zc),
-                  ),
-                ],
-              ],
-            ),
-            if (showName) ...[
-              const SizedBox(height: 6),
-              SizedBox(
-                height: nameLines * nameSize * nameLineHeight,
-                child: Text(
-                  title,
-                  maxLines: nameLines,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: nameSize,
-                    height: nameLineHeight,
-                    fontWeight: FontWeight.w600,
-                    color: p.text,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Zone marker on a tracked picture: a 20 dp disc in the zone's color with its icon, ringed
-/// in the background color so it reads on any art.
-class ZoneChip extends StatelessWidget {
-  const ZoneChip({super.key, required this.zone, required this.color, this.size = 20});
-  final ZoneSpec zone;
-  final Color color;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.pal;
-    return Container(
-      width: size + 4,
-      height: size + 4,
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(color: p.bg, shape: BoxShape.circle),
-      child: DecoratedBox(
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        child: Icon(moduleIcon(zone.icon), size: size * 0.62, color: p.onAccent),
-      ),
-    );
-  }
-}
+import 'item_picture.dart';
+import 'symbol_text.dart';
 
 /// Item detail as a bottom sheet over the current screen. Swipe down or tap outside to close.
 Future<void> showItemSheet(BuildContext context, Item item, String collectionId) {
@@ -421,7 +43,7 @@ class ItemSheet extends StatelessWidget {
     final p = context.pal;
     final module = context.read<LoadedModule>();
     final collection = module.manifest.collections[collectionId]!;
-    final sheet = SheetSpec(collection.sheet);
+    final sheet = collection.sheet;
     final zones = context.watch<ZoneState>();
     final current = zones.zoneOf(item.id);
     final subtitle = item.subtitle(collection);
@@ -432,14 +54,14 @@ class ItemSheet extends StatelessWidget {
     final zoneSpecs = [for (final id in sheet.zones) ?zoneSpec(module, id)];
 
     // Flick sides that have a zone in this module.
-    final swipe = {for (final e in sheet.swipe.entries) e.key: ?zoneSpec(module, e.value as String?)};
+    final swipe = {for (final e in sheet.swipe.sides.entries) e.key: ?zoneSpec(module, e.value)};
 
     // Drag-up details that this item actually has text for.
     final hidden = [
       for (final s in sheet.detailSections)
-        if (resolvePath(item.data, s['path'] as String? ?? '').map((v) => '$v').where((v) => v.isNotEmpty).toList()
-            case final values when values.isNotEmpty)
-          (label: s['label'] as String? ?? '', values: values),
+        if (resolvePath(item.data, s.path).map((v) => '$v').where((v) => v.isNotEmpty).toList() case final values
+            when values.isNotEmpty)
+          (label: s.label, values: values),
     ];
 
     final content = Column(
@@ -555,13 +177,7 @@ class ItemSheet extends StatelessWidget {
     );
 
     if (hidden.isEmpty && swipe.isEmpty) return _SheetPanel(child: content);
-    return _SheetGestures(
-      itemId: item.id,
-      sections: hidden,
-      hint: sheet.details?['hint'] as String?,
-      swipe: swipe,
-      child: content,
-    );
+    return _SheetGestures(itemId: item.id, sections: hidden, hint: sheet.details?.hint, swipe: swipe, child: content);
   }
 
   Widget? _chip(ChipSpec c) {
@@ -603,12 +219,12 @@ class ItemSheet extends StatelessWidget {
     return _Chip(children: children);
   }
 
-  List<Widget> _effects(BuildContext context, Map<String, dynamic> e) {
+  List<Widget> _effects(BuildContext context, EffectsSpec e) {
     final p = context.pal;
-    final labels = (e['typeLabels'] as Map?)?.cast<String, dynamic>() ?? const {};
-    final symbols = (e['typeSymbols'] as Map?)?.cast<String, dynamic>() ?? const {};
-    final help = (e['typeHelp'] as Map?)?.cast<String, dynamic>() ?? const {};
-    final list = resolvePath(item.data, e['path'] as String? ?? 'effects');
+    final labels = e.typeLabels;
+    final symbols = e.typeSymbols;
+    final help = e.typeHelp;
+    final list = resolvePath(item.data, e.path);
     return [
       for (final raw in list)
         if (raw is Map)
@@ -618,11 +234,11 @@ class ItemSheet extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Tooltip(
-                  message: '${help[raw['type']] ?? ''}',
+                  message: help[raw['type']] ?? '',
                   triggerMode: TooltipTriggerMode.longPress,
-                  child: symbols[raw['type']] is String
-                      ? SymbolImage(symbols[raw['type']] as String, size: 38)
-                      : const SizedBox(width: 38, height: 38),
+                  child: symbols[raw['type']] == null
+                      ? const SizedBox(width: 38, height: 38)
+                      : SymbolImage(symbols[raw['type']]!, size: 38),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -644,12 +260,12 @@ class ItemSheet extends StatelessWidget {
     ];
   }
 
-  List<Widget> _section(BuildContext context, Map<String, dynamic> s) {
+  List<Widget> _section(BuildContext context, SheetSectionSpec s) {
     final p = context.pal;
-    final values = resolvePath(item.data, s['path'] as String? ?? '').map((v) => '$v').where((v) => v.isNotEmpty);
+    final values = resolvePath(item.data, s.path).map((v) => '$v').where((v) => v.isNotEmpty);
     if (values.isEmpty) return const [];
     return [
-      Text('${s['label'] ?? ''}'.toUpperCase(), style: T.caption.copyWith(color: p.text2, letterSpacing: 1)),
+      Text(s.label.toUpperCase(), style: T.caption.copyWith(color: p.text2, letterSpacing: 1)),
       const SizedBox(height: 4),
       for (final v in values)
         Padding(

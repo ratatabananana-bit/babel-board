@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vale_helper/blocks/registry.dart';
 import 'package:vale_helper/core/app_state.dart';
 import 'package:vale_helper/main.dart';
+import 'package:vale_helper/module_format/block_specs.dart';
 import 'package:vale_helper/modules/loaded_module.dart';
 import 'package:vale_helper/modules/module_files.dart';
 
@@ -28,6 +29,10 @@ Future<AppState> pumpMini(WidgetTester tester, {Map<String, Object> prefs = cons
 }
 
 void main() {
+  test('the registry draws every block type the parsers know, except step', () {
+    expect(blockRegistry.keys.toSet(), kBlockTypes.difference({'step'}));
+  });
+
   testWidgets('shell shows the module tabs; the text block renders its text', (tester) async {
     await pumpMini(tester);
     for (final l in ['Gallery', 'Board', 'Flow', 'Text']) {

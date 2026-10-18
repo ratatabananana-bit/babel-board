@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vale_helper/blocks/item_view.dart';
+import 'package:vale_helper/blocks/item_picture.dart';
+import 'package:vale_helper/blocks/item_sheet.dart';
 import 'package:vale_helper/blocks/symbol_text.dart';
 
 import '../helpers.dart';
