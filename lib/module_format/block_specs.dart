@@ -308,6 +308,14 @@ class StepSpec {
   static StepSpec fromJson(Map<String, dynamic> j, String where) {
     final f = Fields(j, where);
     final cc = f.optObject('cardChecklist');
+    final rows = f.objectList('checklist');
+    final checklist = <ChecklistRow>[];
+    final ids = <String>{};
+    for (final r in rows) {
+      final row = ChecklistRow.fromJson(r.json, r.where);
+      if (!ids.add(row.id)) r.fail('id', 'Checklist id "${row.id}" is used twice');
+      checklist.add(row);
+    }
     return StepSpec(
       id: f.optText('id') ?? 'step',
       title: f.optText('title') ?? '',
@@ -318,7 +326,7 @@ class StepSpec {
       nextLabel: f.optText('nextLabel'),
       emptyText: f.optText('emptyText'),
       how: f.optTextList('how') ?? const [],
-      checklist: [for (final r in f.objectList('checklist')) ChecklistRow.fromJson(r.json, r.where)],
+      checklist: checklist,
       cardChecklist: cc == null ? null : CardChecklistSpec.fromJson(cc.json, cc.where),
     );
   }
@@ -404,3 +412,21 @@ class TextSpec {
     );
   }
 }
+
+// -------------------------------------------------------------------------- catalog
+
+/// Block type → parser: the one list of block types the app can draw. A module naming any
+/// other type needs a newer Table Helper. A step's checklist is a setting of `step`, not a
+/// block.
+final Map<String, Object Function(Map<String, dynamic> j, String where)> blockParsers = {
+  'gallery': GallerySpec.fromJson,
+  'board': BoardSpec.fromJson,
+  'zone': ZoneBlockSpec.fromJson,
+  'cardList': CardListSpec.fromJson,
+  'flow': FlowSpec.fromJson,
+  'step': StepSpec.fromJson,
+  'text': TextSpec.fromJson,
+};
+
+/// The fixed catalog of block types, in declaration order.
+final Set<String> kBlockTypes = blockParsers.keys.toSet();

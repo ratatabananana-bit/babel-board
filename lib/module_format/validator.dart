@@ -2,8 +2,11 @@
 library;
 
 import '../app_version.dart';
-import 'block_types.dart';
+import 'block_specs.dart';
+import 'filter.dart';
 import 'manifest.dart';
+import 'sheet_spec.dart';
+import 'spec_json.dart';
 
 class ValidationIssue {
   ValidationIssue(this.path, this.message, {this.fatal = true});
@@ -19,7 +22,6 @@ class ValidationIssue {
 
 const kNeedsNewerApp = 'This game needs a newer Table Helper';
 const kZoneAccents = {'amber', 'mint', 'violet'};
-const kChecklistActions = {'clearZone', 'newGame'};
 
 /// Compares `x.y.z` versions; missing parts count as 0.
 int compareVersions(String a, String b) {
@@ -144,264 +146,100 @@ List<ValidationIssue> validateModule(
     }
   }
 
-  // Typed checks for every setting a block or sheet reads, so a module that passes here
-  // never fails while a tab is drawn.
-  bool isText(Object? v) => v is String;
-  void optText(String path, Object? v) {
-    if (v != null && v is! String) fatal(path, 'Should be text');
+  // From here on the typed parsers do the shape checks (block_specs.dart, sheet_spec.dart):
+  // a module that parses never fails while a tab is drawn. What is left to check here is
+  // what the parsers cannot know: that the zones and collections a spec names exist.
+  void report(SpecFormatException e) => fatal(e.path, e.message);
+
+  void checkZoneId(String path, String? id) {
+    if (!zoneIds.contains(id)) fatal(path, 'Unknown zone "$id"');
   }
 
-  void optBool(String path, Object? v) {
-    if (v != null && v is! bool) fatal(path, 'Should be true or false');
+  void requireCollection(String path, String name) {
+    if (!m.collections.containsKey(name)) fatal(path, 'Unknown collection "$name"');
   }
 
-  void optInt(String path, Object? v) {
-    if (v != null && v is! int) fatal(path, 'Should be a whole number');
-  }
-
-  void optTextList(String path, Object? v) {
-    if (v == null) return;
-    if (v is! List || !v.every(isText)) fatal(path, 'Should be a list of text');
-  }
-
-  /// Checks [v] is a list of objects (or absent); returns the objects with their paths.
-  List<(String, Map)> optMapList(String path, Object? v) {
-    if (v == null) return const [];
-    if (v is! List) {
-      fatal(path, 'Should be a list');
-      return const [];
-    }
-    final out = <(String, Map)>[];
-    for (var i = 0; i < v.length; i++) {
-      if (v[i] is Map) {
-        out.add(('$path[$i]', v[i] as Map));
-      } else {
-        fatal('$path[$i]', 'Should be an object');
-      }
-    }
-    return out;
-  }
-
-  Map? optMap(String path, Object? v) {
-    if (v == null) return null;
-    if (v is! Map) {
-      fatal(path, 'Should be an object');
-      return null;
-    }
-    return v;
-  }
-
-  void requireCollection(String path, Map settings) {
-    final c = settings['collection'];
-    if (c is! String) {
-      fatal('$path.collection', 'Missing "collection"');
-    } else if (!m.collections.containsKey(c)) {
-      fatal('$path.collection', 'Unknown collection "$c"');
-    }
-  }
-
-  void checkFilter(String path, Object? v) {
-    final f = optMap(path, v);
-    if (f == null) return;
-    final zone = f['zone'];
-    if (zone != null && !zoneIds.contains(zone)) fatal('$path.zone', 'Unknown zone "$zone"');
-    for (final (p, rule) in optMapList('$path.where', f['where'])) {
-      if (rule['path'] is! String) fatal('$p.path', 'Every rule needs a "path"');
-    }
+  void checkFilter(String path, ItemFilter? f) {
+    if (f?.zone case final zone?) checkZoneId('$path.zone', zone);
   }
 
   // Item sheets.
   for (final e in m.collections.entries) {
     final p = 'collections.${e.key}.sheet';
-    final sheet = e.value.sheet;
-    for (final (cp, chip) in optMapList('$p.chips', sheet['chips'])) {
-      for (final k in ['symbol', 'text', 'symbols', 'label']) {
-        optText('$cp.$k', chip[k]);
-      }
+    final SheetSpec sheet;
+    try {
+      sheet = SheetSpec.fromJson(e.value.sheet, p);
+    } on SpecFormatException catch (e) {
+      report(e);
+      continue;
     }
-    final effects = optMap('$p.effects', sheet['effects']);
-    if (effects != null) {
-      optText('$p.effects.path', effects['path']);
-      for (final k in ['typeLabels', 'typeSymbols', 'typeHelp']) {
-        final map = optMap('$p.effects.$k', effects[k]);
-        if (map != null && !map.values.every(isText)) fatal('$p.effects.$k', 'Values should be text');
-      }
+    for (final side in sheet.swipe.sides.entries) {
+      checkZoneId('$p.swipe.${side.key}', side.value);
     }
-    for (final (sp, section) in optMapList('$p.sections', sheet['sections'])) {
-      if (section['path'] is! String) fatal('$sp.path', 'Every section needs a "path"');
-      optText('$sp.label', section['label']);
-    }
-    optText('$p.secondary', sheet['secondary']);
-    optText('$p.verifiedPath', sheet['verifiedPath']);
-    final details = optMap('$p.details', sheet['details']);
-    final swipe = optMap('$p.swipe', sheet['swipe']);
-    if (swipe != null) {
-      for (final e in swipe.entries) {
-        if (e.key != 'left' && e.key != 'right') {
-          fatal('$p.swipe.${e.key}', 'Swipe directions are "left" and "right"');
-        } else if (!zoneIds.contains(e.value)) {
-          fatal('$p.swipe.${e.key}', 'Unknown zone "${e.value}"');
-        }
-      }
-    }
-    if (details != null) {
-      optText('$p.details.hint', details['hint']);
-      for (final (dp, section) in optMapList('$p.details.sections', details['sections'])) {
-        if (section['path'] is! String) fatal('$dp.path', 'Every drag-up section needs a "path"');
-        optText('$dp.label', section['label']);
-      }
-    }
-    final zones = sheet['zones'];
-    if (zones != null) {
-      if (zones is! List) {
-        fatal('$p.zones', 'Should be a list of zone ids');
-      } else {
-        for (var i = 0; i < zones.length; i++) {
-          if (!zoneIds.contains(zones[i])) fatal('$p.zones[$i]', 'Unknown zone "${zones[i]}"');
-        }
-      }
+    for (var i = 0; i < sheet.zones.length; i++) {
+      checkZoneId('$p.zones[$i]', sheet.zones[i]);
     }
   }
 
-  /// A step's settings (also the flow's `setup`). [rowIds] collects checklist ids across
-  /// the whole flow, since ticks are saved per id.
-  void checkStepSettings(String path, Map s, Set<String> rowIds) {
-    for (final k in ['title', 'short', 'tag', 'summary', 'listTitle', 'nextLabel', 'emptyText']) {
-      optText('$path.$k', s[k]);
+  void checkCardList(String path, CardListSpec list) {
+    requireCollection('$path.collection', list.collection);
+    checkFilter('$path.filter', list.filter);
+  }
+
+  void checkZone(String path, ZoneBlockSpec z) {
+    checkZoneId('$path.zone', z.zone);
+    if (z.list case final list?) checkCardList('$path.list', list);
+  }
+
+  /// A step (also the flow's `setup`): its actions and card checklist name real things.
+  void checkStep(String path, StepSpec s) {
+    for (var i = 0; i < s.checklist.length; i++) {
+      final action = s.checklist[i].action;
+      if (action?.type == 'clearZone') checkZoneId('$path.checklist[$i].action.zone', action!.zone);
     }
-    optTextList('$path.how', s['how']);
-    for (final (rp, row) in optMapList('$path.checklist', s['checklist'])) {
-      final id = row['id'];
-      if (id is! String || id.isEmpty) {
-        fatal('$rp.id', 'Every checklist row needs a text "id"');
-      } else if (!rowIds.add(id)) {
-        fatal('$rp.id', 'Checklist id "$id" is used twice in this flow');
-      }
-      if (row['text'] is! String) fatal('$rp.text', 'Every checklist row needs "text"');
-      optText('$rp.sub', row['sub']);
-      optText('$rp.actionLabel', row['actionLabel']);
-      final action = row['action'];
-      if (action == null) continue;
-      if (action is! Map) {
-        fatal('$rp.action', 'Action should be {"type": ...}');
-        continue;
-      }
-      final type = action['type'];
-      if (!kChecklistActions.contains(type)) {
-        fatal('$rp.action.type', 'Action must be one of ${kChecklistActions.join(', ')}: "$type"');
-      } else if (type == 'clearZone' && !zoneIds.contains(action['zone'])) {
-        fatal('$rp.action.zone', 'Unknown zone "${action['zone']}"');
-      }
-    }
-    final cc = optMap('$path.cardChecklist', s['cardChecklist']);
-    if (cc != null) {
-      requireCollection('$path.cardChecklist', cc);
-      checkFilter('$path.cardChecklist.filter', cc['filter']);
-      optText('$path.cardChecklist.sub', cc['sub']);
+    if (s.cardChecklist case final cc?) {
+      requireCollection('$path.cardChecklist.collection', cc.collection);
+      checkFilter('$path.cardChecklist.filter', cc.filter);
     }
   }
 
   var flows = 0;
   void checkBlock(String path, BlockSpec b) {
-    if (!kBlockTypes.contains(b.type)) {
+    final parse = blockParsers[b.type];
+    if (parse == null) {
       fatal(path, "Unknown block '${b.type}' — this game needs a newer Table Helper");
       return;
     }
-    final s = b.settings;
-    switch (b.type) {
-      case 'gallery':
-        requireCollection(path, s);
-        optTextList('$path.search', s['search']);
-        optBool('$path.tileName', s['tileName']);
-        optText('$path.noun', s['noun']);
-        optText('$path.searchHint', s['searchHint']);
-        for (final (fp, f) in optMapList('$path.filters', s['filters'])) {
-          if (f['path'] is! String) fatal('$fp.path', 'Every filter needs a "path"');
-          optText('$fp.label', f['label']);
-          optText('$fp.allLabel', f['allLabel']);
-          for (final (op, o) in optMapList('$fp.options', f['options'])) {
-            optText('$op.label', o['label']);
-            optText('$op.symbol', o['symbol']);
-          }
+    final Object spec;
+    try {
+      spec = parse(b.json, path);
+    } on SpecFormatException catch (e) {
+      report(e);
+      return;
+    }
+    switch (spec) {
+      case GallerySpec g:
+        requireCollection('$path.collection', g.collection);
+      case BoardSpec board:
+        for (var i = 0; i < board.zones.length; i++) {
+          checkZone('$path.children[$i]', board.zones[i]);
         }
-        final sections = optMap('$path.sections', s['sections']);
-        if (sections != null) {
-          if (sections['path'] is! String) fatal('$path.sections.path', 'Sections need a "path"');
-          optText('$path.sections.label', sections['label']);
-          optBool('$path.sections.onlyWhenFiltered', sections['onlyWhenFiltered']);
-          optBool('$path.sections.rail', sections['rail']);
-          final range = sections['railRange'];
-          if (range != null && !(range is List && range.length == 2 && range.every((n) => n is int))) {
-            fatal('$path.sections.railRange', 'Should be two whole numbers, e.g. [0, 12]');
-          }
-        }
-      case 'board':
-        optText('$path.title', s['title']);
-        optText('$path.countLabel', s['countLabel']);
-        for (var i = 0; i < b.children.length; i++) {
-          if (b.children[i].type != 'zone') {
-            fatal('$path.children[$i]', 'A board holds only zones, not "${b.children[i].type}"');
-          }
-        }
-      case 'zone':
-        if (!zoneIds.contains(s['zone'])) fatal('$path.zone', 'Unknown zone "${s['zone']}"');
-        final list = optMap('$path.list', s['list']);
-        if (list != null) {
-          try {
-            checkBlock('$path.list', BlockSpec.fromJson(list.cast<String, dynamic>(), '$path.list'));
-          } on FormatException catch (e) {
-            fatal('$path.list', e.message);
-          }
-        }
-      case 'cardList':
-        requireCollection(path, s);
-        final style = s['style'];
-        if (style != null && !const {'mini', 'rows', 'thumbs'}.contains(style)) {
-          fatal('$path.style', 'Style must be mini, rows or thumbs: "$style"');
-        }
-        optInt('$path.columns', s['columns']);
-        optBool('$path.removable', s['removable']);
-        optText('$path.emptyText', s['emptyText']);
-        checkFilter('$path.filter', s['filter']);
-      case 'flow':
+      case ZoneBlockSpec z:
+        checkZone(path, z);
+      case CardListSpec list:
+        checkCardList(path, list);
+      case FlowSpec f:
         flows++;
         if (flows > 1) fatal(path, 'A module can have only one flow');
-        optText('$path.title', s['title']);
-        optBool('$path.cyclic', s['cyclic']);
-        optTextList('$path.reminders', s['reminders']);
-        optText('$path.newGameText', s['newGameText']);
-        if (b.children.isEmpty) fatal('$path.children', 'A flow needs at least one step');
-        final stepIds = <String>{};
-        final rowIds = <String>{};
-        final setup = optMap('$path.setup', s['setup']);
-        if (setup != null) checkStepSettings('$path.setup', setup, rowIds);
-        for (var i = 0; i < b.children.length; i++) {
-          final c = b.children[i];
-          final cp = '$path.children[$i]';
-          if (c.type != 'step') {
-            fatal(cp, 'A flow holds only steps, not "${c.type}"');
-            continue;
-          }
-          final id = c.settings['id'];
-          if (id is! String) {
-            fatal('$cp.id', 'Every step needs an id');
-          } else if (!stepIds.add(id)) {
-            fatal('$cp.id', 'Duplicate step id "$id"');
-          }
-          checkStepSettings(cp, c.settings, rowIds);
+        if (f.setup case final setup?) checkStep('$path.setup', setup);
+        for (var i = 0; i < f.steps.length; i++) {
+          checkStep('$path.children[$i]', f.steps[i]);
         }
-        // Steps were checked above with the flow's shared id set.
-        return;
-      case 'step':
+      case StepSpec s:
         // A step outside a flow does nothing; checked here only for its own settings.
-        checkStepSettings(path, s, <String>{});
-      case 'text':
-        optText('$path.title', s['title']);
-        optTextList('$path.paragraphs', s['paragraphs']);
-        optTextList('$path.bullets', s['bullets']);
-    }
-    for (var i = 0; i < b.children.length; i++) {
-      checkBlock('$path.children[$i]', b.children[i]);
+        checkStep(path, s);
+      case TextSpec():
+        break;
     }
   }
 

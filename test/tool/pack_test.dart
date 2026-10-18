@@ -8,7 +8,7 @@ import 'package:http/testing.dart';
 import 'package:vale_helper/library/install_sources.dart';
 import 'package:vale_helper/library/module_store.dart';
 import 'package:vale_helper/library/repository.dart';
-import 'package:vale_helper/module_format/block_types.dart';
+import 'package:vale_helper/module_format/block_specs.dart';
 import 'package:vale_helper/modules/loaded_module.dart';
 import 'package:vale_helper/modules/module_files.dart';
 

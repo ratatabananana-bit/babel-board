@@ -489,6 +489,18 @@ void main() {
       );
     });
 
+    test('checklist ids are unique within a step', () {
+      expect(
+        () => StepSpec.fromJson({
+          'checklist': [
+            {'id': 'x', 'text': 'x'},
+            {'id': 'x', 'text': 'again'},
+          ],
+        }, 's'),
+        failsAt('s.checklist[1].id', 'Checklist id "x" is used twice'),
+      );
+    });
+
     test('checklist ids are unique across setup and every step', () {
       expect(
         () => FlowSpec.fromJson({

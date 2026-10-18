@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vale_helper/app_version.dart';
-import 'package:vale_helper/module_format/block_types.dart';
+import 'package:vale_helper/module_format/block_specs.dart';
 import 'package:vale_helper/module_format/manifest.dart';
 
 Map<String, dynamic> minimalManifest() => {
