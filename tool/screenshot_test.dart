@@ -351,7 +351,7 @@ void main() {
               'id': 'heat',
               'name': 'Heat: Pedal to the Metal',
               'version': '1.0.0',
-              'minAppVersion': '3.1.0',
+              'minAppVersion': '9.0.0',
               'zip': 'h.zip',
               'size': 2048000,
             },
