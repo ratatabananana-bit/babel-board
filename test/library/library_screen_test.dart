@@ -330,7 +330,7 @@ void main() {
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Add repository'));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('repoToken')), findsNothing, reason: 'the token is folded away until asked for');
+    expect(find.textContaining('token'), findsNothing, reason: 'no token anywhere: just the link');
     await tester.enterText(find.byKey(const Key('repoUrl')), 'github.com/you/games');
     await tester.tap(find.byKey(const Key('connectRepo')));
     await settleAsync(tester);
@@ -342,17 +342,44 @@ void main() {
     await tester.tap(find.descendant(of: sheet, matching: find.widgetWithText(FilledButton, 'Install')).first);
     await settleAsync(tester);
     expect(library(tester).installedById('mini'), isNotNull);
-    expect(find.descendant(of: sheet, matching: find.text('1.0.0 installed')), findsOneWidget);
+    // Installed and current: the button is now Uninstall; the row says what is installed.
+    expect(find.descendant(of: sheet, matching: find.widgetWithText(FilledButton, 'Install')), findsNothing);
+    final uninstall = find.descendant(of: sheet, matching: find.widgetWithText(OutlinedButton, 'Uninstall')).first;
+    expect(uninstall, findsOneWidget);
+    expect(find.descendant(of: sheet, matching: find.textContaining('installed 1.0.0')), findsOneWidget);
+    await tester.tap(uninstall);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Uninstall'));
+    await settleAsync(tester);
+    expect(library(tester).installedById('mini'), isNull);
+    expect(find.descendant(of: sheet, matching: find.widgetWithText(FilledButton, 'Install')), findsWidgets);
   });
 
-  testWidgets('the repository sheet reports a link with no index, and unfolds the token field', (tester) async {
+  testWidgets('a newer version in the repository turns the button into Update', (tester) async {
+    await pumpLibrary(
+      tester,
+      preinstalled: [miniZip()],
+      repoIndex: {
+        'name': 'Our games',
+        'modules': [
+          {'id': 'mini', 'name': 'Mini Game', 'version': '1.1.0', 'minAppVersion': '3.0.0', 'zip': 'mini.zip', 'size': 1},
+        ],
+      },
+      zips: {'mini.zip': miniZip(version: '1.1.0')},
+    );
+    await settleAsync(tester);
+    expect(find.widgetWithText(FilledButton, 'Update'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Update'));
+    await settleAsync(tester);
+    expect(library(tester).installedById('mini')?.version, '1.1.0');
+    expect(find.widgetWithText(OutlinedButton, 'Uninstall'), findsOneWidget);
+  });
+
+  testWidgets('the repository sheet reports a link with no index, and a non-link', (tester) async {
     await pumpLibrary(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Add repository'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('repoPrivate')));
-    await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('repoUrl')), 'https://nowhere.example/index.json');
-    await tester.enterText(find.byKey(const Key('repoToken')), 'abc');
     await tester.tap(find.byKey(const Key('connectRepo')));
     await settleAsync(tester);
     expect(find.textContaining("Couldn't find index.json"), findsOneWidget);

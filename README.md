@@ -72,9 +72,9 @@ flutter build apk --release --split-per-abi
 ```
 
 Install `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`. Then add games: Settings →
-Repository, paste the link to a GitHub repository of packed modules, tap Connect, and pick
-the games to install. A private repository also wants a read-only token; a file or a direct
-link works too.
+Repository, paste the link to a GitHub repository of packed modules, tap Connect, and tap
+Install on the games you want. The button turns into Update when the repository has a newer
+version, or Uninstall. A file or a direct link works too.
 
 A web preview of the bundled games, for looking without a phone:
 
@@ -90,8 +90,7 @@ then serve `build/web` (for example `node tool/serve.mjs build/web 8765`).
 
 ## Sharing modules with friends
 
-Pack the module folders into a private GitHub repository and give each friend a read-only
-token for it:
+Pack the module folders into a GitHub repository and give friends its link:
 
 ```bash
 dart run tool/pack.dart modules ../babel-board-modules --name "Our games"

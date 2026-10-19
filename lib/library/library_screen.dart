@@ -247,8 +247,6 @@ class _RepoSheet extends StatefulWidget {
 
 class _RepoSheetState extends State<_RepoSheet> {
   late final _url = TextEditingController(text: _initialUrl());
-  late final _token = TextEditingController(text: widget.lib.repo?.token ?? '');
-  late bool _showToken = widget.lib.repo?.token != null;
   String? _error;
   bool _busy = false;
 
@@ -265,7 +263,6 @@ class _RepoSheetState extends State<_RepoSheet> {
   @override
   void dispose() {
     _url.dispose();
-    _token.dispose();
     super.dispose();
   }
 
@@ -275,7 +272,7 @@ class _RepoSheetState extends State<_RepoSheet> {
       _error = null;
     });
     try {
-      await widget.lib.connectRepo(_url.text, token: _token.text.trim());
+      await widget.lib.connectRepo(_url.text);
     } on RepoException catch (e) {
       if (mounted) setState(() => _error = e.message);
     } finally {
@@ -313,26 +310,6 @@ class _RepoSheetState extends State<_RepoSheet> {
               hintText: 'https://github.com/you/your-games',
             ),
           ),
-          if (_showToken) ...[
-            const SizedBox(height: 10),
-            TextField(
-              key: const Key('repoToken'),
-              controller: _token,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Access token',
-                hintText: 'only for a private repository',
-              ),
-            ),
-          ] else
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                key: const Key('repoPrivate'),
-                onPressed: () => setState(() => _showToken = true),
-                child: const Text('Private repository? Add a token'),
-              ),
-            ),
           if (_error != null) ...[
             const SizedBox(height: 8),
             Text(_error!, style: T.caption.copyWith(color: p.danger, fontSize: 13.5)),
@@ -493,22 +470,24 @@ class _RepoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.pal;
     final have = lib.installedById(entry.id);
+    final busy = lib.busy != null;
+    // One button per row: Install, then Update when the repository has a newer version,
+    // else Uninstall.
     final Widget action;
     if (entry.needsAppUpdate) {
       action = const FilledButton(onPressed: null, child: Text('Needs app update'));
-    } else if (have != null && compareVersions(have.version, entry.version) >= 0) {
-      // Say which version is here: the repository may list an older one than the installed.
-      final newer = compareVersions(have.version, entry.version) > 0;
-      action = Text(
-        newer ? 'Newer installed (${have.version})' : '${have.version} installed',
-        style: T.caption.copyWith(color: p.muted),
-      );
+    } else if (have == null) {
+      action = FilledButton(onPressed: busy ? null : () => _install(context), child: const Text('Install'));
+    } else if (compareVersions(have.version, entry.version) < 0) {
+      action = FilledButton(onPressed: busy ? null : () => _install(context), child: const Text('Update'));
     } else {
-      action = FilledButton(
-        onPressed: lib.busy != null ? null : () => _install(context),
-        child: Text(have == null ? 'Install' : 'Update'),
+      action = OutlinedButton(
+        onPressed: busy ? null : () => _uninstall(context),
+        style: OutlinedButton.styleFrom(foregroundColor: p.danger, side: BorderSide(color: p.danger.withValues(alpha: 0.6))),
+        child: const Text('Uninstall'),
       );
     }
+    final installed = have == null ? '' : ' · installed ${have.version}';
     final size = entry.size > 0 ? ' · ${(entry.size / 1024).round()} KB' : '';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -521,7 +500,7 @@ class _RepoRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(entry.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                Text('${entry.version}$size', style: T.caption.copyWith(color: p.muted)),
+                Text('${entry.version}$size$installed', style: T.caption.copyWith(color: p.muted)),
               ],
             ),
           ),
@@ -530,6 +509,16 @@ class _RepoRow extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _uninstall(BuildContext context) async {
+    final ok = await confirm(
+      context,
+      'Uninstall ${entry.name}?',
+      'Removes the game and everything you tracked in it.',
+      'Uninstall',
+    );
+    if (ok) await lib.uninstall(entry.id);
   }
 
   Future<void> _install(BuildContext context) async {
