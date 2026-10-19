@@ -33,8 +33,8 @@ class SettingsScreen extends StatelessWidget {
                 _Row(
                   icon: Icons.cloud_outlined,
                   title: 'Repository',
-                  subtitle: lib.repo?.indexUrl.toString() ?? 'Not set up',
-                  onTap: () => showRepoDialog(context, lib),
+                  subtitle: lib.repo?.displayName ?? 'Not set up',
+                  onTap: () => showRepoSheet(context, lib),
                 ),
                 _Row(
                   icon: Icons.folder_open_rounded,

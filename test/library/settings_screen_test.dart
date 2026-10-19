@@ -31,7 +31,7 @@ void main() {
       'Card size',
       'Flowing family grid',
       'Copy instructions for AI',
-      'Babel Board 3.0.0',
+      'Babel Board 3.1.0',
     ]) {
       await tester.scrollUntilVisible(find.text(t), 100, scrollable: find.byType(Scrollable).first);
       expect(find.text(t), findsOneWidget, reason: t);

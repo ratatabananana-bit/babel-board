@@ -71,9 +71,10 @@ Android only, sideloaded (no store). Build it yourself:
 flutter build apk --release --split-per-abi
 ```
 
-Install `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`. Then add a module: from a
-file, a link, or a private repository (Settings → Repository, paste the raw link to its
-`index.json` and a read-only token).
+Install `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`. Then add games: Settings →
+Repository, paste the link to a GitHub repository of packed modules, tap Connect, and pick
+the games to install. A private repository also wants a read-only token; a file or a direct
+link works too.
 
 A web preview of the bundled games, for looking without a phone:
 

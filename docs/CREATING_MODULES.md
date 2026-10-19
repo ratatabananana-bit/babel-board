@@ -110,9 +110,10 @@ app runs the same checks at install. A green validator means the module will dra
 2. Put that folder in a **private** GitHub repository and push.
 3. Give each friend a fine-grained personal access token for that one repository with
    **Contents: Read-only** and nothing else.
-4. In the app: Settings → Repository. Paste the raw link to the index
-   (`https://raw.githubusercontent.com/<owner>/<repo>/main/index.json`) and the token.
-   The app lists the games; tap to install, and it offers updates when a `version` rises.
+4. In the app: Settings → Repository. Paste the repository link
+   (`https://github.com/<owner>/<repo>`), tap **Connect**, and the games appear with Install
+   buttons. A private repository also needs the token ("Private repository? Add a token").
+   The app offers updates whenever a `version` rises.
 
 ## When something is wrong
 

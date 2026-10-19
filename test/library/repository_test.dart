@@ -33,6 +33,7 @@ Map<String, dynamic> index() => {
 };
 
 void main() {
+  group('repository links people paste', _candidates);
   test('entries resolve relative zip and icon against the index url; needsAppUpdate', () async {
     final client = MockClient((req) async => http.Response(jsonEncode(index()), 200));
     final repo = RepoClient(
@@ -143,5 +144,43 @@ void main() {
     await store.clear();
     expect(await store.load(), isNull);
     expect(secure, isEmpty);
+  });
+}
+
+void _candidates() {
+  List<String> c(String s) => repoIndexCandidates(s).map((u) => u.toString()).toList();
+  test('a GitHub repository link resolves to index.json on main, then master', () {
+    expect(c('https://github.com/you/games'), [
+      'https://raw.githubusercontent.com/you/games/main/index.json',
+      'https://raw.githubusercontent.com/you/games/master/index.json',
+    ]);
+    expect(c('github.com/you/games/'), c('https://github.com/you/games'), reason: 'no scheme, trailing slash');
+    expect(c('https://github.com/you/games.git'), c('https://github.com/you/games'));
+    expect(c('https://www.github.com/you/games?tab=readme'), c('https://github.com/you/games'));
+  });
+  test('a branch or folder page pins the branch', () {
+    expect(c('https://github.com/you/games/tree/dev'), ['https://raw.githubusercontent.com/you/games/dev/index.json']);
+    expect(c('https://github.com/you/games/tree/main/packed'), [
+      'https://raw.githubusercontent.com/you/games/main/packed/index.json',
+    ]);
+  });
+  test('raw, folder and index links pass through', () {
+    expect(c('https://raw.githubusercontent.com/you/games/main/index.json'), [
+      'https://raw.githubusercontent.com/you/games/main/index.json',
+    ]);
+    expect(c('https://example.org/games'), ['https://example.org/games/index.json']);
+    expect(c('https://example.org/games/custom.json'), ['https://example.org/games/custom.json']);
+  });
+  test('not a link: nothing', () {
+    expect(c(''), isEmpty);
+    expect(c('   '), isEmpty);
+    expect(c('just words'), isEmpty);
+  });
+  test('displayName is owner/repo for GitHub, else the host', () {
+    expect(
+      RepoConfig(indexUrl: Uri.parse('https://raw.githubusercontent.com/you/games/main/index.json')).displayName,
+      'you/games',
+    );
+    expect(RepoConfig(indexUrl: Uri.parse('https://example.org/games/index.json')).displayName, 'example.org');
   });
 }

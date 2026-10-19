@@ -390,5 +390,11 @@ void main() {
       await tester.pump();
     }
     await _shot(tester, '24_library_repository');
+
+    // The repository sheet, connected: link, folded token, the games with Install buttons.
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Repository'));
+    await _shot(tester, '33_repository_sheet');
   });
 }

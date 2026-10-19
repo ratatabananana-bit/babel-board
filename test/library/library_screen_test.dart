@@ -63,6 +63,9 @@ Future<AppState> pumpLibrary(
   Map<String, Uint8List> zips = const {},
   String? token,
   FakeSources? sources,
+  /// Extra index documents served at exact links (repository links that resolve to raw
+  /// GitHub urls); any other link answers 404.
+  Map<Uri, Map<String, Object>> indexes = const {},
 }) async {
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 2.75;
@@ -76,6 +79,8 @@ Future<AppState> pumpLibrary(
     if (req.url == indexUrl) {
       return repoIndex == null ? http.Response('', 404) : http.Response(jsonEncode(repoIndex), 200);
     }
+    final extra = indexes[req.url];
+    if (extra != null) return http.Response(jsonEncode(extra), 200);
     final z = zips[req.url.pathSegments.last];
     return z == null ? http.Response('', 404) : http.Response.bytes(z, 200);
   });
@@ -308,15 +313,52 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('the repository dialog saves url and token and reports a bad link', (tester) async {
+  testWidgets('paste a GitHub repository link, Connect, and the games are right there to install', (tester) async {
+    final master = Uri.parse('https://raw.githubusercontent.com/you/games/master/index.json');
+    await pumpLibrary(
+      tester,
+      indexes: {
+        // Only `master` exists; the app tries `main` first and falls through.
+        master: {
+          'name': 'Our games',
+          'modules': [
+            {'id': 'mini', 'name': 'Mini Game', 'version': '1.0.0', 'minAppVersion': '3.0.0', 'zip': 'mini.zip', 'size': 1},
+          ],
+        },
+      },
+      zips: {'mini.zip': miniZip()},
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Add repository'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('repoToken')), findsNothing, reason: 'the token is folded away until asked for');
+    await tester.enterText(find.byKey(const Key('repoUrl')), 'github.com/you/games');
+    await tester.tap(find.byKey(const Key('connectRepo')));
+    await settleAsync(tester);
+    final sheet = find.byKey(const Key('repoSheet'));
+    expect(find.descendant(of: sheet, matching: find.text('Mini Game')), findsOneWidget, reason: 'listed in the sheet');
+    expect(library(tester).repo?.indexUrl, master);
+    expect(library(tester).repo?.displayName, 'you/games');
+    // The Library behind the sheet lists the game too; tap the sheet's own button.
+    await tester.tap(find.descendant(of: sheet, matching: find.widgetWithText(FilledButton, 'Install')).first);
+    await settleAsync(tester);
+    expect(library(tester).installedById('mini'), isNotNull);
+    expect(find.descendant(of: sheet, matching: find.text('1.0.0 installed')), findsOneWidget);
+  });
+
+  testWidgets('the repository sheet reports a link with no index, and unfolds the token field', (tester) async {
     await pumpLibrary(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Add repository'));
     await tester.pumpAndSettle();
-    expect(find.text('Repository'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('repoPrivate')));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('repoUrl')), 'https://nowhere.example/index.json');
     await tester.enterText(find.byKey(const Key('repoToken')), 'abc');
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.tap(find.byKey(const Key('connectRepo')));
     await settleAsync(tester);
-    expect(find.textContaining("Couldn't find index.json"), findsWidgets);
+    expect(find.textContaining("Couldn't find index.json"), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('repoUrl')), 'not a link');
+    await tester.tap(find.byKey(const Key('connectRepo')));
+    await settleAsync(tester);
+    expect(find.textContaining('Paste a link'), findsOneWidget);
   });
 }

@@ -103,6 +103,29 @@ class LibraryController extends ChangeNotifier {
     }
   }
 
+  /// Connects to whatever link a person pasted (a GitHub repository page, a raw link, or
+  /// the index itself): tries each candidate index link, saves the first that answers, and
+  /// returns its listing. Throws [RepoException] with the last failure, or a
+  /// [RepoError.badIndex] one when the text is not a link.
+  Future<RepoListing> connectRepo(String input, {String? token}) async {
+    final candidates = repoIndexCandidates(input);
+    if (candidates.isEmpty) {
+      throw RepoException(RepoError.badIndex, 'Paste a link, like https://github.com/you/your-games');
+    }
+    RepoException? last;
+    for (final url in candidates) {
+      final config = RepoConfig(indexUrl: url, token: token == null || token.isEmpty ? null : token);
+      try {
+        await saveRepo(config);
+        return listing!;
+      } on RepoException catch (e) {
+        last = e;
+        if (e.kind != RepoError.notFound) break; // a bad token or no network won't improve on another branch
+      }
+    }
+    throw last!;
+  }
+
   /// Tests the connection, then saves. Throws [RepoException] when the index can't be read.
   Future<void> saveRepo(RepoConfig c) async {
     final client = _repoClientFactory(c);

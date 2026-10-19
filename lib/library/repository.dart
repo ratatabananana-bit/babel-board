@@ -12,6 +12,42 @@ class RepoConfig {
   RepoConfig({required this.indexUrl, this.token});
   final Uri indexUrl;
   final String? token;
+
+  /// "owner/repo" for a GitHub repository, else the host.
+  String get displayName {
+    final u = indexUrl;
+    if (u.host == 'raw.githubusercontent.com' && u.pathSegments.length >= 2) {
+      return '${u.pathSegments[0]}/${u.pathSegments[1]}';
+    }
+    return u.host;
+  }
+}
+
+final _github = RegExp(r'^(?:https?://)?(?:www\.)?github\.com/([^/\s]+)/([^/\s#?]+?)(?:\.git)?(?:/tree/([^/\s#?]+)(/.*)?|/)?(?:[#?].*)?$');
+
+/// Turns whatever a person pastes into the index links to try, in order: a GitHub
+/// repository page (`github.com/owner/repo`, with or without `/tree/branch`), a raw link,
+/// a folder link, or the `index.json` link itself. Empty when it is not a link at all.
+List<Uri> repoIndexCandidates(String input) {
+  var s = input.trim();
+  if (s.isEmpty) return const [];
+  if (!s.contains('://')) s = 'https://$s';
+  final gh = _github.firstMatch(s);
+  if (gh != null) {
+    final owner = gh.group(1)!;
+    final repo = gh.group(2)!;
+    final branch = gh.group(3);
+    var path = (gh.group(4) ?? '').replaceAll(RegExp(r'^/|/$'), '');
+    if (path.isNotEmpty) path = '$path/';
+    Uri raw(String b) => Uri.parse('https://raw.githubusercontent.com/$owner/$repo/$b/${path}index.json');
+    return branch != null ? [raw(branch)] : [raw('main'), raw('master')];
+  }
+  final u = Uri.tryParse(s);
+  if (u == null || !u.hasScheme || u.host.isEmpty || !u.host.contains('.') || input.trim().contains(' ')) {
+    return const [];
+  }
+  if (u.path.endsWith('.json')) return [u];
+  return [u.replace(path: '${u.path.endsWith('/') ? u.path : '${u.path}/'}index.json')];
 }
 
 /// Persists [RepoConfig]: the URL in shared preferences, the token in secure storage.

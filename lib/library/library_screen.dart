@@ -102,7 +102,7 @@ class LibraryScreen extends StatelessWidget {
 
   List<Widget> _repository(BuildContext context, LibraryController lib) {
     final p = context.pal;
-    final name = lib.listing?.name ?? lib.repo!.indexUrl.host;
+    final name = lib.listing?.name ?? lib.repo!.displayName;
     return [
       Row(
         children: [
@@ -128,7 +128,7 @@ class LibraryScreen extends StatelessWidget {
       if (lib.repoError != null) ...[
         Text(lib.repoError!, style: T.body.copyWith(color: p.danger)),
         const SizedBox(height: 8),
-        OutlinedButton(onPressed: () => showRepoDialog(context, lib), child: const Text('Edit repository')),
+        OutlinedButton(onPressed: () => showRepoSheet(context, lib), child: const Text('Edit repository')),
       ] else if (lib.listing != null && lib.listing!.entries.isEmpty)
         Text('This repository lists no games yet.', style: T.body.copyWith(color: p.text2))
       else if (lib.listing != null)
@@ -158,7 +158,7 @@ class _EmptyState extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         if (lib.canInstall) ...[
-          FilledButton(onPressed: () => showRepoDialog(context, lib), child: const Text('Add repository')),
+          FilledButton(onPressed: () => showRepoSheet(context, lib), child: const Text('Add repository')),
           const SizedBox(height: 10),
           OutlinedButton(onPressed: () => installFromFile(context, lib), child: const Text('Install from file')),
         ],
@@ -225,83 +225,156 @@ Future<void> showLinkDialog(BuildContext context, LibraryController lib) async {
 }
 
 /// Index URL + token. Save tests the connection first and shows the error in words.
-Future<void> showRepoDialog(BuildContext context, LibraryController lib) {
-  final url = TextEditingController(text: lib.repo?.indexUrl.toString() ?? '');
-  final token = TextEditingController(text: lib.repo?.token ?? '');
-  String? error;
-  var saving = false;
-  return showDialog<void>(
+/// Paste a repository link, tap Connect, pick the games: all in one sheet. A GitHub
+/// repository page is enough; the app finds `index.json` on `main` or `master` itself. A
+/// token is only for private repositories and stays folded away until needed.
+Future<void> showRepoSheet(BuildContext context, LibraryController lib) {
+  return showModalBottomSheet<void>(
     context: context,
-    builder: (d) => StatefulBuilder(
-      builder: (d, setState) => AlertDialog(
-        title: const Text('Repository'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              key: const Key('repoUrl'),
-              controller: url,
-              keyboardType: TextInputType.url,
-              decoration: const InputDecoration(
-                labelText: 'index.json link',
-                hintText: 'https://raw.githubusercontent.com/…/index.json',
-              ),
+    isScrollControlled: true,
+    useSafeArea: true,
+    builder: (_) => _RepoSheet(lib: lib),
+  );
+}
+
+class _RepoSheet extends StatefulWidget {
+  const _RepoSheet({required this.lib});
+  final LibraryController lib;
+
+  @override
+  State<_RepoSheet> createState() => _RepoSheetState();
+}
+
+class _RepoSheetState extends State<_RepoSheet> {
+  late final _url = TextEditingController(text: _initialUrl());
+  late final _token = TextEditingController(text: widget.lib.repo?.token ?? '');
+  late bool _showToken = widget.lib.repo?.token != null;
+  String? _error;
+  bool _busy = false;
+
+  /// Show the repository page link, not the raw index link, when it is a GitHub one.
+  String _initialUrl() {
+    final u = widget.lib.repo?.indexUrl;
+    if (u == null) return '';
+    if (u.host == 'raw.githubusercontent.com' && u.pathSegments.length >= 2) {
+      return 'https://github.com/${u.pathSegments[0]}/${u.pathSegments[1]}';
+    }
+    return u.toString();
+  }
+
+  @override
+  void dispose() {
+    _url.dispose();
+    _token.dispose();
+    super.dispose();
+  }
+
+  Future<void> _connect() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await widget.lib.connectRepo(_url.text, token: _token.text.trim());
+    } on RepoException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    final lib = context.watch<LibraryController>();
+    final listing = lib.listing;
+    final connected = lib.repo != null && listing != null && _error == null;
+    return Padding(
+      key: const Key('repoSheet'),
+      padding: EdgeInsets.fromLTRB(20, 0, 20, 16 + MediaQuery.viewInsetsOf(context).bottom),
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          const Text('Games from a repository', style: T.title),
+          const SizedBox(height: 6),
+          Text(
+            'Paste the link to a GitHub repository of Babel Board modules. The app lists its games; tap one to install it.',
+            style: T.body.copyWith(color: p.text2, fontSize: 15),
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            key: const Key('repoUrl'),
+            controller: _url,
+            keyboardType: TextInputType.url,
+            autocorrect: false,
+            onSubmitted: (_) => _connect(),
+            decoration: const InputDecoration(
+              labelText: 'Repository link',
+              hintText: 'https://github.com/you/your-games',
             ),
-            const SizedBox(height: 12),
+          ),
+          if (_showToken) ...[
+            const SizedBox(height: 10),
             TextField(
               key: const Key('repoToken'),
-              controller: token,
+              controller: _token,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'GitHub token (private repo)', hintText: 'optional'),
+              decoration: const InputDecoration(
+                labelText: 'Access token',
+                hintText: 'only for a private repository',
+              ),
             ),
-            if (error != null) ...[
-              const SizedBox(height: 12),
-              Text(error!, style: T.caption.copyWith(color: context.pal.danger)),
-            ],
+          ] else
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                key: const Key('repoPrivate'),
+                onPressed: () => setState(() => _showToken = true),
+                child: const Text('Private repository? Add a token'),
+              ),
+            ),
+          if (_error != null) ...[
+            const SizedBox(height: 8),
+            Text(_error!, style: T.caption.copyWith(color: p.danger, fontSize: 13.5)),
           ],
-        ),
-        actions: [
-          if (lib.repo != null)
-            TextButton(
-              onPressed: () async {
-                await lib.clearRepo();
-                if (d.mounted) Navigator.pop(d);
-              },
-              child: Text('Remove', style: TextStyle(color: context.pal.danger)),
-            ),
-          TextButton(onPressed: () => Navigator.pop(d), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: saving
-                ? null
-                : () async {
-                    final u = Uri.tryParse(url.text.trim());
-                    if (u == null || !u.hasScheme) {
-                      setState(() => error = 'Enter the full https link to index.json');
-                      return;
-                    }
-                    setState(() {
-                      saving = true;
-                      error = null;
-                    });
-                    try {
-                      await lib.saveRepo(
-                        RepoConfig(indexUrl: u, token: token.text.trim().isEmpty ? null : token.text.trim()),
-                      );
-                      if (d.mounted) Navigator.pop(d);
-                    } on RepoException catch (e) {
-                      setState(() {
-                        saving = false;
-                        error = e.message;
-                      });
-                    }
-                  },
-            child: const Text('Save'),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              if (lib.repo != null)
+                TextButton(
+                  onPressed: _busy
+                      ? null
+                      : () async {
+                          await lib.clearRepo();
+                          if (mounted) setState(() => _error = null);
+                        },
+                  child: Text('Remove', style: TextStyle(color: p.danger)),
+                ),
+              const Spacer(),
+              FilledButton(
+                key: const Key('connectRepo'),
+                onPressed: _busy ? null : _connect,
+                child: _busy
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                    : Text(connected ? 'Reconnect' : 'Connect'),
+              ),
+            ],
           ),
+          if (connected) ...[
+            const SizedBox(height: 16),
+            Text(
+              listing.entries.isEmpty
+                  ? 'This repository lists no games yet.'
+                  : '${listing.name} · ${listing.entries.length} game${listing.entries.length == 1 ? '' : 's'}',
+              style: T.label.copyWith(color: p.muted),
+            ),
+            const SizedBox(height: 4),
+            for (final e in listing.entries) _RepoRow(entry: e, lib: lib),
+          ],
         ],
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _GameTile extends StatelessWidget {
