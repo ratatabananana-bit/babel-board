@@ -38,8 +38,9 @@ Cannot: counters on an item (HP, uses, charges), per-item notes, per-item flip/s
 
 - Any number of zones, each with id, label, phrase, icon (fixed set of 10), accent (`amber`, `mint`, `violet`; may repeat), hint, band.
 - An item is in **at most one zone**. State is `{itemId: zoneId}`, insertion-ordered, saved per module in SharedPreferences; survives module updates, deleted on uninstall.
-- Operations: put (optionally before another item), remove, clear a zone (with Undo), clear all.
-- Cannot: quantities (two copies of a card), per-player state (one tracker per phone), ordering within a zone beyond insertion/drag, a "move all of zone A to zone B" action, an item in two zones ("owned" and "in hand this scenario" at once), numeric trackers of any kind, history/undo beyond the clear-zone snackbar.
+- Operations: put (optionally before another item), remove, clear a zone (with Undo), clear all, move everything in several zones to one zone (`moveAll`, the `moveZone` checklist action), clear several zones (`clearZones`).
+- A filter rule `inZone` links collections through tracking: "items whose `monster` field names an item currently in the In play zone", so a lane of monster types drives a list of their cards.
+- Cannot: quantities (two copies of a card), per-player state (one tracker per phone), ordering within a zone beyond insertion/drag, an item in two zones ("owned" and "in hand this scenario" at once), numeric trackers of any kind, history/undo beyond the clear-zone snackbar.
 
 ## 4. Blocks (one tree per tab)
 
@@ -48,9 +49,9 @@ Cannot: counters on an item (HP, uses, charges), per-item notes, per-item flip/s
 | `gallery` | Searchable picture grid, 4/3/2 per row, grouped or flowing layout; optional drill-down (group tiles first). | One `collection`; `search` paths; `tileName`; `tileSubtitle` template (a second line, e.g. the printed number); `searchKeyboard` `text`/`number`; `filters` (single-select docks, each `path` + `options` with symbol; more than 8 options become a picker button opening a searchable sheet); `sections` by one field with sticky headers and optional number `rail` (`railRange` needs integer values); `groups` (`path`, `by` collection, `noun`): one tile per `by` item, tap to see its items, a bar with the way back; a typed search spans every group. | One collection per gallery. No multi-select, no range filter, no sort control. Group tiles come from a second collection, so each group needs an item there (the validator warns about items whose group value names none). Pictures decode at tile size. Lazy above 120 shown items (`kReflowLimit`): only tiles near the viewport are built and nothing glides; at or below, the gliding `ReflowGrid`. The flowing layout is only used at or below the limit. |
 | `board` | One coloured lane per zone; drag between lanes, before a card, or to Remove; ⋮ clears. | `title`, `countLabel`, children = `zone` blocks each with a `cardList` style. | One zone → plain list, no dragging. Lanes show only items of that lane's `cardList.collection`. |
 | `zone` | A single lane (a one-zone board as a tab). | `zone`, `list`. | — |
-| `cardList` | Items matching a `filter` (zone and/or `where` rules). Styles `mini` (columns), `rows`, `thumbs`; `removable` ✕. | | Filter rules are `has`/`equals` only, all must match; no OR, no numeric comparison. |
+| `cardList` | Items matching a `filter` (zone and/or `where` rules). Styles `mini` (columns), `rows`, `thumbs`; `removable` ✕. | | Filter rules are `has`, `equals` and `inZone`, all must match; no OR, no numeric comparison. |
 | `flow` | Round/turn tracker: step bar, parchment checklist, "How this phase works", Next (nags on unticked), Rules sheet (`reminders`), ⋮ Setup and New game. | `cyclic`, `setup` step, `children` = `step`. | **One flow per module.** Linear steps only. |
-| `step` | One phase. | `title/short/tag/summary/how`, fixed `checklist` rows (`id/text/sub/action/actionLabel`) **or** `cardChecklist` (tracked items matching a filter, with a `sub` template). | Actions: `clearZone`, `newGame` only. No branching, no counters, no dice, no random draw, no timers, no per-player rows, no conditional rows. |
+| `step` | One phase. | `title/short/tag/summary/how`, fixed `checklist` rows (`id/text/sub/action/actionLabel`) **or** `cardChecklist` (tracked items matching a filter, with a `sub` template). | Actions: `clearZone`, `newGame`, `moveZone` (from zones → to zone), `clearZones`. No branching, no counters, no dice, no random draw, no timers, no per-player rows, no conditional rows. |
 | `text` | Title, paragraphs, bullets. | | No headings inside, no images, no collapsible sections, no search. |
 | `hub` | A menu page: one row per `entry` (icon or picture, label, summary); tapping pushes the entry's block on its own screen with a back arrow. | `title`, children = `entry` blocks (`label`, `icon`, `image`, `summary`, `block`). Any block inside, hubs included. | Entries are not tabs: no badge, no swipe between them. A flow inside a hub is found for saved state (first flow in tab order, hubs walked). |
 
@@ -87,5 +88,6 @@ before a module can carry them.
 - 3.2.0: install limits 250 MB zip / 600 MB unpacked; zips stream from disk; downloads spool to a temp file.
 - 3.2.0: `hub` block with `entry` children (pushed sub-screens).
 - 3.2.0: gallery `groups` (drill-down), `tileSubtitle`, `searchKeyboard`; filter docks over 8 options become a searchable picker.
+- 3.2.0: `moveZone` and `clearZones` checklist actions; `inZone` filter rule.
 - 3.1.x: repositories need no token; Install/Update/Uninstall rows; app renamed Babel Board.
 - 3.0.0: console + modules (format 1); all blocks above; single-JSON install; `details`, `swipe`, `cardChecklist`.

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vale_helper/module_format/filter.dart';
+import 'package:vale_helper/module_format/spec_json.dart';
 
 void main() {
   final imp = {
@@ -44,5 +45,24 @@ void main() {
     });
     expect(f.matches(imp, null), isTrue);
     expect(f.matches(hestia, 'field'), isFalse);
+  });
+
+  test('inZone keeps items whose field names an item currently in that zone, lists included', () {
+    final f = ItemFilter.fromJson({
+      'where': [
+        {'path': 'monster', 'inZone': 'inplay'},
+      ],
+    });
+    String? zoneOf(String id) => id == 'archer' ? 'inplay' : null;
+    expect(f.matches({'monster': 'archer'}, null, zoneOf: zoneOf), isTrue);
+    expect(
+      f.matches({
+        'monster': ['guard', 'archer'],
+      }, null, zoneOf: zoneOf),
+      isTrue,
+    );
+    expect(f.matches({'monster': 'guard'}, null, zoneOf: zoneOf), isFalse);
+    expect(f.matches({'monster': 'archer'}, null), isFalse, reason: 'no zone lookup, nothing is in play');
+    expect(() => FieldRule.fromJson({'path': 'x'}), throwsA(isA<SpecFormatException>()));
   });
 }

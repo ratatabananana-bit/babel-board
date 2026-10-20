@@ -113,4 +113,46 @@ void main() {
     expect(find.text('Pick a first player'), findsOneWidget);
     expect(find.text('Shuffle everything.'), findsOneWidget);
   });
+
+  testWidgets('a moveZone row moves Lane A into Lane B and ticks itself; clearZones empties both', (tester) async {
+    await pumpModules(
+      tester,
+      tab: 'Flow',
+      prefs: prefsWith({'imp': 'a', 'nessie': 'b'}),
+      edit: (m) {
+        final step = ((m['tabs'] as List)[2]['block']['children'] as List)[0] as Map;
+        (step['checklist'] as List).addAll([
+          {
+            'id': 'one.move',
+            'text': 'Return cards',
+            'action': {
+              'type': 'moveZone',
+              'from': ['a'],
+              'to': 'b',
+            },
+          },
+          {
+            'id': 'one.wipe',
+            'text': 'Wipe both lanes',
+            'action': {
+              'type': 'clearZones',
+              'zones': ['a', 'b'],
+            },
+            'actionLabel': 'Wipe',
+          },
+        ]);
+      },
+    );
+    final zones = scoped<ZoneState>(tester);
+    await tester.tap(find.text('Move'));
+    await tester.pumpAndSettle();
+    expect(zones.zoneOf('imp'), 'b');
+    expect(zones.idsIn('b'), ['nessie', 'imp'], reason: 'moved items join the end of the lane');
+    expect(scoped<FlowState>(tester).isChecked('one.move'), isTrue);
+
+    await tester.tap(find.text('Wipe'));
+    await tester.pumpAndSettle();
+    expect(zones.total, 0);
+    expect(scoped<FlowState>(tester).isChecked('one.wipe'), isTrue);
+  });
 }

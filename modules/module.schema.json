@@ -150,7 +150,7 @@
           "items": {
             "type": "object",
             "required": ["path"],
-            "properties": { "path": { "type": "string" }, "has": {}, "equals": {} }
+            "properties": { "path": { "type": "string" }, "has": {}, "equals": {}, "inZone": { "type": "string" } }
           }
         }
       }
@@ -170,7 +170,24 @@
               "required": ["type", "zone"],
               "properties": { "type": { "const": "clearZone" }, "zone": { "type": "string" } }
             },
-            { "type": "object", "required": ["type"], "properties": { "type": { "const": "newGame" } } }
+            { "type": "object", "required": ["type"], "properties": { "type": { "const": "newGame" } } },
+            {
+              "type": "object",
+              "required": ["type", "from", "to"],
+              "properties": {
+                "type": { "const": "moveZone" },
+                "from": { "oneOf": [{ "type": "string" }, { "type": "array", "minItems": 1, "items": { "type": "string" } }] },
+                "to": { "type": "string" }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["type", "zones"],
+              "properties": {
+                "type": { "const": "clearZones" },
+                "zones": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+              }
+            }
           ]
         }
       }

@@ -447,4 +447,45 @@ void main() {
       ),
     );
   });
+
+  test('moveZone, clearZones and inZone name real zones', () {
+    final m = fullManifest();
+    final step = ((m['tabs'] as List)[2]['block']['children'] as List)[0] as Map;
+    (step['checklist'] as List).addAll(<Map<String, Object>>[
+      {
+        'id': 's1.move',
+        'text': 'Return',
+        'action': {
+          'type': 'moveZone',
+          'from': ['a', 'nope'],
+          'to': 'b',
+        },
+      },
+      {
+        'id': 's1.wipe',
+        'text': 'Clear',
+        'action': {
+          'type': 'clearZones',
+          'zones': ['gone'],
+        },
+      },
+    ]);
+    (m['tabs'] as List).add(<String, Object>{
+      'label': 'In play',
+      'icon': 'list',
+      'block': <String, Object>{
+        'type': 'cardList',
+        'collection': 'items',
+        'filter': {
+          'where': [
+            {'path': 'family', 'inZone': 'missing'},
+          ],
+        },
+      },
+    });
+    final issues = check(m);
+    expect(issues, fatalAt('tabs[2].block.children[0].checklist[2].action.from[1]', 'Unknown zone "nope"'));
+    expect(issues, fatalAt('tabs[2].block.children[0].checklist[3].action.zones[0]', 'Unknown zone "gone"'));
+    expect(issues, fatalAt('tabs[4].block.filter.where[0].inZone', 'Unknown zone "missing"'));
+  });
 }

@@ -177,7 +177,11 @@ List<ValidationIssue> validateModule(
       spec.isInline ? spec.inlineItems : collections[name] ?? const [];
 
   void checkFilter(String path, ItemFilter? f) {
-    if (f?.zone case final zone?) checkZoneId('$path.zone', zone);
+    if (f == null) return;
+    if (f.zone case final zone?) checkZoneId('$path.zone', zone);
+    for (var i = 0; i < f.where.length; i++) {
+      if (f.where[i].inZone case final z?) checkZoneId('$path.where[$i].inZone', z);
+    }
   }
 
   // Item sheets.
@@ -206,7 +210,21 @@ List<ValidationIssue> validateModule(
   void checkStep(String path, StepSpec s) {
     for (var i = 0; i < s.checklist.length; i++) {
       final action = s.checklist[i].action;
-      if (action?.type == 'clearZone') checkZoneId('$path.checklist[$i].action.zone', action!.zone);
+      if (action == null) continue;
+      final at = '$path.checklist[$i].action';
+      switch (action.type) {
+        case 'clearZone':
+          checkZoneId('$at.zone', action.zone);
+        case 'moveZone':
+          for (var k = 0; k < action.from.length; k++) {
+            checkZoneId('$at.from[$k]', action.from[k]);
+          }
+          checkZoneId('$at.to', action.to);
+        case 'clearZones':
+          for (var k = 0; k < action.zones.length; k++) {
+            checkZoneId('$at.zones[$k]', action.zones[k]);
+          }
+      }
     }
     if (s.cardChecklist case final cc?) {
       requireCollection('$path.cardChecklist.collection', cc.collection);

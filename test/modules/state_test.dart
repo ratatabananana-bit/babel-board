@@ -29,6 +29,22 @@ void main() {
       expect(z.idsIn('b'), ['c', 'b', 'a']);
     });
 
+    test('moveAll moves items from several zones into one, keeping order', () async {
+      final z = ZoneState(await SharedPreferences.getInstance(), 'mini');
+      z
+        ..put('a', 'hand')
+        ..put('b', 'discard')
+        ..put('c', 'lost')
+        ..put('d', 'pool');
+      z.moveAll(['hand', 'discard', 'lost'], 'pool');
+      expect(z.idsIn('pool'), ['d', 'a', 'b', 'c'], reason: 'moved items join the end of the lane');
+      expect(z.count('hand') + z.count('discard') + z.count('lost'), 0);
+      var notified = 0;
+      z.addListener(() => notified++);
+      z.moveAll(['hand'], 'pool');
+      expect(notified, 0, reason: 'nothing moved, nothing saved');
+    });
+
     test('clearZone only clears that zone; remove and clearAll', () async {
       final z = ZoneState(await SharedPreferences.getInstance(), 'mini');
       z.put('x', 'a');

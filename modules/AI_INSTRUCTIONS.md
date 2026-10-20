@@ -60,7 +60,9 @@ with the name under it), `cardAspect` (width ÷ height, default 0.716), `sheet`.
 - Template: text with `{path}` holes: `"Cost {cost}"`.
 - Inline symbols: write `:name:` in any text to show that symbol (declared in `symbols`) inside the line, e.g. `"Earn 2 :stone_red:"`. Use it wherever the printed card shows an icon.
 - Filter: `{"zone": "field", "where": [{"path": "effects.type", "has": "active"}]}`. `zone`
-  optional; each rule uses `has` (any value equals) or `equals` (exactly one value equals).
+  optional; each rule uses `has` (any value equals), `equals` (exactly one value equals) or, from
+  3.2.0, `inZone` (any value is the id of an item tracked in that zone: "cards of the monster types
+  in the In play zone").
 
 ### Zones (what the player tracks)
 
@@ -95,7 +97,8 @@ Every block: `{"type": "<type>", …settings, "children": [...]}`.
   `cyclic: false` runs once (last step offers New game). At least one step; one flow per module.
 - `step`: `{"type": "step", "id": "draw", "title": "Draw", "short": "Draw", "tag": "optional note", "summary": "One line.", "listTitle": "Checklist", "nextLabel": "optional", "emptyText": "optional", "how": ["Detail line…"], "checklist": [{"id": "draw.cards", "text": "Draw 2 cards", "sub": "optional detail", "action": {"type": "clearZone", "zone": "table"}, "actionLabel": "Clear"}]}`.
   Step ids unique; checklist ids unique (prefix with the step id). `action` is optional:
-  `{"type": "clearZone", "zone": …}` or `{"type": "newGame"}`. Optional `cardChecklist`
+  `{"type": "clearZone", "zone": …}`, `{"type": "newGame"}`, or from 3.2.0 `{"type": "moveZone", "from": ["discard", "lost"], "to": "pool"}`
+  (everything in the from zones joins the to zone) and `{"type": "clearZones", "zones": ["inplay"]}`. Optional `cardChecklist`
   instead of fixed rows: `{"collection": "cards", "filter": <filter>, "sub": "{template}"}`.
 - `text`: `{"type": "text", "title": "Scoring", "paragraphs": ["…"], "bullets": ["…"]}`.
 - `hub` (needs `minAppVersion` "3.2.0"): a menu page when a game has more sets of cards than four tabs can hold. `{"type": "hub", "title": "Cards", "children": [{"type": "entry", "label": "Items", "icon": "cards", "image": "https://… (optional)", "summary": "optional line", "block": <any block>}]}`. Tapping an entry opens its block on its own screen with a back arrow.

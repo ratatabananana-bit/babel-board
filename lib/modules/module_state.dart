@@ -60,6 +60,24 @@ class ZoneState extends ChangeNotifier {
     if (_zones.remove(itemId) != null) _save();
   }
 
+  /// Moves every item in any of [from] to [to], keeping their order (after what [to]
+  /// already holds). Nothing moved: nothing saved.
+  void moveAll(Iterable<String> from, String to) {
+    final set = from.toSet()..remove(to);
+    final moving = [
+      for (final e in _zones.entries)
+        if (set.contains(e.value)) e.key,
+    ];
+    if (moving.isEmpty) return;
+    for (final id in moving) {
+      _zones.remove(id);
+    }
+    for (final id in moving) {
+      _zones[id] = to;
+    }
+    _save();
+  }
+
   void clearZone(String zone) {
     _zones.removeWhere((_, z) => z == zone);
     _save();

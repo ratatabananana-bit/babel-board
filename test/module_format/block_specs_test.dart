@@ -616,6 +616,28 @@ void main() {
     });
   });
 
+  group('checklist actions', () {
+    test('moveZone and clearZones parse; moveZone needs "to"; from is text or a list', () {
+      final one = ChecklistAction.fromJson({'type': 'moveZone', 'from': 'hand', 'to': 'pool'}, 'a');
+      expect(one.from, ['hand']);
+      expect(one.to, 'pool');
+      final many = ChecklistAction.fromJson({
+        'type': 'moveZone',
+        'from': ['hand', 'lost'],
+        'to': 'pool',
+      }, 'a');
+      expect(many.from, ['hand', 'lost']);
+      expect(() => ChecklistAction.fromJson({'type': 'moveZone', 'from': 'hand'}, 'a'), failsAt('a.to'));
+      expect(() => ChecklistAction.fromJson({'type': 'moveZone', 'from': 3, 'to': 'pool'}, 'a'), failsAt('a.from'));
+      final clear = ChecklistAction.fromJson({
+        'type': 'clearZones',
+        'zones': ['inplay', 'active'],
+      }, 'a');
+      expect(clear.zones, ['inplay', 'active']);
+      expect(() => ChecklistAction.fromJson({'type': 'clearZones', 'zones': []}, 'a'), failsAt('a.zones'));
+    });
+  });
+
   group('hub', () {
     test('parses entries with defaults', () {
       final h =

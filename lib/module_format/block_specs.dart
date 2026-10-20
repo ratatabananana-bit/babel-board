@@ -8,7 +8,7 @@ library;
 import 'filter.dart';
 import 'spec_json.dart';
 
-const kChecklistActions = {'clearZone', 'newGame'};
+const kChecklistActions = {'clearZone', 'newGame', 'moveZone', 'clearZones'};
 const kCardListStyles = {'mini', 'rows', 'thumbs'};
 
 /// One node of a tab's block tree, in its typed form. [fromJson] picks the parser by
@@ -278,12 +278,22 @@ class BoardSpec extends BlockSpec {
 
 // ----------------------------------------------------------------------- flow / step
 
-/// What a checklist row's button does: `{"type": "clearZone", "zone": id}` or `{"type": "newGame"}`.
+/// What a checklist row's button does: `{"type": "clearZone", "zone": id}`,
+/// `{"type": "newGame"}`, `{"type": "moveZone", "from": id | [id], "to": id}` (everything in
+/// the `from` zones joins `to`, e.g. discards back to the pool at a scenario's end) or
+/// `{"type": "clearZones", "zones": [id]}`.
 class ChecklistAction {
-  const ChecklistAction({required this.type, this.zone});
+  const ChecklistAction({required this.type, this.zone, this.from = const [], this.to, this.zones = const []});
 
   final String type;
   final String? zone;
+
+  /// `moveZone`: the zones emptied into [to].
+  final List<String> from;
+  final String? to;
+
+  /// `clearZones`: the zones emptied.
+  final List<String> zones;
 
   static ChecklistAction fromJson(Map<String, dynamic> j, String where) {
     final f = Fields(j, where);
@@ -291,7 +301,25 @@ class ChecklistAction {
     if (type is! String || !kChecklistActions.contains(type)) {
       f.fail('type', 'Action must be one of ${kChecklistActions.join(', ')}: "$type"');
     }
-    return ChecklistAction(type: type, zone: type == 'clearZone' ? f.text('zone') : f.optText('zone'));
+    switch (type) {
+      case 'moveZone':
+        final raw = j['from'];
+        final List<String> from;
+        if (raw is String) {
+          from = [raw];
+        } else if (raw is List && raw.isNotEmpty && raw.every((e) => e is String)) {
+          from = raw.cast<String>();
+        } else {
+          f.fail('from', 'Should be a zone id or a list of zone ids');
+        }
+        return ChecklistAction(type: type, from: from, to: f.text('to'));
+      case 'clearZones':
+        final zones = f.optTextList('zones');
+        if (zones == null || zones.isEmpty) f.fail('zones', 'Should be a list of zone ids');
+        return ChecklistAction(type: type, zones: zones);
+      default:
+        return ChecklistAction(type: type, zone: type == 'clearZone' ? f.text('zone') : f.optText('zone'));
+    }
   }
 }
 

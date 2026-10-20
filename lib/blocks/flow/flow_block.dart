@@ -153,7 +153,7 @@ List<ChecklistItem> stepItems(BuildContext context, StepSpec step) {
       : module.items(collection);
   return [
     for (final it in candidates)
-      if (filter.matches(it.data, zones.zoneOf(it.id)))
+      if (filter.matches(it.data, zones.zoneOf(it.id), zoneOf: zones.zoneOf))
         ChecklistItem(
           id: 'card.${it.id}',
           text: it.title(spec),
@@ -317,9 +317,28 @@ Future<bool> runChecklistAction(BuildContext context, ChecklistAction action) as
     case 'newGame':
       final body = context.read<FlowSpec?>()?.newGameText ?? 'Clears everything you tracked and starts over.';
       return confirmNewGame(context, body);
+    case 'moveZone':
+      final to = action.to;
+      if (to == null) return false;
+      context.read<ZoneState>().moveAll(action.from, to);
+      return true;
+    case 'clearZones':
+      final zones = context.read<ZoneState>();
+      for (final z in action.zones) {
+        zones.clearZone(z);
+      }
+      return true;
   }
   return false;
 }
+
+/// The pill's text when the row gives none.
+String defaultActionLabel(ChecklistAction action) => switch (action.type) {
+  'newGame' => 'New game',
+  'moveZone' => 'Move',
+  'clearZone' || 'clearZones' => 'Clear',
+  _ => 'Do it',
+};
 
 /// Full-width progress bar; labels wrap instead of being cut off.
 class _PhaseBar extends StatelessWidget {
@@ -534,7 +553,7 @@ class _ActionPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = item.actionLabel ?? (item.action!.type == 'newGame' ? 'New game' : 'Do it');
+    final label = item.actionLabel ?? defaultActionLabel(item.action!);
     return Material(
       color: Palette.ink,
       borderRadius: BorderRadius.circular(20),

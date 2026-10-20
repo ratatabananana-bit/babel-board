@@ -143,8 +143,9 @@ Tapping an item opens its sheet: picture, name, subtitle, then:
   card. A name that isn't in `symbols` is shown as written.
 - **Filter**: `{"zone": "field", "where": [{"path": "effects.type", "has": "active"}]}`.
   `zone` (optional) keeps items currently in that zone. Each `where` rule needs `has` (any
-  value at the path equals it) or `equals` (exactly one value, equal to it). All rules must
-  match.
+  value at the path equals it), `equals` (exactly one value, equal to it) or `inZone` (3.2.0:
+  any value at the path is the id of an item currently tracked in that zone, e.g. monster
+  cards whose `monster` names a monster type put "In play"). All rules must match.
 
 ## Zones
 
@@ -275,8 +276,11 @@ one step and only `step` children. One flow per module.
 - `short` labels the step bar when `title` is long; `tag` adds a small note under it.
 - `how`: the folded "How this phase works" lines.
 - `action`: a pill on the row. `{"type": "clearZone", "zone": …}` empties a zone;
-  `{"type": "newGame"}` asks, then clears all zones and returns to the first step. Doing the
-  action ticks the row.
+  `{"type": "newGame"}` asks, then clears all zones and returns to the first step;
+  `{"type": "moveZone", "from": ["discard", "lost"], "to": "pool"}` (3.2.0) moves everything
+  in the `from` zones to the end of `to` (a scenario's end: cards back to the pool);
+  `{"type": "clearZones", "zones": ["inplay"]}` (3.2.0) empties several zones. Doing the
+  action ticks the row. Default pill text: Clear, New game, Move.
 - `cardChecklist`: instead of fixed rows, list items that match a filter, e.g. "your Field
   cards with Active effects":
   `{"collection": "cards", "filter": {"zone": "field", "where": [{"path": "effects.type", "has": "active"}]}, "sub": "{effects[type=active].text}"}`.

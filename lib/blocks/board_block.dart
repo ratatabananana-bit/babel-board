@@ -170,7 +170,7 @@ class _BoardBlockState extends State<BoardBlock> {
 List<Item> _itemsIn(LoadedModule module, ZoneState zones, LaneSpec lane) => [
   for (final id in zones.idsIn(lane.zone.id))
     if (module.item(lane.list.collection, id) case final it?)
-      if (lane.list.filter?.matches(it.data, lane.zone.id) ?? true) it,
+      if (lane.list.filter?.matches(it.data, lane.zone.id, zoneOf: zones.zoneOf) ?? true) it,
 ];
 
 /// Empties [zone] at once and shows a snackbar whose Undo puts the cards back, in order.
@@ -958,7 +958,7 @@ class CardListBlock extends StatelessWidget {
         : module.items(list.collection);
     final items = [
       for (final it in source)
-        if (filter?.matches(it.data, zones.zoneOf(it.id)) ?? true) it,
+        if (filter?.matches(it.data, zones.zoneOf(it.id), zoneOf: zones.zoneOf) ?? true) it,
     ];
     final zone =
         zoneSpec(module, filter?.zone) ?? ZoneSpec(id: '', label: list.title ?? '', icon: 'list', accent: 'amber');
