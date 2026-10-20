@@ -282,6 +282,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
         label: first ? '$k' : null,
         endsRun: last,
         picked: picked,
+        pictureWidth: tileW - kFlowInset,
       );
       if (picked) {
         final col = i % columns;
@@ -338,7 +339,9 @@ class _GalleryBlockState extends State<GalleryBlock> {
       slivers: [
         SliverPadding(
           padding: _pad.copyWith(top: top),
-          sliver: SliverToBoxAdapter(child: Stack(clipBehavior: Clip.none, children: [...band, grid])),
+          sliver: SliverToBoxAdapter(
+            child: Stack(clipBehavior: Clip.none, children: [...band, grid]),
+          ),
         ),
         SliverToBoxAdapter(child: SizedBox(height: tail)),
       ],
@@ -377,7 +380,13 @@ class _GalleryBlockState extends State<GalleryBlock> {
       aspect: spec.cardAspect,
       extraHeight: extra,
       duration: context.read<Settings>().anim(ReflowGrid.normalDuration),
-      tileBuilder: (it) => ItemTile(item: it, collection: spec, collectionId: _g.collection, showName: _g.tileName),
+      tileBuilder: (it) => ItemTile(
+        item: it,
+        collection: spec,
+        collectionId: _g.collection,
+        showName: _g.tileName,
+        pictureWidth: ReflowGrid.tileWidth(gridW, columns),
+      ),
     );
     if (shown.isEmpty) {
       return Center(
@@ -453,7 +462,6 @@ class _GalleryBlockState extends State<GalleryBlock> {
     );
   }
 
-
   /// Watches for real user scrolls, and hides the platform scrollbar: the rail is the
   /// scrollbar here.
   Widget _scrollWatch(Widget child) => ScrollConfiguration(
@@ -461,4 +469,3 @@ class _GalleryBlockState extends State<GalleryBlock> {
     child: NotificationListener<UserScrollNotification>(onNotification: _onUserScroll, child: child),
   );
 }
-

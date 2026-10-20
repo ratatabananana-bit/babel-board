@@ -96,10 +96,18 @@ class TextOnlyCard extends StatelessWidget {
   }
 }
 
+/// Decodes [img] no wider than [logicalWidth] at [dpr], so a grid of tiles never holds
+/// full-size frames. The sheet's zoom keeps the raw provider.
+ImageProvider sizedImage(ImageProvider img, double logicalWidth, double dpr) {
+  final w = (logicalWidth * dpr).ceil();
+  if (w <= 0) return img;
+  return ResizeImage(img, width: w, policy: ResizeImagePolicy.fit, allowUpscaling: false);
+}
+
 /// An item's picture in its printed shape: `card` fills the shape with the picture,
 /// `square` frames square art above the title and subtitle. No picture → [TextOnlyCard].
 class ItemPicture extends StatelessWidget {
-  const ItemPicture(this.item, this.collection, {super.key, this.radius = 12, this.artOnly = false});
+  const ItemPicture(this.item, this.collection, {super.key, this.radius = 12, this.artOnly = false, this.decodeWidth});
 
   /// For the `square` shape: draw just the square art, without the card frame (list rows).
   final bool artOnly;
@@ -108,14 +116,19 @@ class ItemPicture extends StatelessWidget {
   final CollectionSpec collection;
   final double radius;
 
+  /// Logical width the picture will be drawn at, when the caller knows it (grid tiles). The
+  /// picture is then decoded no wider than that; without it the full file is decoded.
+  final double? decodeWidth;
+
   @override
   Widget build(BuildContext context) {
-    final img = context.read<LoadedModule>().files.image(item.imageRef(collection));
+    final raw = context.read<LoadedModule>().files.image(item.imageRef(collection));
     final textOnly = TextOnlyCard(item, collection, radius: radius);
+    if (raw == null) return AspectRatio(aspectRatio: collection.cardAspect, child: textOnly);
+    final w = decodeWidth;
+    final img = w == null ? raw : sizedImage(raw, w, MediaQuery.devicePixelRatioOf(context));
     Widget body;
-    if (img == null) {
-      body = textOnly;
-    } else if (collection.imageShape == 'square' && artOnly) {
+    if (collection.imageShape == 'square' && artOnly) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: AspectRatio(
@@ -215,4 +228,3 @@ class _FramedCard extends StatelessWidget {
     );
   }
 }
-

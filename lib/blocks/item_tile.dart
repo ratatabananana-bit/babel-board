@@ -18,12 +18,16 @@ class ItemTile extends StatelessWidget {
     required this.collection,
     required this.collectionId,
     this.showName = true,
+    this.pictureWidth,
   });
 
   final Item item;
   final CollectionSpec collection;
   final String collectionId;
   final bool showName;
+
+  /// Logical width of the picture, when the grid knows it: decodes at tile size.
+  final double? pictureWidth;
 
   /// Height of the name block under the picture (two lines), including the gap.
   static const nameHeight = 6.0 + nameLines * nameSize * nameLineHeight;
@@ -52,7 +56,7 @@ class ItemTile extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                ItemPicture(item, collection),
+                ItemPicture(item, collection, decodeWidth: pictureWidth),
                 if (zone != null && zc != null) ...[
                   // Outline: 2 dp line, 2 dp outside the picture.
                   Positioned(
@@ -124,4 +128,3 @@ class ZoneChip extends StatelessWidget {
     );
   }
 }
-

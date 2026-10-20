@@ -34,8 +34,12 @@ class FlowCell extends StatelessWidget {
     required this.label,
     required this.endsRun,
     required this.picked,
+    this.pictureWidth,
   });
   final Item item;
+
+  /// Logical width of the picture, for decoding at tile size.
+  final double? pictureWidth;
   final CollectionSpec spec;
   final String collectionId;
   final bool showName;
@@ -102,7 +106,13 @@ class FlowCell extends StatelessWidget {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: kFlowInset / 2),
-            child: ItemTile(item: item, collection: spec, collectionId: collectionId, showName: showName),
+            child: ItemTile(
+              item: item,
+              collection: spec,
+              collectionId: collectionId,
+              showName: showName,
+              pictureWidth: pictureWidth,
+            ),
           ),
         ),
       ],
