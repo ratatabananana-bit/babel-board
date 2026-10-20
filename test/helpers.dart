@@ -73,3 +73,27 @@ Future<void> longPressDrag(WidgetTester tester, Offset from, Finder target) asyn
   await g.up();
   await tester.pumpAndSettle();
 }
+
+/// The mini module with its items replaced by [count] text-only cards (no pictures), for
+/// galleries far above the reflow limit. `family` alternates fire/water, `cost` is `i % 13`,
+/// `level` is `1 + i % 9`.
+Future<LoadedModule> loadBig({int count = 600, void Function(Map<String, dynamic> manifest)? edit}) =>
+    loadMini(
+      edit: (m) {
+        (m['collections'] as Map)['items']['items'] = [
+          for (var i = 0; i < count; i++)
+            {
+              'id': 'c$i',
+              'name': 'Card $i',
+              'family': i.isEven ? 'fire' : 'water',
+              'familyLabel': i.isEven ? 'Fire' : 'Water',
+              'cost': i % 13,
+              'level': 1 + i % 9,
+              'effects': [
+                {'type': 'active', 'text': 'Effect $i'},
+              ],
+            },
+        ];
+        edit?.call(m);
+      },
+    );

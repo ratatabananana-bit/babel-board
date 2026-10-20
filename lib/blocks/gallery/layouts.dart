@@ -123,6 +123,17 @@ class FlowCell extends StatelessWidget {
 /// A section's cards in the grouped layout: the lower part of the group container (the
 /// sticky [SectionHeader] is the upper part). The same padding whether picked or not;
 /// picked gets a soft highlight fill and an outline that continues from the header.
+/// The group container's lower part: a soft highlight fill and an outline when picked, the
+/// bottom corners rounded. Shared by [SectionPanel] and the lazy grouped layout.
+BoxDecoration sectionPanelDecoration(Palette p, {required bool active}) {
+  final line = BorderSide(color: active ? p.highlight.withValues(alpha: 0.7) : Colors.transparent, width: kGroupBorder);
+  return BoxDecoration(
+    color: active ? p.highlight.withValues(alpha: 0.14) : null,
+    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(14)),
+    border: Border(left: line, right: line, bottom: line),
+  );
+}
+
 class SectionPanel extends StatelessWidget {
   const SectionPanel({super.key, required this.active, required this.child});
   final bool active;
@@ -130,18 +141,12 @@ class SectionPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.pal;
-    final line = BorderSide(color: active ? p.highlight.withValues(alpha: 0.7) : Colors.transparent, width: kGroupBorder);
     return AnimatedContainer(
       duration: context.read<Settings>().anim(const Duration(milliseconds: 200)),
       // Top padding too: a tracked card's corner chip overhangs by 6 dp and must not slide
       // under the pinned header.
       padding: kGroupPad,
-      decoration: BoxDecoration(
-        color: active ? p.highlight.withValues(alpha: 0.14) : null,
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(14)),
-        border: Border(left: line, right: line, bottom: line),
-      ),
+      decoration: sectionPanelDecoration(context.pal, active: active),
       child: child,
     );
   }

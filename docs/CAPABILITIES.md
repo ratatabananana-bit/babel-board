@@ -6,7 +6,7 @@ features. The authoritative format is `modules/MODULE_SPEC.md`; the code map is
 `docs/ARCHITECTURE.md`. **Keep this file current: any change to blocks, sheet settings,
 saved state, zones, filters, limits or tools must be reflected here in the same commit.**
 
-Last synced with: app 3.1.1, module format 1, 2026-10-20.
+Last synced with: app 3.2.0 (in progress, branch package-2), module format 1, 2026-10-20.
 
 ## 1. Data model
 
@@ -45,7 +45,7 @@ Cannot: counters on an item (HP, uses, charges), per-item notes, per-item flip/s
 
 | Block | Draws | Settings | Limits |
 |---|---|---|---|
-| `gallery` | Searchable picture grid, 4/3/2 per row, grouped or flowing layout. | One `collection`; `search` paths; `tileName`; `filters` (list of single-select docks, each `path` + `options` with symbol); `sections` by one field with sticky headers and optional number `rail` (`railRange` needs integer values). | One collection per gallery. Filter docks are a horizontally scrolling row: fine to ~6 options, usable to ~10, poor beyond. No multi-select, no range filter, no sort control, no drill-down (pick X → sub-gallery). **Not lazy**: every tile of the shown set is built and its image decoded at full size at once (`ReflowGrid` is a `Stack`); comfortable to ~100–150 tiles, risky at 500+. |
+| `gallery` | Searchable picture grid, 4/3/2 per row, grouped or flowing layout. | One `collection`; `search` paths; `tileName`; `filters` (list of single-select docks, each `path` + `options` with symbol); `sections` by one field with sticky headers and optional number `rail` (`railRange` needs integer values). | One collection per gallery. Filter docks are a horizontally scrolling row: fine to ~6 options, usable to ~10, poor beyond. No multi-select, no range filter, no sort control, no drill-down (pick X → sub-gallery). Pictures decode at tile size. Lazy above 120 shown items (`kReflowLimit`): only tiles near the viewport are built and nothing glides; at or below, the gliding `ReflowGrid`. The flowing layout is only used at or below the limit. |
 | `board` | One coloured lane per zone; drag between lanes, before a card, or to Remove; ⋮ clears. | `title`, `countLabel`, children = `zone` blocks each with a `cardList` style. | One zone → plain list, no dragging. Lanes show only items of that lane's `cardList.collection`. |
 | `zone` | A single lane (a one-zone board as a tab). | `zone`, `list`. | — |
 | `cardList` | Items matching a `filter` (zone and/or `where` rules). Styles `mini` (columns), `rows`, `thumbs`; `removable` ✕. | | Filter rules are `has`/`equals` only, all must match; no OR, no numeric comparison. |
@@ -82,5 +82,6 @@ before a module can carry them.
 
 ## 8. Change log of capabilities
 
+- 3.2.0: gallery decodes pictures at tile size and goes lazy above 120 items.
 - 3.1.x: repositories need no token; Install/Update/Uninstall rows; app renamed Babel Board.
 - 3.0.0: console + modules (format 1); all blocks above; single-JSON install; `details`, `swipe`, `cardChecklist`.

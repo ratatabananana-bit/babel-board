@@ -12,7 +12,11 @@ import '../../modules/loaded_module.dart';
 import '../item_tile.dart';
 import 'filter_dock.dart';
 import 'layouts.dart';
+import 'lazy_grid.dart';
 import 'rail.dart';
+
+/// Shown items above this count are laid out lazily (built near the viewport, no glide).
+const kReflowLimit = 120;
 
 /// A grid of item pictures with search, density, optional single-select filter docks and
 /// optional sections with a jump rail.
@@ -389,6 +393,22 @@ class _GalleryBlockState extends State<GalleryBlock> {
         pictureWidth: ReflowGrid.tileWidth(width, columns),
       ),
     );
+    // Above the limit, tiles are built only near the viewport and do not glide.
+    final lazy = shown.length > kReflowLimit;
+    Widget lazyGrid(List<Item> items, double width) => lazyGridSliver(
+      items: items,
+      columns: columns,
+      aspect: spec.cardAspect,
+      extraHeight: extra,
+      width: width,
+      tileBuilder: (it) => ItemTile(
+        item: it,
+        collection: spec,
+        collectionId: _g.collection,
+        showName: _g.tileName,
+        pictureWidth: ReflowGrid.tileWidth(width, columns),
+      ),
+    );
     if (shown.isEmpty) {
       return Center(
         child: Text('No ${_g.noun} match "${_search.text}".', style: T.body.copyWith(color: p.text2)),
@@ -398,15 +418,19 @@ class _GalleryBlockState extends State<GalleryBlock> {
     _sectionSpans.clear();
     if (sections == null) {
       // Padded 16 dp on both sides (no rail column), so this grid is narrower than [gridW].
-      return ListView(
-        controller: _scroll,
-        padding: _pad.copyWith(top: 8, right: 16),
-        children: [grid(shown, gridW + _pad.horizontal - 32)],
-      );
+      final plainPad = _pad.copyWith(top: 8, right: 16);
+      final plainW = gridW + _pad.horizontal - plainPad.horizontal;
+      if (lazy) {
+        return CustomScrollView(
+          controller: _scroll,
+          slivers: [SliverPadding(padding: plainPad, sliver: lazyGrid(shown, plainW))],
+        );
+      }
+      return ListView(controller: _scroll, padding: plainPad, children: [grid(shown, plainW)]);
     }
     // Highlighted cards: only what was picked on the rail (and is still shown).
     final activeKey = keys.contains(_picked) ? _picked : null;
-    if (context.read<Settings>().flowingSections) {
+    if (!lazy && context.read<Settings>().flowingSections) {
       return _scrollWatch(_flowing(context, spec, shown, sections, keys, activeKey, columns, gridW, viewH, extra));
     }
     // Grouped: a sticky header per section, then its cards in a container whose padding
@@ -441,12 +465,30 @@ class _GalleryBlockState extends State<GalleryBlock> {
                 active: k == activeKey,
               ),
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: _sectionGap),
-                child: SectionPanel(key: Key('section-$k'), active: k == activeKey, child: grid(items, innerW)),
+            if (lazy) ...[
+              // The same box as SectionPanel (padding inside the border), drawn around a
+              // sliver so only the visible cards exist.
+              DecoratedSliver(
+                key: Key('section-$k'),
+                decoration: sectionPanelDecoration(p, active: k == activeKey),
+                sliver: SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                    kGroupPad.left + kGroupBorder,
+                    kGroupPad.top,
+                    kGroupPad.right + kGroupBorder,
+                    kGroupPad.bottom + kGroupBorder,
+                  ),
+                  sliver: lazyGrid(items, innerW),
+                ),
               ),
-            ),
+              const SliverToBoxAdapter(child: SizedBox(height: _sectionGap)),
+            ] else
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: _sectionGap),
+                  child: SectionPanel(key: Key('section-$k'), active: k == activeKey, child: grid(items, innerW)),
+                ),
+              ),
           ],
         ),
       );

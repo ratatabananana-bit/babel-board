@@ -80,9 +80,11 @@ GalleryBlock
 ├─ SearchTopBar            game switcher · search field · ViewPill (card size S/M/L, grouped↔flowing)
 ├─ the grid, one of three:
 │   ├─ plain      ListView → ReflowGrid of ItemTile            (no filter picked)
+│   │             above kReflowLimit (120): CustomScrollView → lazyGridSliver (SliverGrid)   lazy_grid.dart
 │   ├─ grouped    CustomScrollView: per cost  SectionHeader (sticky pill + rule + count)      layouts.dart
 │   │                                          SectionPanel (container; accent when picked) → ReflowGrid
 │   └─ flowing    one ReflowGrid of FlowCell (ruler strip + ItemTile), band behind the picked cost
+│                 grouped above the limit: DecoratedSliver(sectionPanelDecoration) around a lazyGridSliver; flowing not used
 ├─ SectionRail             fixed slots for the cost range, dots for absent costs, scrub bubble   rail.dart
 └─ FilterDock              family row: _OptionRow of _OptionButton (All + one per option)       filter_dock.dart
 ```
