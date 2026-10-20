@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vale_helper/module_format/filter.dart';
-import 'package:vale_helper/module_format/spec_json.dart';
 
 void main() {
   final imp = {
@@ -63,6 +62,7 @@ void main() {
     );
     expect(f.matches({'monster': 'guard'}, null, zoneOf: zoneOf), isFalse);
     expect(f.matches({'monster': 'archer'}, null), isFalse, reason: 'no zone lookup, nothing is in play');
-    expect(() => FieldRule.fromJson({'path': 'x'}), throwsA(isA<SpecFormatException>()));
+    // A rule with only a path was always accepted (it matches everything); it still is.
+    expect(FieldRule.fromJson({'path': 'x'}).matches({'x': 1}), isTrue);
   });
 }

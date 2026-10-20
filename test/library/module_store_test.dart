@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vale_helper/core/app_state.dart';
+import 'package:vale_helper/library/library_controller.dart';
 import 'package:vale_helper/library/module_store.dart';
 import 'package:vale_helper/modules/loaded_module.dart';
 import 'package:vale_helper/modules/module_files.dart';
@@ -294,5 +296,28 @@ void main() {
     expect(ModuleStore.maxZipBytes, 250 * 1024 * 1024);
     expect(ModuleStore.maxTotalBytes, 600 * 1024 * 1024);
     expect(ModuleStore.maxFileBytes, 15 * 1024 * 1024);
+  });
+
+  test('a download that stops midway leaves no temp file and reports it', () async {
+    final before = Directory.systemTemp.listSync().whereType<File>().where((f) => f.path.contains('bb-')).length;
+    final body = http.ByteStream(Stream<List<int>>.fromFutures([
+      Future.value([1, 2, 3]),
+      Future.error(const SocketException('reset')),
+    ]));
+    await expectLater(
+      spoolToTempFile(body),
+      throwsA(predicate((e) => e is InstallException && e.message.startsWith('The download stopped'))),
+    );
+    final after = Directory.systemTemp.listSync().whereType<File>().where((f) => f.path.contains('bb-')).length;
+    expect(after, before, reason: 'the half-written spool file is deleted');
+  });
+
+  test('a temporary source is deleted even when installing is not available', () async {
+    final f = File('/spooled.bin')..writeAsBytesSync([1, 2, 3]);
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final c = LibraryController(prefs: prefs, app: AppState(prefs, const []));
+    await expectLater(c.installSource(FileSource(f, temporary: true)), throwsA(isA<InstallException>()));
+    expect(f.existsSync(), isFalse);
   });
 }

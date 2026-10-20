@@ -36,7 +36,11 @@ class InstallSources {
     } catch (e) {
       throw InstallException('Could not download that link: $e');
     }
-    if (res.statusCode != 200) throw InstallException('That link answered HTTP ${res.statusCode}');
+    if (res.statusCode != 200) {
+      // Let the connection go before giving up.
+      await res.stream.drain<void>().catchError((_) {});
+      throw InstallException('That link answered HTTP ${res.statusCode}');
+    }
     return spoolToTempFile(res.stream);
   }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vale_helper/blocks/hub_block.dart';
 import 'package:vale_helper/blocks/item_sheet.dart';
+import 'package:vale_helper/library/library_screen.dart';
 
 import '../helpers.dart';
 
@@ -53,5 +55,18 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Imp'));
     await tester.pumpAndSettle();
     expect(find.byType(ItemSheet), findsOneWidget, reason: 'sheets open from a pushed screen');
+  });
+
+  testWidgets('switching game from inside a pushed hub screen closes that screen first', (tester) async {
+    await pumpModules(tester, edit: hubEdit);
+    await tester.tap(find.text('Gallery'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HubScreen), findsOneWidget);
+    await tester.tap(find.byKey(const Key('gameSwitcher')).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Library'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HubScreen), findsNothing, reason: 'a screen bound to the old module must not survive the switch');
+    expect(find.byType(LibraryScreen), findsOneWidget);
   });
 }

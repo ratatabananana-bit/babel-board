@@ -66,7 +66,7 @@ class _HubTile extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => HubScreen(entry: entry)),
+            MaterialPageRoute<void>(builder: (_) => HubScreen(entry: entry, moduleId: module.manifest.id)),
           ),
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -114,13 +114,19 @@ class _HubTile extends StatelessWidget {
 }
 
 /// The pushed screen for one hub entry: a back arrow, the entry's label, and its block.
+/// Bound to the module it was opened from: when the game changes underneath it (the
+/// switcher pops it, but it still builds while sliding away) it draws nothing rather than
+/// the old module's cards over the new module's state.
 class HubScreen extends StatelessWidget {
-  const HubScreen({super.key, required this.entry});
+  const HubScreen({super.key, required this.entry, required this.moduleId});
   final HubEntrySpec entry;
+  final String moduleId;
 
   @override
   Widget build(BuildContext context) {
     final p = context.pal;
+    final module = context.watch<LoadedModule?>();
+    if (module == null || module.manifest.id != moduleId) return const SizedBox.shrink();
     return Scaffold(
       backgroundColor: p.bg,
       appBar: AppBar(

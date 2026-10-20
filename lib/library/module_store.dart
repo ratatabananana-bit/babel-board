@@ -46,6 +46,10 @@ Future<FileSource> spoolToTempFile(http.ByteStream body) async {
   try {
     await body.pipe(sink);
   } catch (e) {
+    // Release the handle before deleting: an open file cannot be removed on every platform.
+    try {
+      await sink.close();
+    } catch (_) {}
     if (f.existsSync()) f.deleteSync();
     throw InstallException('The download stopped: $e');
   }

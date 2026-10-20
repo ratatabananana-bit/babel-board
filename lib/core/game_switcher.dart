@@ -78,7 +78,7 @@ class GameSwitcherButton extends StatelessWidget {
 Future<void> showGamePicker(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
-    builder: (sheet) => SafeArea(
+    builder: (_) => SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: Column(
@@ -89,7 +89,7 @@ Future<void> showGamePicker(BuildContext context) {
               padding: EdgeInsets.fromLTRB(4, 0, 4, 12),
               child: Text('Switch game', style: T.title),
             ),
-            GameList(onPicked: () => Navigator.pop(sheet), showLibrary: true),
+            const GameList(showLibrary: true),
           ],
         ),
       ),
@@ -97,11 +97,17 @@ Future<void> showGamePicker(BuildContext context) {
   );
 }
 
+/// Back to the root route before the game changes: the picker sheet goes, and so does any
+/// screen pushed by the old game (a hub entry), which would otherwise keep drawing the old
+/// module's cards over the new module's state.
+void _closeGameScreens(BuildContext context) {
+  Navigator.of(context, rootNavigator: true).popUntil((r) => r.isFirst);
+}
+
 /// Every installed game as a big row; the current one is ticked. Optionally ends with a
-/// "Library" row that leaves the game screen.
+/// "Library" row that leaves the game screen. Picking a row closes the sheet it sits in.
 class GameList extends StatelessWidget {
-  const GameList({super.key, this.onPicked, this.showLibrary = false});
-  final VoidCallback? onPicked;
+  const GameList({super.key, this.showLibrary = false});
   final bool showLibrary;
 
   @override
@@ -141,8 +147,8 @@ class GameList extends StatelessWidget {
             title: g.title,
             current: app.active?.id == g.id,
             onTap: () {
+              _closeGameScreens(context);
               app.open(g.id);
-              onPicked?.call();
             },
           ),
         if (showLibrary)
@@ -155,8 +161,8 @@ class GameList extends StatelessWidget {
             ),
             title: 'Library',
             onTap: () {
+              _closeGameScreens(context);
               app.showLibrary();
-              onPicked?.call();
             },
           ),
       ],

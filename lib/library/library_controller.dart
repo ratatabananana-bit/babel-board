@@ -156,7 +156,11 @@ class LibraryController extends ChangeNotifier {
   /// if [open], the game is opened. Throws [InstallException].
   Future<InstalledModule?> installSource(ModuleSource src, {bool open = false, String? label}) async {
     final s = store;
-    if (s == null) throw InstallException('Installing is not available here');
+    if (s == null) {
+      // The store would have deleted a spooled download; without one, do it here.
+      if (src case FileSource(temporary: true, :final file) when file.existsSync()) await file.delete();
+      throw InstallException('Installing is not available here');
+    }
     return _withBusy('Installing ${label ?? 'module'}…', () async {
       final m = await s.install(src, headersFor: headersFor);
       await refresh();

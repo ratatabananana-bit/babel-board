@@ -176,7 +176,11 @@ class RepoClient {
     } catch (e) {
       throw RepoException(RepoError.network, 'No connection');
     }
-    _checkStatus(res.statusCode);
+    if (res.statusCode != 200) {
+      // Let the connection go before reporting the status.
+      await res.stream.drain<void>().catchError((_) {});
+      _checkStatus(res.statusCode);
+    }
     try {
       return await spoolToTempFile(res.stream);
     } on InstallException catch (e) {

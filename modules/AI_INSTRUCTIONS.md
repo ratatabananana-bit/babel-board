@@ -94,7 +94,7 @@ Every block: `{"type": "<type>", …settings, "children": [...]}`.
   Inside a zone it lists that zone's items.
 - `flow`: the round/turn checklist with a Next button, Rules sheet and New game. From 3.2.0 a module may have several flows (e.g. a Scenario tracker and a Round tracker): give each an `"id"`. New game resets all of them.
   `{"type": "flow", "title": "Round", "cyclic": true, "reminders": ["Key rule…"], "newGameText": "Clears everything you tracked.", "setup": <step settings without type>, "children": [<step>, …]}`.
-  `cyclic: false` runs once (last step offers New game). At least one step; one flow per module.
+  `cyclic: false` runs once (last step offers New game). At least one step; give each flow an `id` when there is more than one.
 - `step`: `{"type": "step", "id": "draw", "title": "Draw", "short": "Draw", "tag": "optional note", "summary": "One line.", "listTitle": "Checklist", "nextLabel": "optional", "emptyText": "optional", "how": ["Detail line…"], "checklist": [{"id": "draw.cards", "text": "Draw 2 cards", "sub": "optional detail", "action": {"type": "clearZone", "zone": "table"}, "actionLabel": "Clear"}]}`.
   Step ids unique; checklist ids unique (prefix with the step id). `action` is optional:
   `{"type": "clearZone", "zone": …}`, `{"type": "newGame"}`, or from 3.2.0 `{"type": "moveZone", "from": ["discard", "lost"], "to": "pool"}`

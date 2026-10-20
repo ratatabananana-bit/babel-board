@@ -30,13 +30,11 @@ class FieldRule {
     return true;
   }
 
+  /// A rule with only a `path` matches everything, as it always has (modules in the wild
+  /// may carry one), so no shape is refused here beyond a missing path.
   static FieldRule fromJson(Map<String, dynamic> j, [String where = 'rule']) {
     final f = Fields(j, where);
-    final rule = FieldRule(path: f.text('path'), has: j['has'], equals: j['equals'], inZone: f.optText('inZone'));
-    if (rule.has == null && rule.equals == null && rule.inZone == null) {
-      f.fail('path', 'A rule needs "has", "equals" or "inZone"');
-    }
-    return rule;
+    return FieldRule(path: f.text('path'), has: j['has'], equals: j['equals'], inZone: f.optText('inZone'));
   }
 }
 
