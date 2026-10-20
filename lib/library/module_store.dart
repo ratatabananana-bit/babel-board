@@ -19,6 +19,39 @@ class InstallException implements Exception {
   String toString() => issues.isEmpty ? message : '$message\n${issues.where((i) => i.fatal).join('\n')}';
 }
 
+/// Where a module to install comes from: bytes in memory, or a file on disk (a picked
+/// file, a shared file, or a download spooled to a temp file).
+sealed class ModuleSource {
+  const ModuleSource();
+}
+
+class BytesSource extends ModuleSource {
+  const BytesSource(this.bytes);
+  final Uint8List bytes;
+}
+
+class FileSource extends ModuleSource {
+  const FileSource(this.file, {this.temporary = false});
+  final File file;
+
+  /// True for a file the app made itself (a download); it is deleted after the install.
+  final bool temporary;
+}
+
+/// Writes an HTTP body to a fresh temp file as it arrives, so a big zip never sits in
+/// memory. The caller (the store) deletes the file after installing.
+Future<FileSource> spoolToTempFile(http.ByteStream body) async {
+  final f = File('${Directory.systemTemp.path}${Platform.pathSeparator}bb-${DateTime.now().microsecondsSinceEpoch}.bin');
+  final sink = f.openWrite();
+  try {
+    await body.pipe(sink);
+  } catch (e) {
+    if (f.existsSync()) f.deleteSync();
+    throw InstallException('The download stopped: $e');
+  }
+  return FileSource(f, temporary: true);
+}
+
 class InstalledModule {
   InstalledModule({
     required this.id,
@@ -51,8 +84,8 @@ class ModuleStore {
   /// Called with the module id after every successful install (e.g. to adopt legacy state).
   final Future<void> Function(String id)? onInstalled;
 
-  static const maxZipBytes = 50 * 1024 * 1024;
-  static const maxTotalBytes = 150 * 1024 * 1024;
+  static const maxZipBytes = 250 * 1024 * 1024;
+  static const maxTotalBytes = 600 * 1024 * 1024;
   static const maxFileBytes = 15 * 1024 * 1024;
   static const allowedExtensions = {'.json', '.webp', '.png', '.jpg', '.jpeg'};
   static const _maxParallelDownloads = 6;
@@ -82,19 +115,29 @@ class ModuleStore {
     if (d.existsSync()) await d.delete(recursive: true);
   }
 
-  /// Installs a zip or a single-JSON module. Validates everything in a staging folder
-  /// first, downloads image links, and only then swaps the folder into place.
+  /// Installs a zip or a single-JSON module held in memory (tests, small files).
   Future<InstalledModule> installBytes(
     Uint8List bytes, {
     Uri? sourceUrl,
     Map<String, String> Function(Uri url)? headersFor,
-  }) async {
+  }) => install(BytesSource(bytes), headersFor: headersFor);
+
+  /// Installs a zip or a single-JSON module. Validates everything in a staging folder
+  /// first, downloads image links, and only then swaps the folder into place. A zip on
+  /// disk is read entry by entry, never whole, so a 200 MB game installs on a phone. A
+  /// [FileSource] marked temporary is deleted afterwards, installed or not.
+  Future<InstalledModule> install(ModuleSource src, {Map<String, String> Function(Uri url)? headersFor}) async {
     root.createSync(recursive: true);
     final stagingRoot = Directory(_p(root.path, '.staging'))..createSync();
     final staging = Directory(_p(stagingRoot.path, '${DateTime.now().microsecondsSinceEpoch}'))..createSync();
     try {
-      if (_isZip(bytes)) {
-        _unzip(bytes, staging);
+      final zipped = switch (src) {
+        BytesSource(:final bytes) when _isZip(bytes) => _unzip(bytes, staging),
+        BytesSource(:final bytes) => _writeSingleJson(bytes, staging),
+        FileSource(:final file) when _isZipFile(file) => _unzipStream(file, staging),
+        FileSource(:final file) => _writeSingleJson(_readSmall(file), staging),
+      };
+      if (zipped) {
         // A zip may still carry inline items; store them as files like the single-JSON form,
         // so their image links are downloaded too.
         final manifestFile = _staged(staging, 'module.json');
@@ -105,8 +148,6 @@ class ModuleStore {
           throw InstallException('module.json in this zip is not valid JSON');
         }
         if (j is Map) _writeManifest(j.cast<String, dynamic>(), staging);
-      } else {
-        _writeSingleJson(bytes, staging);
       }
       await _fetchRemoteImages(staging, headersFor);
 
@@ -142,10 +183,28 @@ class ModuleStore {
     } finally {
       if (staging.existsSync()) await staging.delete(recursive: true);
       if (stagingRoot.existsSync() && stagingRoot.listSync().isEmpty) await stagingRoot.delete();
+      if (src case FileSource(temporary: true, :final file) when file.existsSync()) await file.delete();
     }
   }
 
   static bool _isZip(Uint8List b) => b.length > 4 && b[0] == 0x50 && b[1] == 0x4B && b[2] == 3 && b[3] == 4;
+
+  static bool _isZipFile(File f) {
+    final raf = f.openSync();
+    try {
+      return _isZip(raf.readSync(8));
+    } finally {
+      raf.closeSync();
+    }
+  }
+
+  /// A whole file into memory, for the single-JSON form (text, small by nature).
+  static Uint8List _readSmall(File f) {
+    if (f.lengthSync() > maxZipBytes) {
+      throw InstallException('This file is too big (limit ${maxZipBytes ~/ (1024 * 1024)} MB)');
+    }
+    return f.readAsBytesSync();
+  }
 
   /// Rejects paths that could leave the module folder, after turning `\` into `/`.
   static String? safeEntryPath(String name) {
@@ -156,18 +215,61 @@ class ModuleStore {
     return n;
   }
 
-  void _unzip(Uint8List bytes, Directory staging) {
-    if (bytes.length > maxZipBytes) {
-      throw InstallException(
-        'This zip is too big (${bytes.length ~/ (1024 * 1024)} MB, limit ${maxZipBytes ~/ (1024 * 1024)} MB)',
-      );
-    }
+  /// Unpacks a zip held in memory. Returns true (it was a zip) so [install] can switch on it.
+  bool _unzip(Uint8List bytes, Directory staging) {
+    _checkZipSize(bytes.length);
     final Archive archive;
     try {
       archive = ZipDecoder().decodeBytes(bytes, verify: false);
     } catch (e) {
       throw InstallException('Could not read this zip file: $e');
     }
+    _extract(archive, staging, (f, target) {
+      final content = f.readBytes();
+      if (content == null) throw InstallException('Could not unpack "${f.name}"');
+      target.writeAsBytesSync(content);
+    });
+    return true;
+  }
+
+  /// Unpacks a zip from disk entry by entry: the archive reads through a file buffer and
+  /// each entry streams straight to its staged file, so memory stays flat.
+  bool _unzipStream(File file, Directory staging) {
+    _checkZipSize(file.lengthSync());
+    final input = InputFileStream(file.path);
+    try {
+      final Archive archive;
+      try {
+        archive = ZipDecoder().decodeStream(input, verify: false);
+      } catch (e) {
+        throw InstallException('Could not read this zip file: $e');
+      }
+      _extract(archive, staging, (f, target) {
+        final out = OutputFileStream(target.path);
+        try {
+          f.writeContent(out);
+        } finally {
+          out.closeSync();
+        }
+        f.closeSync();
+      });
+    } finally {
+      input.closeSync();
+    }
+    return true;
+  }
+
+  static void _checkZipSize(int length) {
+    if (length > maxZipBytes) {
+      throw InstallException(
+        'This zip is too big (${length ~/ (1024 * 1024)} MB, limit ${maxZipBytes ~/ (1024 * 1024)} MB)',
+      );
+    }
+  }
+
+  /// Walks the entries with the same checks whatever the source: safe paths, allowed file
+  /// types, per-file and total size, a `module.json` at the root. [write] stores one entry.
+  void _extract(Archive archive, Directory staging, void Function(ArchiveFile f, File target) write) {
     var total = 0;
     var hasManifest = false;
     for (final f in archive) {
@@ -186,11 +288,7 @@ class ModuleStore {
         throw InstallException('This module is too big unpacked (limit ${maxTotalBytes ~/ (1024 * 1024)} MB)');
       }
       if (path == 'module.json') hasManifest = true;
-      final content = f.readBytes();
-      if (content == null) throw InstallException('Could not unpack "$path"');
-      _staged(staging, path)
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(content);
+      write(f, _staged(staging, path)..createSync(recursive: true));
     }
     if (!hasManifest) throw InstallException('This zip has no module.json at its root');
   }
@@ -205,7 +303,8 @@ class ModuleStore {
 
   static final _collectionName = RegExp(r'^[A-Za-z0-9_-]+$');
 
-  void _writeSingleJson(Uint8List bytes, Directory staging) {
+  /// Stores a single-JSON module. Returns false (not a zip) so [install] can switch on it.
+  bool _writeSingleJson(Uint8List bytes, Directory staging) {
     final Object? j;
     try {
       j = jsonDecode(utf8.decode(bytes));
@@ -216,6 +315,7 @@ class ModuleStore {
       throw InstallException('This file is neither a zip nor a module JSON file (no "format" and "id")');
     }
     _writeManifest(j.cast<String, dynamic>(), staging);
+    return false;
   }
 
   /// Writes `module.json` into [staging], first moving each inline collection's items to

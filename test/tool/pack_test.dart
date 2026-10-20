@@ -136,7 +136,8 @@ void main() {
     final listing = await repo.fetchIndex();
     expect(listing.name, 'E2E');
     final entry = listing.entries.single;
-    final bytes = await repo.download(entry.zipUrl);
+    final download = await repo.download(entry.zipUrl);
+    final bytes = (download as FileSource).file.readAsBytesSync();
     expect(bytes.length, entry.size);
 
     Future<void> installAndLoad(Uint8List b, String folder) async {
@@ -148,9 +149,16 @@ void main() {
     }
 
     await installAndLoad(bytes, 'store-repo');
+    // The repository download is a temp file the store deletes after installing it.
+    final installedFromFile = await ModuleStore(Directory('${tmp.path}/store-stream')).install(download);
+    expect(installedFromFile.id, 'mini');
+    expect(download.file.existsSync(), isFalse);
 
-    final linkBytes = await InstallSources(client: client).downloadLink(entry.zipUrl, headersFor: repo.headersFor);
-    await installAndLoad(linkBytes, 'store-link');
+    final link = await InstallSources(client: client).downloadLink(entry.zipUrl, headersFor: repo.headersFor);
+    final linkFile = (link as FileSource).file;
+    expect(linkFile.lengthSync(), entry.size, reason: 'the link download is spooled to a file');
+    await installAndLoad(linkFile.readAsBytesSync(), 'store-link');
+    linkFile.deleteSync();
 
     await installAndLoad(File('${out.path}/mini-1.0.0.zip').readAsBytesSync(), 'store-file');
   });

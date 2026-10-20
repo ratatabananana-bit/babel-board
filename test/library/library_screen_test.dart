@@ -47,9 +47,9 @@ class FakeSources extends InstallSources {
   Uint8List? picked;
   Object? pickError;
   @override
-  Future<Uint8List?> pickModuleFile() async {
+  Future<ModuleSource?> pickModuleFile() async {
     if (pickError != null) throw pickError!;
-    return picked;
+    return picked == null ? null : BytesSource(picked!);
   }
 }
 

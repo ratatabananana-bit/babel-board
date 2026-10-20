@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vale_helper/app_version.dart';
+import 'package:vale_helper/library/module_store.dart';
 import 'package:vale_helper/library/repository.dart';
 
 final indexUrl = Uri.parse('https://raw.githubusercontent.com/owner/repo/main/index.json');
@@ -105,6 +106,16 @@ void main() {
     await repo.download(Uri.parse('https://evil.example/x.zip'));
     expect(seen[indexUrl.resolve('a.zip')]!['Authorization'], 'Bearer secret');
     expect(seen[Uri.parse('https://evil.example/x.zip')]!.containsKey('Authorization'), isFalse);
+  });
+
+  test('download streams the file to disk and hands back a FileSource', () async {
+    final repo = RepoClient(RepoConfig(indexUrl: indexUrl), client: MockClient((_) async => http.Response.bytes([1, 2, 3], 200)));
+    final src = await repo.download(indexUrl.resolve('a.zip'));
+    expect(src, isA<FileSource>());
+    final f = (src as FileSource).file;
+    expect(f.readAsBytesSync(), [1, 2, 3]);
+    expect(src.temporary, isTrue);
+    f.deleteSync();
   });
 
   test('download errors map to RepoException kinds', () async {

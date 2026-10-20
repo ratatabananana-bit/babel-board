@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app_version.dart';
 import '../module_format/validator.dart' show compareVersions;
+import 'module_store.dart' show InstallException, ModuleSource, spoolToTempFile;
 
 /// Where the owner's module repository lives, and the read-only token for it.
 class RepoConfig {
@@ -168,7 +168,21 @@ class RepoClient {
     return RepoListing(name: j['name'] as String? ?? config.indexUrl.host, entries: entries);
   }
 
-  Future<Uint8List> download(Uri url) async => (await _get(url)).bodyBytes;
+  /// Downloads a module zip to a temp file as it arrives (never whole in memory).
+  Future<ModuleSource> download(Uri url) async {
+    final http.StreamedResponse res;
+    try {
+      res = await _client.send(http.Request('GET', url)..headers.addAll(headersFor(url)));
+    } catch (e) {
+      throw RepoException(RepoError.network, 'No connection');
+    }
+    _checkStatus(res.statusCode);
+    try {
+      return await spoolToTempFile(res.stream);
+    } on InstallException catch (e) {
+      throw RepoException(RepoError.network, e.message);
+    }
+  }
 
   Future<http.Response> _get(Uri url) async {
     final http.Response res;
@@ -177,9 +191,14 @@ class RepoClient {
     } catch (e) {
       throw RepoException(RepoError.network, 'No connection');
     }
-    switch (res.statusCode) {
+    _checkStatus(res.statusCode);
+    return res;
+  }
+
+  void _checkStatus(int statusCode) {
+    switch (statusCode) {
       case 200:
-        return res;
+        return;
       case 401:
       case 403:
         throw RepoException(RepoError.tokenRejected, 'GitHub rejected the token');
@@ -194,7 +213,7 @@ class RepoClient {
                     '(for a private repo GitHub answers "not found" to a wrong token)',
         );
       default:
-        throw RepoException(RepoError.network, 'The repository answered HTTP ${res.statusCode}');
+        throw RepoException(RepoError.network, 'The repository answered HTTP $statusCode');
     }
   }
 }

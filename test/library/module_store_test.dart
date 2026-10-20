@@ -263,4 +263,36 @@ void main() {
     );
     expect(seen['repo.example']!['Authorization'], 'Bearer t');
   });
+
+  test('installs the mini module from a zip file on disk without reading it whole', () async {
+    final zip = File('${parent.path}/mini.zip')..writeAsBytesSync(zipOf(miniFiles()));
+    final store = ModuleStore(root);
+    final m = await store.install(FileSource(zip));
+    expect(m.id, 'mini');
+    expect(File('${m.dir!.path}/data/items.json').existsSync(), isTrue);
+    expect(File('${m.dir!.path}/images/fire.webp').readAsBytesSync(), miniFiles()['images/fire.webp']);
+  });
+
+  test('a zip of the folder itself (prefix/module.json) is refused with the same message', () async {
+    final zip = File('${parent.path}/nested.zip')
+      ..writeAsBytesSync(zipOf({for (final e in miniFiles().entries) 'mini/${e.key}': e.value}));
+    await expectLater(
+      ModuleStore(root).install(FileSource(zip)),
+      throwsA(predicate((e) => e is InstallException && e.message == 'This zip has no module.json at its root')),
+    );
+    final staging = Directory('${root.path}/.staging');
+    expect(!staging.existsSync() || staging.listSync().isEmpty, isTrue, reason: 'staging cleaned up');
+  });
+
+  test('a single-JSON module installs from a file too', () async {
+    final f = File('${parent.path}/mini.json')..writeAsBytesSync(jsonBytes(singleJsonMini()));
+    final m = await ModuleStore(root, client: imageServer()).install(FileSource(f));
+    expect(m.id, 'mini');
+  });
+
+  test('limits: 250 MB zip, 600 MB unpacked, 15 MB per file', () {
+    expect(ModuleStore.maxZipBytes, 250 * 1024 * 1024);
+    expect(ModuleStore.maxTotalBytes, 600 * 1024 * 1024);
+    expect(ModuleStore.maxFileBytes, 15 * 1024 * 1024);
+  });
 }

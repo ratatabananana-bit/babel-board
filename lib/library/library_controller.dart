@@ -149,11 +149,16 @@ class LibraryController extends ChangeNotifier {
 
   /// Installs module bytes; on success the app's games are refreshed and, if [open], the
   /// game is opened. Throws [InstallException].
-  Future<InstalledModule?> installBytes(Uint8List bytes, {bool open = false, String? label}) async {
+  Future<InstalledModule?> installBytes(Uint8List bytes, {bool open = false, String? label}) =>
+      installSource(BytesSource(bytes), open: open, label: label);
+
+  /// Installs a module from bytes or a file; on success the app's games are refreshed and,
+  /// if [open], the game is opened. Throws [InstallException].
+  Future<InstalledModule?> installSource(ModuleSource src, {bool open = false, String? label}) async {
     final s = store;
     if (s == null) throw InstallException('Installing is not available here');
     return _withBusy('Installing ${label ?? 'module'}…', () async {
-      final m = await s.installBytes(bytes, headersFor: headersFor);
+      final m = await s.install(src, headersFor: headersFor);
       await refresh();
       // The game played last (before an update, or before reinstalling) opens as soon as
       // it is installed again, so the owner lands back in it.
@@ -167,19 +172,19 @@ class LibraryController extends ChangeNotifier {
   Future<InstalledModule?> installEntry(RepoEntry e) async {
     final client = _repoClient;
     if (client == null) throw InstallException('No repository is set up');
-    final bytes = await _withBusy('Downloading ${e.name}…', () => client.download(e.zipUrl));
-    return installBytes(bytes!, label: e.name);
+    final src = await _withBusy('Downloading ${e.name}…', () => client.download(e.zipUrl));
+    return installSource(src!, label: e.name);
   }
 
   Future<InstalledModule?> installLink(Uri url) async {
-    final bytes = await _withBusy('Downloading…', () => sources.downloadLink(url, headersFor: headersFor));
-    return installBytes(bytes!, open: true);
+    final src = await _withBusy('Downloading…', () => sources.downloadLink(url, headersFor: headersFor));
+    return installSource(src!, open: true);
   }
 
   Future<InstalledModule?> installFromFile() async {
-    final bytes = await sources.pickModuleFile();
-    if (bytes == null) return null;
-    return installBytes(bytes, open: true);
+    final src = await sources.pickModuleFile();
+    if (src == null) return null;
+    return installSource(src, open: true);
   }
 
   /// Removes the module's files and every saved `mod.<id>.` key.
@@ -196,9 +201,9 @@ class LibraryController extends ChangeNotifier {
 
   /// Installs whatever arrives from the share sheet and opens it.
   void listenForSharedFiles() {
-    sources.sharedFiles().listen((bytes) async {
+    sources.sharedFiles().listen((src) async {
       try {
-        await installBytes(bytes, open: true);
+        await installSource(src, open: true);
       } on InstallException catch (e) {
         messages.add(e.message);
       } catch (e) {

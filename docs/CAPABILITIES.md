@@ -16,7 +16,7 @@ Last synced with: app 3.2.0 (in progress, branch package-2), module format 1, 20
 | Item ids | Unique within a collection. | Zone state is keyed by item id **without** the collection name, so two collections sharing an id share a zone slot. Keep ids unique across the whole module. |
 | Symbols | Named small pictures. `:name:` in any player-facing text draws them inline, one line tall. Used by chips, filters, effects, checklists, text blocks. | Larger diagrams inline (hex patterns, grids): rendered one line tall only. |
 | Images | `https` links (downloaded once at install) or files in the zip (`.webp .png .jpg .jpeg`). Missing picture → text-only card. | SVG, animated, remote-at-runtime. |
-| Size limits | Zip 50 MB, unpacked 150 MB, one file 15 MB. | Anything bigger must be split into several modules. |
+| Size limits | Zip 250 MB, unpacked 600 MB, one file 15 MB. Zips install from disk entry by entry, so a big module never sits in memory. | Anything bigger must be split into several modules. |
 | Text | English, `:symbol:` inline, lists of strings for multi-paragraph. Any length. | Rich text (bold, links, tables), images inside text. |
 
 ## 2. Item sheet (tap a card)
@@ -83,5 +83,6 @@ before a module can carry them.
 ## 8. Change log of capabilities
 
 - 3.2.0: gallery decodes pictures at tile size and goes lazy above 120 items.
+- 3.2.0: install limits 250 MB zip / 600 MB unpacked; zips stream from disk; downloads spool to a temp file.
 - 3.1.x: repositories need no token; Install/Update/Uninstall rows; app renamed Babel Board.
 - 3.0.0: console + modules (format 1); all blocks above; single-JSON install; `details`, `swipe`, `cardChecklist`.
