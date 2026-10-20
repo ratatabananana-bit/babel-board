@@ -101,7 +101,8 @@ Commit and push that folder. The app lists the games and offers updates whenever
 
 ## For developers
 
-How the code is put together: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Flutter,
+How the code is put together: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). What a module can
+and cannot do, for judging whether a game fits: [docs/CAPABILITIES.md](docs/CAPABILITIES.md). Flutter,
 Android plus web preview, `provider` and `shared_preferences`, no backend.
 
 ```bash
