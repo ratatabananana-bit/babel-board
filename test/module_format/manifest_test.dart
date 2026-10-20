@@ -45,7 +45,7 @@ Map<String, dynamic> minimalManifest() => {
 
 void main() {
   test('app version and format constants', () {
-    expect(kAppVersion, '3.1.1');
+    expect(kAppVersion, '3.2.0');
     expect(kModuleFormat, 1);
     expect(kBlockTypes, {'gallery', 'board', 'zone', 'cardList', 'flow', 'step', 'text', 'hub', 'entry'});
   });

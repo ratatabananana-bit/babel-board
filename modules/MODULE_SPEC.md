@@ -57,7 +57,7 @@ An image value is either an `https://…` link or a relative path inside the mod
 | `format` | Always `1`. |
 | `id` | Lowercase letters, digits, `-`, `_`, `.`. Saved progress is kept per id: never change it. |
 | `name`, `version` | Shown in the Library. Raise `version` (`1.0.1`, `1.1.0`…) for every update. |
-| `minAppVersion` | `"3.0.0"`. |
+| `minAppVersion` | `"3.0.0"`, or `"3.2.0"` when the module uses `hub`, gallery `groups` / `tileSubtitle` / `searchKeyboard`, `inZone`, `moveZone` / `clearZones` or several flows. |
 | `icon` | Round game icon (square picture works best). |
 | `players`, `source` | Free text. |
 | `collections` | Lists of items, see below. |

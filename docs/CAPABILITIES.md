@@ -6,7 +6,7 @@ features. The authoritative format is `modules/MODULE_SPEC.md`; the code map is
 `docs/ARCHITECTURE.md`. **Keep this file current: any change to blocks, sheet settings,
 saved state, zones, filters, limits or tools must be reflected here in the same commit.**
 
-Last synced with: app 3.2.0 (in progress, branch package-2), module format 1, 2026-10-20.
+Last synced with: app 3.2.0, module format 1, 2026-10-20.
 
 ## 1. Data model
 
@@ -75,12 +75,14 @@ in the top bar swaps modules in two taps. Web preview serves unpacked modules.
 Good fit when the game is: a fixed set of cards/tiles whose **text** is the problem, a
 handful of places a card can be (hand, table, in play), and a round with a repeatable
 checklist. Examples: Vale of Eternity, Magical Athlete, Heat, Wingspan (birds), Ark Nova.
+Since 3.2.0 a big game fits in one module too: a `hub` tab for many sets of cards, gallery
+`groups` for 17 classes or 37 monster types, the number keypad for numbered cards, lanes
+linked by `inZone` (monster types in play → their cards), `moveZone` for a scenario's cleanup
+and several flows (Scenario and Round). Gloomhaven-sized sets (1300 items) are the target.
 
 Poor fit when the game needs: numbers that change every turn (HP, gold, XP, elements,
 initiative), per-instance state (several monsters of one type), random draws or dice,
-branching scripts, a book of long narrative, more than ~150 cards in one browsable set, or
-more than four browsable sets. Such games need new block types or a bigger state model
-before a module can carry them.
+branching scripts. Those still need new block types or a bigger state model.
 
 ## 8. Change log of capabilities
 

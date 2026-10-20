@@ -160,7 +160,8 @@ Uninstalling a module deletes every `mod.<id>.` key. Updating keeps them.
 ## The Library layer (`lib/library/`)
 
 ```
-LibraryController ──┬─ ModuleStore        install zip / single JSON: unzip to .staging → download https
+LibraryController ──┬─ ModuleStore        install(ModuleSource): a BytesSource is unzipped in memory, a FileSource
+                    │                     (picked file, shared file, spooled download) streams entry by entry to .staging → download https
                     │                     images → loadModule (validates) → swap folder into place
                     ├─ RepoClient         index.json + zips; token sent to the index host only
                     ├─ RepoConfigStore    URL in prefs, token in secure storage

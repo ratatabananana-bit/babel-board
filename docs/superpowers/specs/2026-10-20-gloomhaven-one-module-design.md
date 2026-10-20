@@ -1,6 +1,6 @@
 # One module for Gloomhaven: design options
 
-Status: **Package 2 chosen** by the owner on 2026-10-20; counters (Package 3) out of scope. Written 2026-10-20 against app 3.1.1,
+Status: **Package 2 implemented in 3.2.0** (branch package-2, 2026-10-20); counters (Package 3) out of scope. Written 2026-10-20 against app 3.1.1,
 module format 1. Companion to `docs/CAPABILITIES.md`, which lists what the console does today.
 
 ## Intent

@@ -56,7 +56,9 @@ card data, pictures and rules text, built from a fixed set of screen types. Two 
 repository, *Vale of Eternity* and *Magical Athlete*, and they are the worked examples for
 adding your own.
 
-Making a module needs no programming. Paste the instructions the app gives you into an AI
+A big game fits in one module too: a menu tab holds any number of card sets, galleries
+can drill down by class or monster type, and a game can have several trackers (a scenario
+and its rounds). Making a module needs no programming. Paste the instructions the app gives you into an AI
 chat, describe the game, and install the file it answers with. The walkthrough is in
 [docs/CREATING_MODULES.md](docs/CREATING_MODULES.md); the exact format is in
 [modules/MODULE_SPEC.md](modules/MODULE_SPEC.md).
