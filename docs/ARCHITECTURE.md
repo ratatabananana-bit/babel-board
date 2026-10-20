@@ -72,6 +72,8 @@ The registry (`lib/blocks/registry.dart`) maps a type to a widget; it is built f
 | `flow` | `FlowBlock` | `step` | round tracker: phases, checklist, Next |
 | `step` | (data for `flow`) | — | one phase |
 | `text` | `TextBlock` | — | title, paragraphs, bullets |
+| `hub` | `HubBlock` | `entry` | menu page; an entry pushes `HubScreen` (back arrow + the entry's block) |
+| `entry` | (data for `hub`) | — | one menu row |
 
 ### gallery (`gallery/`: `gallery_block.dart`, `layouts.dart`, `rail.dart`, `filter_dock.dart`)
 

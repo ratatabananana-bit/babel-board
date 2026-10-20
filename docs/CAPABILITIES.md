@@ -52,8 +52,9 @@ Cannot: counters on an item (HP, uses, charges), per-item notes, per-item flip/s
 | `flow` | Round/turn tracker: step bar, parchment checklist, "How this phase works", Next (nags on unticked), Rules sheet (`reminders`), ⋮ Setup and New game. | `cyclic`, `setup` step, `children` = `step`. | **One flow per module.** Linear steps only. |
 | `step` | One phase. | `title/short/tag/summary/how`, fixed `checklist` rows (`id/text/sub/action/actionLabel`) **or** `cardChecklist` (tracked items matching a filter, with a `sub` template). | Actions: `clearZone`, `newGame` only. No branching, no counters, no dice, no random draw, no timers, no per-player rows, no conditional rows. |
 | `text` | Title, paragraphs, bullets. | | No headings inside, no images, no collapsible sections, no search. |
+| `hub` | A menu page: one row per `entry` (icon or picture, label, summary); tapping pushes the entry's block on its own screen with a back arrow. | `title`, children = `entry` blocks (`label`, `icon`, `image`, `summary`, `block`). Any block inside, hubs included. | Entries are not tabs: no badge, no swipe between them. A flow inside a hub is found for saved state (first flow in tab order, hubs walked). |
 
-Tabs: a Material bottom bar, swipe between tabs, state kept per tab. Two to four fit; five is cramped; more is not guarded against but unusable. One gallery per tab, so each browsable collection costs a tab.
+Tabs: a Material bottom bar, swipe between tabs, state kept per tab. Two to four fit; five is cramped; more is not guarded against but unusable. One gallery per tab, but a `hub` tab holds any number of galleries and texts as entries, so a browsable collection no longer costs a tab.
 
 ## 5. Saved state (per module, SharedPreferences)
 
@@ -84,5 +85,6 @@ before a module can carry them.
 
 - 3.2.0: gallery decodes pictures at tile size and goes lazy above 120 items.
 - 3.2.0: install limits 250 MB zip / 600 MB unpacked; zips stream from disk; downloads spool to a temp file.
+- 3.2.0: `hub` block with `entry` children (pushed sub-screens).
 - 3.1.x: repositories need no token; Install/Update/Uninstall rows; app renamed Babel Board.
 - 3.0.0: console + modules (format 1); all blocks above; single-JSON install; `details`, `swipe`, `cardChecklist`.

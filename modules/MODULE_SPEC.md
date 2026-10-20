@@ -275,6 +275,24 @@ one step and only `step` children. One flow per module.
 `{"type": "text", "title": "Scoring", "paragraphs": ["…"], "bullets": ["…"]}`. Plain
 reading: rules summaries, scoring, glossary.
 
+### `hub`
+
+A menu page for games with more sets of cards than the bottom bar has room for: one row per
+`entry`, and tapping a row opens that entry's block on its own screen with a back arrow.
+Anything goes inside an entry: a `gallery`, a `text`, a `board`, a `flow`, even another `hub`.
+
+```json
+{ "type": "hub", "title": "Cards", "children": [
+    { "type": "entry", "label": "Abilities", "image": "images/abilities.webp", "summary": "500 ability cards",
+      "block": { "type": "gallery", "collection": "abilities" } },
+    { "type": "entry", "label": "Rules", "icon": "book", "block": { "type": "text", "title": "Rules", "paragraphs": ["…"] } } ] }
+```
+
+### `entry`
+
+One row of a `hub`: `label`, an `icon` (default `grid`) or an `image` (shown instead of the
+icon), an optional one-line `summary`, and the `block` it opens. Needs `minAppVersion` `"3.2.0"`.
+
 ## Checklist before you deliver
 
 - [ ] `format` 1, a fresh lowercase `id`, `version`, `minAppVersion` `"3.0.0"`.

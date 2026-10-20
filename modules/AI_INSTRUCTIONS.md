@@ -97,6 +97,8 @@ Every block: `{"type": "<type>", …settings, "children": [...]}`.
   `{"type": "clearZone", "zone": …}` or `{"type": "newGame"}`. Optional `cardChecklist`
   instead of fixed rows: `{"collection": "cards", "filter": <filter>, "sub": "{template}"}`.
 - `text`: `{"type": "text", "title": "Scoring", "paragraphs": ["…"], "bullets": ["…"]}`.
+- `hub` (needs `minAppVersion` "3.2.0"): a menu page when a game has more sets of cards than four tabs can hold. `{"type": "hub", "title": "Cards", "children": [{"type": "entry", "label": "Items", "icon": "cards", "image": "https://… (optional)", "summary": "optional line", "block": <any block>}]}`. Tapping an entry opens its block on its own screen with a back arrow.
+- `entry`: only inside a `hub` (see above).
 
 ## A complete small example
 

@@ -375,4 +375,33 @@ void main() {
     expect(issues.single.path, 'collections.items');
     expect(issues.single.message, contains('2'));
   });
+
+  test('a hub: entry blocks are checked, and entry images must be safe refs', () {
+    final m = fullManifest();
+    (m['tabs'] as List)[0] = {
+      'label': 'Menu',
+      'icon': 'grid',
+      'block': {
+        'type': 'hub',
+        'children': [
+          {
+            'type': 'entry',
+            'label': 'Bad',
+            'image': '../x.png',
+            'block': {'type': 'gallery', 'collection': 'nope'},
+          },
+          {
+            'type': 'entry',
+            'label': 'Good',
+            'image': 'images/x.webp',
+            'block': {'type': 'gallery', 'collection': 'items'},
+          },
+        ],
+      },
+    };
+    final issues = check(m);
+    expect(issues, fatalAt('tabs[0].block.children[0].block.collection', contains('Unknown collection "nope"')));
+    expect(issues, fatalAt('tabs[0].block.children[0].image'));
+    expect(issues.where((i) => i.fatal), hasLength(2));
+  });
 }

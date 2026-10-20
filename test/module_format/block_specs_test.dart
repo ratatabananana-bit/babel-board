@@ -593,4 +593,70 @@ void main() {
     expect(specPath('', 'format'), 'format');
     expect(specPath('zones[0]', 'id'), 'zones[0].id');
   });
+
+  group('hub', () {
+    test('parses entries with defaults', () {
+      final h =
+          BlockSpec.fromJson({
+                'type': 'hub',
+                'title': 'Cards',
+                'children': [
+                  {
+                    'type': 'entry',
+                    'label': 'All',
+                    'block': {'type': 'text', 'title': 'x'},
+                  },
+                ],
+              }, 'tabs[0].block')
+              as HubSpec;
+      expect(h.title, 'Cards');
+      expect(h.entries.single.label, 'All');
+      expect(h.entries.single.icon, 'grid');
+      expect(h.entries.single.image, isNull);
+      expect(h.entries.single.summary, isNull);
+      expect(h.entries.single.block, isA<TextSpec>());
+    });
+
+    test('refuses non-entry children and an empty hub', () {
+      expect(
+        () => BlockSpec.fromJson({
+          'type': 'hub',
+          'children': [
+            {'type': 'text'},
+          ],
+        }, 'b'),
+        failsAt('b.children[0]', contains('holds only entries')),
+      );
+      expect(() => BlockSpec.fromJson({'type': 'hub', 'children': []}, 'b'), failsAt('b.children'));
+      expect(
+        () => BlockSpec.fromJson({
+          'type': 'hub',
+          'children': [
+            {'type': 'entry', 'label': 'x'},
+          ],
+        }, 'b'),
+        failsAt('b.children[0].block'),
+      );
+    });
+
+    test('walkBlocks visits the root and every entry block, depth first', () {
+      final h = BlockSpec.fromJson({
+        'type': 'hub',
+        'children': [
+          {
+            'type': 'entry',
+            'label': 'a',
+            'block': {
+              'type': 'hub',
+              'children': [
+                {'type': 'entry', 'label': 'b', 'block': {'type': 'text'}},
+              ],
+            },
+          },
+          {'type': 'entry', 'label': 'c', 'block': {'type': 'gallery', 'collection': 'c'}},
+        ],
+      }, 'b');
+      expect(walkBlocks(h).map((b) => b.type).toList(), ['hub', 'hub', 'text', 'gallery']);
+    });
+  });
 }

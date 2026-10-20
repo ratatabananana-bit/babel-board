@@ -11,15 +11,18 @@ class OpenGame {
   OpenGame({required this.module, required this.zones, required this.flow});
 
   /// Builds the state for [module]: zones under `mod.<id>.zones`, and a flow state sized
-  /// to the first flow tab's steps (null when the module has no flow).
+  /// to the first flow's steps, hubs included (null when the module has no flow).
   factory OpenGame.load(SharedPreferences prefs, LoadedModule module) {
     final id = module.manifest.id;
     FlowState? flow;
     for (final t in module.manifest.tabs) {
-      if (t.block case FlowSpec f) {
-        flow = FlowState(prefs, prefix: 'mod.$id.', phaseCount: f.steps.length.clamp(1, 1 << 20));
-        break;
+      for (final b in walkBlocks(t.block)) {
+        if (b case FlowSpec f) {
+          flow = FlowState(prefs, prefix: 'mod.$id.', phaseCount: f.steps.length.clamp(1, 1 << 20));
+          break;
+        }
       }
+      if (flow != null) break;
     }
     return OpenGame(module: module, zones: ZoneState(prefs, id), flow: flow);
   }

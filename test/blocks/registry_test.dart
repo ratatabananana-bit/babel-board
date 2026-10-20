@@ -29,8 +29,8 @@ Future<AppState> pumpMini(WidgetTester tester, {Map<String, Object> prefs = cons
 }
 
 void main() {
-  test('the registry draws every block type the parsers know, except step', () {
-    expect(blockRegistry.keys.toSet(), kBlockTypes.difference({'step'}));
+  test('the registry draws every block type the parsers know, except step and entry', () {
+    expect(blockRegistry.keys.toSet(), kBlockTypes.difference({'step', 'entry'}));
   });
 
   testWidgets('shell shows the module tabs; the text block renders its text', (tester) async {

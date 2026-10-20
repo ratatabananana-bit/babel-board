@@ -9,14 +9,15 @@ import 'board_block.dart';
 import 'flow/flow_block.dart';
 import 'flow/flow_state.dart';
 import 'gallery/gallery_block.dart';
+import 'hub_block.dart';
 import 'text_block.dart';
 
 typedef BlockBuilder = Widget Function(BuildContext context, BlockSpec spec);
 
 /// Block type → widget, keyed by [kBlockTypes] (the parsers' list), so a type the parser
-/// knows and this file does not fails loudly at startup. `step` has no widget of its own
-/// (it is data for `flow`), so a tab holding one shows [UnknownBlock]. Tests may remove an
-/// entry to exercise [UnknownBlock].
+/// knows and this file does not fails loudly at startup. `step` and `entry` have no widget
+/// of their own (data for `flow` and `hub`), so a tab holding one shows [UnknownBlock].
+/// Tests may remove an entry to exercise [UnknownBlock].
 final Map<String, BlockBuilder> blockRegistry = {
   for (final t in kBlockTypes)
     t: ?_builderFor(t),
@@ -30,7 +31,10 @@ BlockBuilder? _builderFor(String type) => switch (type) {
   // A zone on its own is a one-lane board.
   'zone' => (_, s) => BoardBlock(spec: BoardSpec(zones: [s as ZoneBlockSpec])),
   'cardList' => (_, s) => CardListBlock(spec: s as CardListSpec),
+  'hub' => (_, s) => HubBlock(spec: s as HubSpec),
+  // Data for their parent block, like step for flow and entry for hub.
   'step' => null,
+  'entry' => null,
   _ => throw StateError("No widget for block type '$type'; add it to blockRegistry"),
 };
 

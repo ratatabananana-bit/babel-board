@@ -233,6 +233,13 @@ List<ValidationIssue> validateModule(
       case StepSpec s:
         // A step outside a flow does nothing; checked here only for its own settings.
         checkStep(path, s);
+      case HubSpec h:
+        for (var i = 0; i < h.entries.length; i++) {
+          checkBlock('$path.children[$i]', h.entries[i]);
+        }
+      case HubEntrySpec e:
+        checkImage('$path.image', e.image);
+        checkBlock('$path.block', e.block);
       case TextSpec():
         break;
     }

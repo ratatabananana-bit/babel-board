@@ -140,7 +140,7 @@
         "block": { "$ref": "#/$defs/block" }
       }
     },
-    "blockType": { "enum": ["gallery", "board", "zone", "cardList", "flow", "step", "text"] },
+    "blockType": { "enum": ["gallery", "board", "zone", "cardList", "flow", "step", "text", "hub", "entry"] },
     "filter": {
       "type": "object",
       "properties": {
@@ -309,6 +309,29 @@
               "title": { "type": "string" },
               "paragraphs": { "type": "array", "items": { "type": "string" } },
               "bullets": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "hub" } } },
+          "then": {
+            "required": ["children"],
+            "properties": {
+              "title": { "type": "string" },
+              "children": { "minItems": 1, "items": { "properties": { "type": { "const": "entry" } } } }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "entry" } } },
+          "then": {
+            "required": ["label", "block"],
+            "properties": {
+              "label": { "type": "string" },
+              "icon": { "$ref": "#/$defs/icon" },
+              "image": { "$ref": "#/$defs/imageRef" },
+              "summary": { "type": "string" },
+              "block": { "$ref": "#/$defs/block" }
             }
           }
         }

@@ -47,7 +47,7 @@ void main() {
   test('app version and format constants', () {
     expect(kAppVersion, '3.1.1');
     expect(kModuleFormat, 1);
-    expect(kBlockTypes, {'gallery', 'board', 'zone', 'cardList', 'flow', 'step', 'text'});
+    expect(kBlockTypes, {'gallery', 'board', 'zone', 'cardList', 'flow', 'step', 'text', 'hub', 'entry'});
   });
 
   test('parses a minimal manifest with path and inline collections', () {

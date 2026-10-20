@@ -452,6 +452,73 @@ class TextSpec extends BlockSpec {
   }
 }
 
+// ------------------------------------------------------------------------------ hub
+
+/// One row of a hub: `{type: "entry", label, icon?, image?, summary?, block}`. Data for
+/// [HubSpec], like `step` is for `flow`; tapping it opens [block] on its own screen.
+class HubEntrySpec extends BlockSpec {
+  @override
+  String get type => 'entry';
+
+  const HubEntrySpec({required this.label, this.icon = 'grid', this.image, this.summary, required this.block});
+
+  final String label;
+  final String icon;
+
+  /// An image ref shown instead of the icon when present (a class crest, a portrait).
+  final String? image;
+  final String? summary;
+  final BlockSpec block;
+
+  static HubEntrySpec fromJson(Map<String, dynamic> j, String where) {
+    final f = Fields(j, where);
+    final block = f.optObject('block') ?? f.fail('block', 'Missing "block"');
+    return HubEntrySpec(
+      label: f.text('label'),
+      icon: f.optText('icon') ?? 'grid',
+      image: f.optText('image'),
+      summary: f.optText('summary'),
+      block: BlockSpec.fromJson(block.json, block.where),
+    );
+  }
+}
+
+/// `hub`: `{title?, children: [entry]}`. A menu page: each entry opens its block tree on a
+/// pushed screen with a back arrow, so one tab can hold many galleries or texts.
+class HubSpec extends BlockSpec {
+  @override
+  String get type => 'hub';
+
+  const HubSpec({this.title = 'Menu', this.entries = const []});
+
+  final String title;
+  final List<HubEntrySpec> entries;
+
+  static HubSpec fromJson(Map<String, dynamic> j, String where) {
+    final f = Fields(j, where);
+    final children = f.objectList('children');
+    if (children.isEmpty) f.fail('children', 'A hub needs at least one entry');
+    final entries = <HubEntrySpec>[];
+    for (final c in children) {
+      final t = c.text('type');
+      if (t != 'entry') throw SpecFormatException(c.where, 'A hub holds only entries, not "$t"');
+      entries.add(HubEntrySpec.fromJson(c.json, c.where));
+    }
+    return HubSpec(title: f.optText('title') ?? 'Menu', entries: entries);
+  }
+}
+
+/// [root] and every block reachable through hub entries, depth first. Boards' zones and
+/// flows' steps are settings of their block, not visited here.
+Iterable<BlockSpec> walkBlocks(BlockSpec root) sync* {
+  yield root;
+  if (root is HubSpec) {
+    for (final e in root.entries) {
+      yield* walkBlocks(e.block);
+    }
+  }
+}
+
 // -------------------------------------------------------------------------- catalog
 
 /// Block type → parser: the one list of block types the app can draw. A module naming any
@@ -465,6 +532,8 @@ final Map<String, BlockSpec Function(Map<String, dynamic> j, String where)> bloc
   'flow': FlowSpec.fromJson,
   'step': StepSpec.fromJson,
   'text': TextSpec.fromJson,
+  'hub': HubSpec.fromJson,
+  'entry': HubEntrySpec.fromJson,
 };
 
 /// The fixed catalog of block types, in declaration order.
