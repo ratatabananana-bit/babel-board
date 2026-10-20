@@ -317,6 +317,7 @@
           "then": {
             "required": ["children"],
             "properties": {
+              "id": { "type": "string", "description": "Needed when a module has several flows; progress is saved per id." },
               "title": { "type": "string" },
               "cyclic": { "type": "boolean" },
               "reminders": { "type": "array", "items": { "type": "string" } },

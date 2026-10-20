@@ -47,3 +47,23 @@ class FlowState extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+/// Every flow of a module with its saved progress, by flow id. The first flow in tab order
+/// keeps the keys a one-flow module always used, so an update never loses a game's place.
+class FlowStates {
+  FlowStates(this.byId, {this.first});
+
+  final Map<String, FlowState> byId;
+
+  /// The first flow in tab order (hubs walked), null when the module has no flow.
+  final FlowState? first;
+
+  FlowState? operator [](String id) => byId[id];
+
+  /// New game: every tracker back to its first step.
+  void resetAll() {
+    for (final s in byId.values) {
+      s.reset();
+    }
+  }
+}

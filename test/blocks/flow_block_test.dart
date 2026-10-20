@@ -155,4 +155,42 @@ void main() {
     expect(zones.total, 0);
     expect(scoped<FlowState>(tester).isChecked('one.wipe'), isTrue);
   });
+
+  testWidgets('New game from the second flow resets both flows and clears zones', (tester) async {
+    await pumpModules(
+      tester,
+      tab: 'Scenario',
+      prefs: prefsWith({'imp': 'a'}),
+      edit: (m) => (m['tabs'] as List).add({
+        'label': 'Scenario',
+        'icon': 'flag',
+        'block': {
+          'type': 'flow',
+          'id': 'scenario',
+          'title': 'Scenario',
+          'cyclic': false,
+          'children': [
+            {'type': 'step', 'id': 'sc.setup', 'title': 'Setup'},
+            {'type': 'step', 'id': 'sc.cleanup', 'title': 'Cleanup'},
+          ],
+        },
+      }),
+    );
+    final flows = scoped<FlowStates>(tester);
+    flows.first!.goTo(1);
+    await tester.tap(find.text('Cleanup'));
+    await tester.pumpAndSettle();
+    expect(flows['scenario']!.index, 1);
+    expect(flows.first!.index, 1);
+
+    // The last step of a non-cyclic flow offers New game as its Next button.
+    await tester.tap(find.text('New game'));
+    await tester.pumpAndSettle();
+    expect(find.text('Start a new game?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'New game'));
+    await tester.pumpAndSettle();
+    expect(scoped<ZoneState>(tester).total, 0);
+    expect(flows['scenario']!.index, 0);
+    expect(flows.first!.index, 0, reason: 'New game is for the whole module, not one tracker');
+  });
 }

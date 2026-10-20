@@ -257,7 +257,10 @@ menu with Setup and New game.
 
 `cyclic: true` repeats (rounds); `false` runs once and the last step offers New game.
 `reminders` fill the Rules sheet. `setup` is shown from the ⋮ menu. A flow needs at least
-one step and only `step` children. One flow per module.
+one step and only `step` children. A module may have several flows (3.2.0: a Scenario
+tracker and a Round tracker, say); give each its own `id`, since progress is saved per id.
+The first flow in tab order keeps its progress across app updates. New game resets every
+flow and clears every zone.
 
 ### `step`
 

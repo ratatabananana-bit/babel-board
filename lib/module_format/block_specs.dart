@@ -429,13 +429,15 @@ class StepSpec extends BlockSpec {
   }
 }
 
-/// `flow`: `{title?, cyclic?, reminders?, newGameText?, setup?: step, children: [step]}`.
+/// `flow`: `{id?, title?, cyclic?, reminders?, newGameText?, setup?: step, children: [step]}`.
 /// Step ids and checklist ids are unique across the whole flow (ticks are saved per id).
+/// A module may hold several flows; each needs its own `id` (progress is saved per id).
 class FlowSpec extends BlockSpec {
   @override
   String get type => 'flow';
 
   const FlowSpec({
+    this.id = 'flow',
     this.title = 'Round',
     this.cyclic = true,
     this.reminders = const [],
@@ -444,6 +446,7 @@ class FlowSpec extends BlockSpec {
     this.steps = const [],
   });
 
+  final String id;
   final String title;
   final bool cyclic;
   final List<String> reminders;
@@ -483,6 +486,7 @@ class FlowSpec extends BlockSpec {
       steps.add(step);
     }
     return FlowSpec(
+      id: f.optText('id') ?? 'flow',
       title: f.optText('title') ?? 'Round',
       cyclic: f.optBool('cyclic') ?? true,
       reminders: f.optTextList('reminders') ?? const [],

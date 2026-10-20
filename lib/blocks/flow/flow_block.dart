@@ -55,9 +55,18 @@ class _FlowBlockState extends State<FlowBlock> {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.pal;
     final flow = widget.spec;
-    final state = context.watch<FlowState?>();
+    // This flow's own tracker; the scope's plain FlowState is the first flow's.
+    final own = context.read<FlowStates?>()?[flow.id];
+    if (own == null) return _body(context, flow, context.watch<FlowState?>());
+    return ChangeNotifierProvider<FlowState>.value(
+      value: own,
+      child: Builder(builder: (context) => _body(context, flow, context.watch<FlowState>())),
+    );
+  }
+
+  Widget _body(BuildContext context, FlowSpec flow, FlowState? state) {
+    final p = context.pal;
     if (state == null || flow.steps.isEmpty) {
       return Center(
         child: Text('This flow has no steps.', style: T.body.copyWith(color: p.text2)),
@@ -301,7 +310,13 @@ Future<bool> confirmNewGame(BuildContext context, String body) async {
   final ok = await confirm(context, 'Start a new game?', body, 'New game');
   if (ok && context.mounted) {
     context.read<ZoneState>().clearAll();
-    context.read<FlowState?>()?.reset();
+    // Every tracker of the module, not only the one the button sits in.
+    final all = context.read<FlowStates?>();
+    if (all != null) {
+      all.resetAll();
+    } else {
+      context.read<FlowState?>()?.reset();
+    }
   }
   return ok;
 }

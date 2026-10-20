@@ -8,28 +8,34 @@ import '../modules/module_state.dart';
 
 /// A loaded module together with its saved state.
 class OpenGame {
-  OpenGame({required this.module, required this.zones, required this.flow});
+  OpenGame({required this.module, required this.zones, required this.flows});
 
-  /// Builds the state for [module]: zones under `mod.<id>.zones`, and a flow state sized
-  /// to the first flow's steps, hubs included (null when the module has no flow).
+  /// Builds the state for [module]: zones under `mod.<id>.zones`, and one flow state per
+  /// flow (hubs walked). The first flow keeps the keys `mod.<id>.phase.*` a one-flow module
+  /// always used; later ones live under `mod.<id>.flow.<flowId>.`.
   factory OpenGame.load(SharedPreferences prefs, LoadedModule module) {
     final id = module.manifest.id;
-    FlowState? flow;
+    final byId = <String, FlowState>{};
+    FlowState? first;
     for (final t in module.manifest.tabs) {
       for (final b in walkBlocks(t.block)) {
-        if (b case FlowSpec f) {
-          flow = FlowState(prefs, prefix: 'mod.$id.', phaseCount: f.steps.length.clamp(1, 1 << 20));
-          break;
+        if (b case FlowSpec f when !byId.containsKey(f.id)) {
+          final prefix = first == null ? 'mod.$id.' : 'mod.$id.flow.${f.id}.';
+          final s = FlowState(prefs, prefix: prefix, phaseCount: f.steps.length.clamp(1, 1 << 20));
+          byId[f.id] = s;
+          first ??= s;
         }
       }
-      if (flow != null) break;
     }
-    return OpenGame(module: module, zones: ZoneState(prefs, id), flow: flow);
+    return OpenGame(module: module, zones: ZoneState(prefs, id), flows: FlowStates(byId, first: first));
   }
 
   final LoadedModule module;
   final ZoneState zones;
-  final FlowState? flow;
+  final FlowStates flows;
+
+  /// The first flow's state (null without a flow); kept for callers that know one flow.
+  FlowState? get flow => flows.first;
 
   String get id => module.manifest.id;
   String get title => module.manifest.name;

@@ -56,7 +56,7 @@ whose keys are `kBlockTypes`. `ModuleManifest.parse` turns every block and every
 `sheet` into its typed spec once, through `Fields` (`spec_json.dart`), so a wrong value is a
 `SpecFormatException` with a path and widgets never see a map. `validateModule` parses the
 same way (collecting every failure) and then checks only what a parser cannot know: that the
-zones and collections a spec names exist, one flow per module.
+zones and collections a spec names exist, flow ids unique across the module.
 
 ## Blocks and what is inside them
 
@@ -150,7 +150,8 @@ FlowState           index + ticked ids, saved per module
 |---|---|---|
 | `app.lastGame` | `AppState` | reopened on launch |
 | `mod.<id>.zones` | `ZoneState` | `{itemId: zoneId}`, insertion-ordered |
-| `mod.<id>.phase.index`, `.phase.checked` | `FlowState` | round progress |
+| `mod.<id>.phase.index`, `.phase.checked` | `FlowState` | the first flow's progress |
+| `mod.<id>.flow.<flowId>.phase.*` | `FlowState` (via `FlowStates`) | every later flow's progress |
 | `settings.*` | `Settings` | theme, columns, animation speed, flowing grid |
 | `repo.indexUrl` (+ token in secure storage) | `RepoConfigStore` | the private module repository |
 

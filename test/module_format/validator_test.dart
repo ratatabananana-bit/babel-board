@@ -348,7 +348,7 @@ void main() {
       expect(check(m2), fatalAt('collections.items.sheet.swipe.up'));
     });
 
-    test('only one flow per module', () {
+    test('two flows with the same (default) id are refused', () {
       final m = fullManifest();
       (m['tabs'] as List).add({'label': 'Again', 'icon': 'flag', 'block': block(fullManifest(), 2)});
       expect(check(m), fatalAt('tabs[4].block'));
@@ -487,5 +487,26 @@ void main() {
     expect(issues, fatalAt('tabs[2].block.children[0].checklist[2].action.from[1]', 'Unknown zone "nope"'));
     expect(issues, fatalAt('tabs[2].block.children[0].checklist[3].action.zones[0]', 'Unknown zone "gone"'));
     expect(issues, fatalAt('tabs[4].block.filter.where[0].inZone', 'Unknown zone "missing"'));
+  });
+
+  test('two flows are allowed when their ids differ; the same id twice is an error', () {
+    Map<String, Object> flowTab(String label, [String? id]) => {
+      'label': label,
+      'icon': 'flag',
+      'block': <String, Object>{
+        'type': 'flow',
+        'id': ?id,
+        'children': [
+          {'type': 'step', 'id': '.one', 'title': 'One'},
+        ],
+      },
+    };
+    final ok = fullManifest();
+    (ok['tabs'] as List).add(flowTab('Scenario', 'scenario'));
+    expect(check(ok).where((i) => i.fatal), isEmpty);
+
+    final dup = fullManifest();
+    (dup['tabs'] as List).add(flowTab('Again'));
+    expect(check(dup), fatalAt('tabs[4].block', 'Flow id "flow" is used twice; give each flow its own id'));
   });
 }

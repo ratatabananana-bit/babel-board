@@ -232,7 +232,7 @@ List<ValidationIssue> validateModule(
     }
   }
 
-  var flows = 0;
+  final flowIds = <String>{};
   void checkBlock(String path, BlockSpec spec) {
     switch (spec) {
       case GallerySpec g:
@@ -268,8 +268,7 @@ List<ValidationIssue> validateModule(
       case CardListSpec list:
         checkCardList(path, list);
       case FlowSpec f:
-        flows++;
-        if (flows > 1) fatal(path, 'A module can have only one flow');
+        if (!flowIds.add(f.id)) fatal(path, 'Flow id "${f.id}" is used twice; give each flow its own id');
         if (f.setup case final setup?) checkStep('$path.setup', setup);
         for (var i = 0; i < f.steps.length; i++) {
           checkStep('$path.children[$i]', f.steps[i]);

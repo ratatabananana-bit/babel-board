@@ -64,21 +64,24 @@ class UnknownBlock extends StatelessWidget {
 /// Provides the open module and its state to everything below, including sheets and
 /// dialogs when placed in `MaterialApp.builder`.
 class ModuleScope extends StatelessWidget {
-  const ModuleScope({super.key, required this.module, required this.zones, required this.flow, required this.child});
+  const ModuleScope({super.key, required this.module, required this.zones, required this.flows, required this.child});
 
   final LoadedModule module;
   final ZoneState zones;
-  final FlowState? flow;
+  final FlowStates flows;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final flow = this.flow;
+    final first = flows.first;
     return MultiProvider(
       providers: [
         Provider<LoadedModule>.value(value: module),
         ChangeNotifierProvider<ZoneState>.value(value: zones),
-        if (flow != null) ChangeNotifierProvider<FlowState>.value(value: flow),
+        Provider<FlowStates>.value(value: flows),
+        // The first flow is also the plain FlowState, as for a one-flow module; each
+        // FlowBlock provides its own state to its subtree.
+        if (first != null) ChangeNotifierProvider<FlowState>.value(value: first),
       ],
       child: child,
     );

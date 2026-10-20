@@ -50,7 +50,7 @@ Cannot: counters on an item (HP, uses, charges), per-item notes, per-item flip/s
 | `board` | One coloured lane per zone; drag between lanes, before a card, or to Remove; ⋮ clears. | `title`, `countLabel`, children = `zone` blocks each with a `cardList` style. | One zone → plain list, no dragging. Lanes show only items of that lane's `cardList.collection`. |
 | `zone` | A single lane (a one-zone board as a tab). | `zone`, `list`. | — |
 | `cardList` | Items matching a `filter` (zone and/or `where` rules). Styles `mini` (columns), `rows`, `thumbs`; `removable` ✕. | | Filter rules are `has`, `equals` and `inZone`, all must match; no OR, no numeric comparison. |
-| `flow` | Round/turn tracker: step bar, parchment checklist, "How this phase works", Next (nags on unticked), Rules sheet (`reminders`), ⋮ Setup and New game. | `cyclic`, `setup` step, `children` = `step`. | **One flow per module.** Linear steps only. |
+| `flow` | Round/turn tracker: step bar, parchment checklist, "How this phase works", Next (nags on unticked), Rules sheet (`reminders`), ⋮ Setup and New game. | `cyclic`, `setup` step, `children` = `step`. | Several flows per module (each with an `id`; the first in tab order keeps the legacy saved keys). Linear steps only. New game resets every flow. |
 | `step` | One phase. | `title/short/tag/summary/how`, fixed `checklist` rows (`id/text/sub/action/actionLabel`) **or** `cardChecklist` (tracked items matching a filter, with a `sub` template). | Actions: `clearZone`, `newGame`, `moveZone` (from zones → to zone), `clearZones`. No branching, no counters, no dice, no random draw, no timers, no per-player rows, no conditional rows. |
 | `text` | Title, paragraphs, bullets. | | No headings inside, no images, no collapsible sections, no search. |
 | `hub` | A menu page: one row per `entry` (icon or picture, label, summary); tapping pushes the entry's block on its own screen with a back arrow. | `title`, children = `entry` blocks (`label`, `icon`, `image`, `summary`, `block`). Any block inside, hubs included. | Entries are not tabs: no badge, no swipe between them. A flow inside a hub is found for saved state (first flow in tab order, hubs walked). |
@@ -59,8 +59,8 @@ Tabs: a Material bottom bar, swipe between tabs, state kept per tab. Two to four
 
 ## 5. Saved state (per module, SharedPreferences)
 
-`mod.<id>.zones` (tracking), `mod.<id>.phase.index` + `.phase.checked` (flow). That is all a
-module can remember. No free-form notes, numbers, unlocks, campaign log or per-character
+`mod.<id>.zones` (tracking), `mod.<id>.phase.index` + `.phase.checked` (the first flow),
+`mod.<id>.flow.<flowId>.phase.*` (every later flow). That is all a module can remember. No free-form notes, numbers, unlocks, campaign log or per-character
 profiles. `newGame` wipes zones and flow together.
 
 ## 6. Install, update, share
@@ -89,5 +89,6 @@ before a module can carry them.
 - 3.2.0: `hub` block with `entry` children (pushed sub-screens).
 - 3.2.0: gallery `groups` (drill-down), `tileSubtitle`, `searchKeyboard`; filter docks over 8 options become a searchable picker.
 - 3.2.0: `moveZone` and `clearZones` checklist actions; `inZone` filter rule.
+- 3.2.0: several flows per module, each with its own saved progress.
 - 3.1.x: repositories need no token; Install/Update/Uninstall rows; app renamed Babel Board.
 - 3.0.0: console + modules (format 1); all blocks above; single-JSON install; `details`, `swipe`, `cardChecklist`.

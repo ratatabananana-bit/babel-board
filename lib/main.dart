@@ -224,7 +224,7 @@ class _HelperAppState extends State<HelperApp> {
               builder: (context, child) {
                 final g = app.active;
                 if (g == null) return child!;
-                return ModuleScope(module: g.module, zones: g.zones, flow: g.flow, child: child!);
+                return ModuleScope(module: g.module, zones: g.zones, flows: g.flows, child: child!);
               },
               home: const _Home(),
             ),
