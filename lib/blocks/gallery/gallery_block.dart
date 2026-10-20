@@ -373,7 +373,8 @@ class _GalleryBlockState extends State<GalleryBlock> {
   ) {
     final p = context.pal;
     final extra = _g.tileName ? ItemTile.nameHeight : 0.0;
-    Widget grid(List<Item> items) => ReflowGrid<Item>(
+    // [width] is the grid's real width, so pictures decode at their drawn size.
+    Widget grid(List<Item> items, double width) => ReflowGrid<Item>(
       items: items,
       idOf: (it) => it.id,
       columns: columns,
@@ -385,7 +386,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
         collection: spec,
         collectionId: _g.collection,
         showName: _g.tileName,
-        pictureWidth: ReflowGrid.tileWidth(gridW, columns),
+        pictureWidth: ReflowGrid.tileWidth(width, columns),
       ),
     );
     if (shown.isEmpty) {
@@ -396,7 +397,12 @@ class _GalleryBlockState extends State<GalleryBlock> {
     _sectionOffsets.clear();
     _sectionSpans.clear();
     if (sections == null) {
-      return ListView(controller: _scroll, padding: _pad.copyWith(top: 8, right: 16), children: [grid(shown)]);
+      // Padded 16 dp on both sides (no rail column), so this grid is narrower than [gridW].
+      return ListView(
+        controller: _scroll,
+        padding: _pad.copyWith(top: 8, right: 16),
+        children: [grid(shown, gridW + _pad.horizontal - 32)],
+      );
     }
     // Highlighted cards: only what was picked on the rail (and is still shown).
     final activeKey = keys.contains(_picked) ? _picked : null;
@@ -438,7 +444,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: _sectionGap),
-                child: SectionPanel(key: Key('section-$k'), active: k == activeKey, child: grid(items)),
+                child: SectionPanel(key: Key('section-$k'), active: k == activeKey, child: grid(items, innerW)),
               ),
             ),
           ],
