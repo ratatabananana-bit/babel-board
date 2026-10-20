@@ -189,10 +189,21 @@ A searchable grid of item pictures with a 4/3/2-per-row toggle. Tap opens the it
 - `search`: paths searched by the search box. `tileName`: name under each picture (use
   `false` when the name is printed on the picture or the shape is `square`).
 - `filters`: single-select docks at the bottom; tap an option again for "all". Up to ~6
-  options fit.
+  options fit as a row; more than 8 options become one button ("Class: Brute") that opens a
+  searchable sheet of the options.
 - `sections`: group by a field with sticky headers (`{value}` in the label). `rail` adds a
   number rail on the right to jump (tap or press and slide); `railRange` lists every number
   from first to last, dimming absent ones.
+- `groups` (needs `minAppVersion` `"3.2.0"`): drill-down for big sets.
+  `"groups": {"path": "class", "by": "classes", "noun": "classes"}` shows one tile per item of
+  the `classes` collection first (its picture and name); tapping one shows the cards whose
+  `class` equals that item's id, with a bar above the grid that leads back to "All classes".
+  A typed search always spans every group. Items whose `path` value matches no `by` item are
+  reachable only through search; the validator warns about them.
+- `tileSubtitle` (3.2.0): a template for a second small line under the tile name, e.g.
+  `"{initiative}"`, so a card can be matched by its big printed number instead of its art.
+- `searchKeyboard` (3.2.0): `"number"` opens the number keypad for the search box (item
+  numbers, event numbers, initiative); default `"text"`.
 
 ### `board`
 

@@ -9,6 +9,7 @@ import '../../core/widgets/search_top_bar.dart';
 import '../../module_format/block_specs.dart';
 import '../../module_format/path_expr.dart';
 import '../../modules/loaded_module.dart';
+import '../item_picture.dart';
 import '../item_tile.dart';
 import 'filter_dock.dart';
 import 'layouts.dart';
@@ -139,16 +140,39 @@ class _GalleryBlockState extends State<GalleryBlock> {
     if (active != _activeSection) setState(() => _activeSection = active);
   }
 
+  /// The picked group (an id of the `groups.by` collection); null shows the group tiles.
+  String? _group;
+
+  /// A typed search spans every group: the group only narrows while the box is empty.
   List<Item> _shown(List<Item> all) {
     final q = _search.text.trim().toLowerCase();
+    final gr = _g.groups;
+    final group = _group;
     return all.where((it) {
       for (var i = 0; i < _g.filters.length; i++) {
         final v = _selected[i];
         if (v != null && !resolvePath(it.data, _g.filters[i].path).any((x) => x == v)) return false;
       }
-      if (q.isEmpty) return true;
+      if (q.isEmpty) {
+        if (gr != null && group != null && !resolvePath(it.data, gr.path).any((v) => '$v' == group)) return false;
+        return true;
+      }
       return _g.search.any((p) => resolvePath(it.data, p).any((v) => '$v'.toLowerCase().contains(q)));
     }).toList();
+  }
+
+  void _pickGroup(String? id) {
+    setState(() {
+      _group = id;
+      _activeSection = null;
+      _picked = null;
+    });
+    if (_scroll.hasClients) _scroll.jumpTo(0);
+  }
+
+  String? _subtitleOf(Item it) {
+    final t = _g.tileSubtitle;
+    return t == null ? null : fillTemplate(t, it.data);
   }
 
   @override
@@ -162,53 +186,109 @@ class _GalleryBlockState extends State<GalleryBlock> {
     final sectioned = sections != null && (!sections.onlyWhenFiltered || _filtered);
     final keys = sectioned ? _sectionKeys(shown, sections.path) : const <Object?>[];
 
+    final groups = _g.groups;
+    final bySpec = groups == null ? null : module.manifest.collections[groups.by];
+    final groupScreen = bySpec != null && _group == null && _search.text.trim().isEmpty;
+    final groupItem = groups == null || _group == null ? null : module.item(groups.by, _group!);
+
     final rail = sectioned && sections.rail;
     return Column(
       children: [
         SearchTopBar(
           search: _search,
           hint: _g.searchHint,
+          keyboardType: _g.searchKeyboard == 'number' ? TextInputType.number : TextInputType.text,
           trailing: ViewPill(onLayoutChanged: sections == null ? null : _relayout),
         ),
-        Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, box) {
-                    final gridW = box.maxWidth - _pad.horizontal;
-                    return _grid(
-                      context,
-                      spec,
-                      shown,
-                      sectioned ? sections : null,
-                      keys,
-                      columns,
-                      gridW,
-                      box.maxHeight,
-                    );
-                  },
-                ),
-              ),
-              if (rail) ...[
-                SizedBox(
-                  width: _railW,
-                  child: SectionRail(
-                    keys: keys,
-                    range: sections.railRange,
-                    active: keys.contains(_activeSection) ? _activeSection : (keys.isEmpty ? null : keys.first),
-                    picked: keys.contains(_picked) ? _picked : null,
-                    labelOf: (k) => _bubbleLabel(sections, k),
-                    onPick: _jumpTo,
+        if (groups != null && bySpec != null && groupItem != null)
+          _GroupBar(item: groupItem, spec: bySpec, noun: groups.noun, onBack: () => _pickGroup(null)),
+        if (groupScreen)
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, box) =>
+                  _groupGrid(context, groups!, bySpec, module.items(groups.by), columns, box.maxWidth),
+            ),
+          )
+        else
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, box) {
+                      final gridW = box.maxWidth - _pad.horizontal;
+                      return _grid(
+                        context,
+                        spec,
+                        shown,
+                        sectioned ? sections : null,
+                        keys,
+                        columns,
+                        gridW,
+                        box.maxHeight,
+                      );
+                    },
                   ),
                 ),
-                const SizedBox(width: _railEdge),
+                if (rail) ...[
+                  SizedBox(
+                    width: _railW,
+                    child: SectionRail(
+                      keys: keys,
+                      range: sections.railRange,
+                      active: keys.contains(_activeSection) ? _activeSection : (keys.isEmpty ? null : keys.first),
+                      picked: keys.contains(_picked) ? _picked : null,
+                      labelOf: (k) => _bubbleLabel(sections, k),
+                      onPick: _jumpTo,
+                    ),
+                  ),
+                  const SizedBox(width: _railEdge),
+                ],
               ],
-            ],
+            ),
+          ),
+        if (!groupScreen)
+          for (var i = 0; i < _g.filters.length; i++)
+            FilterDock(filter: _g.filters[i], selected: _selected[i], onPick: (v) => _pick(i, v)),
+      ],
+    );
+  }
+
+  /// The group tiles (one per item of `groups.by`): tapping picks that group.
+  Widget _groupGrid(
+    BuildContext context,
+    GroupsSpec groups,
+    CollectionSpec bySpec,
+    List<Item> items,
+    int columns,
+    double width,
+  ) {
+    final pad = _pad.copyWith(top: 8, right: 16);
+    final gridW = width - pad.horizontal;
+    if (items.isEmpty) {
+      return Center(
+        child: Text('No ${groups.noun} yet.', style: T.body.copyWith(color: context.pal.text2)),
+      );
+    }
+    return ListView(
+      controller: _scroll,
+      padding: pad,
+      children: [
+        ReflowGrid<Item>(
+          items: items,
+          idOf: (it) => it.id,
+          columns: columns,
+          aspect: bySpec.cardAspect,
+          extraHeight: ItemTile.nameHeight,
+          duration: context.read<Settings>().anim(ReflowGrid.normalDuration),
+          tileBuilder: (it) => ItemTile(
+            item: it,
+            collection: bySpec,
+            collectionId: groups.by,
+            pictureWidth: ReflowGrid.tileWidth(gridW, columns),
+            onTap: () => _pickGroup(it.id),
           ),
         ),
-        for (var i = 0; i < _g.filters.length; i++)
-          FilterDock(filter: _g.filters[i], selected: _selected[i], onPick: (v) => _pick(i, v)),
       ],
     );
   }
@@ -283,6 +363,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
         spec: spec,
         collectionId: _g.collection,
         showName: _g.tileName,
+        subtitle: _subtitleOf(it),
         label: first ? '$k' : null,
         endsRun: last,
         picked: picked,
@@ -376,7 +457,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
     double viewH,
   ) {
     final p = context.pal;
-    final extra = _g.tileName ? ItemTile.nameHeight : 0.0;
+    final extra = ItemTile.textHeight(name: _g.tileName, subtitle: _g.tileSubtitle != null);
     // [width] is the grid's real width, so pictures decode at their drawn size.
     Widget grid(List<Item> items, double width) => ReflowGrid<Item>(
       items: items,
@@ -390,6 +471,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
         collection: spec,
         collectionId: _g.collection,
         showName: _g.tileName,
+        subtitle: _subtitleOf(it),
         pictureWidth: ReflowGrid.tileWidth(width, columns),
       ),
     );
@@ -406,6 +488,7 @@ class _GalleryBlockState extends State<GalleryBlock> {
         collection: spec,
         collectionId: _g.collection,
         showName: _g.tileName,
+        subtitle: _subtitleOf(it),
         pictureWidth: ReflowGrid.tileWidth(width, columns),
       ),
     );
@@ -516,4 +599,39 @@ class _GalleryBlockState extends State<GalleryBlock> {
     behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
     child: NotificationListener<UserScrollNotification>(onNotification: _onUserScroll, child: child),
   );
+}
+
+/// Under the search bar while a group is picked: its picture and name, and the way back.
+class _GroupBar extends StatelessWidget {
+  const _GroupBar({required this.item, required this.spec, required this.noun, required this.onBack});
+  final Item item;
+  final CollectionSpec spec;
+  final String noun;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 8, 6),
+      child: Row(
+        children: [
+          SizedBox(width: 32, child: ItemPicture(item, spec, radius: 6, decodeWidth: 32)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              item.title(spec),
+              style: T.body.copyWith(fontWeight: FontWeight.w700, color: p.text),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          TextButton.icon(
+            onPressed: onBack,
+            icon: Icon(Icons.arrow_back_rounded, size: 18, color: p.text2),
+            label: Text('All $noun', style: T.caption.copyWith(color: p.text2)),
+          ),
+        ],
+      ),
+    );
+  }
 }

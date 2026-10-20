@@ -31,6 +31,7 @@ class FlowCell extends StatelessWidget {
     required this.spec,
     required this.collectionId,
     required this.showName,
+    this.subtitle,
     required this.label,
     required this.endsRun,
     required this.picked,
@@ -43,6 +44,7 @@ class FlowCell extends StatelessWidget {
   final CollectionSpec spec;
   final String collectionId;
   final bool showName;
+  final String? subtitle;
 
   /// The section's number when this is its first card.
   final String? label;
@@ -111,6 +113,7 @@ class FlowCell extends StatelessWidget {
               collection: spec,
               collectionId: collectionId,
               showName: showName,
+              subtitle: subtitle,
               pictureWidth: pictureWidth,
             ),
           ),

@@ -18,7 +18,9 @@ class ItemTile extends StatelessWidget {
     required this.collection,
     required this.collectionId,
     this.showName = true,
+    this.subtitle,
     this.pictureWidth,
+    this.onTap,
   });
 
   final Item item;
@@ -26,14 +28,27 @@ class ItemTile extends StatelessWidget {
   final String collectionId;
   final bool showName;
 
+  /// A second, smaller line under the name (a printed number, a cost).
+  final String? subtitle;
+
   /// Logical width of the picture, when the grid knows it: decodes at tile size.
   final double? pictureWidth;
+
+  /// Replaces opening the item sheet (group tiles pick their group instead).
+  final VoidCallback? onTap;
 
   /// Height of the name block under the picture (two lines), including the gap.
   static const nameHeight = 6.0 + nameLines * nameSize * nameLineHeight;
   static const nameLines = 2;
   static const nameSize = 12.0;
   static const nameLineHeight = 1.2;
+
+  /// Height of the text under the picture for a given combination of lines; 0 when there
+  /// is none. Grids size their cells with this, so it must match what [build] draws.
+  static double textHeight({required bool name, required bool subtitle}) {
+    if (!name && !subtitle) return 0;
+    return 6.0 + (name ? nameLines : 0) * nameSize * nameLineHeight + (subtitle ? nameSize * nameLineHeight : 0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +63,7 @@ class ItemTile extends StatelessWidget {
       label: zone == null ? title : '$title, in ${zone.label}',
       excludeSemantics: true,
       child: GestureDetector(
-        onTap: () => showItemSheet(context, item, collectionId),
+        onTap: onTap ?? () => showItemSheet(context, item, collectionId),
         behavior: HitTestBehavior.opaque,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -81,8 +96,8 @@ class ItemTile extends StatelessWidget {
                 ],
               ],
             ),
-            if (showName) ...[
-              const SizedBox(height: 6),
+            if (showName || subtitle != null) const SizedBox(height: 6),
+            if (showName)
               SizedBox(
                 height: nameLines * nameSize * nameLineHeight,
                 child: Text(
@@ -97,7 +112,21 @@ class ItemTile extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
+            if (subtitle != null)
+              SizedBox(
+                height: nameSize * nameLineHeight,
+                child: Text(
+                  subtitle!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: nameSize,
+                    height: nameLineHeight,
+                    fontWeight: FontWeight.w500,
+                    color: p.text2,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

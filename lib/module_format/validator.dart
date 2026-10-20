@@ -5,6 +5,7 @@ import '../app_version.dart';
 import 'block_specs.dart';
 import 'filter.dart';
 import 'manifest.dart';
+import 'path_expr.dart';
 import 'spec_json.dart';
 
 class ValidationIssue {
@@ -172,6 +173,9 @@ List<ValidationIssue> validateModule(
     if (!m.collections.containsKey(name)) fatal(path, 'Unknown collection "$name"');
   }
 
+  List<Map<String, dynamic>> itemsOf(String name, CollectionSpec spec) =>
+      spec.isInline ? spec.inlineItems : collections[name] ?? const [];
+
   void checkFilter(String path, ItemFilter? f) {
     if (f?.zone case final zone?) checkZoneId('$path.zone', zone);
   }
@@ -215,6 +219,28 @@ List<ValidationIssue> validateModule(
     switch (spec) {
       case GallerySpec g:
         requireCollection('$path.collection', g.collection);
+        if (g.groups case final gr?) {
+          requireCollection('$path.groups.by', gr.by);
+          final bySpec = m.collections[gr.by];
+          final spec = m.collections[g.collection];
+          if (bySpec != null && spec != null) {
+            // Items whose group value names no group tile are reachable only through
+            // search: worth a warning, not a refusal.
+            final groupIds = {for (final it in itemsOf(gr.by, bySpec)) '${it[bySpec.idField]}'};
+            final orphans = itemsOf(g.collection, spec)
+                .where((it) => !resolvePath(it, gr.path).any((v) => groupIds.contains('$v')))
+                .length;
+            if (orphans > 0) {
+              issues.add(
+                ValidationIssue(
+                  'collections.${g.collection}',
+                  '$orphans item${orphans == 1 ? '' : 's'} whose "${gr.path}" names no item of "${gr.by}"',
+                  fatal: false,
+                ),
+              );
+            }
+          }
+        }
       case BoardSpec board:
         for (var i = 0; i < board.zones.length; i++) {
           checkZone('$path.children[$i]', board.zones[i]);

@@ -594,6 +594,28 @@ void main() {
     expect(specPath('zones[0]', 'id'), 'zones[0].id');
   });
 
+  group('gallery groups, tileSubtitle, searchKeyboard', () {
+    test('groups parse with defaults; searchKeyboard is text or number', () {
+      final g = GallerySpec.fromJson({
+        'collection': 'c',
+        'groups': {'path': 'class', 'by': 'classes'},
+        'tileSubtitle': '{initiative}',
+        'searchKeyboard': 'number',
+      }, 'b');
+      expect(g.groups!.path, 'class');
+      expect(g.groups!.by, 'classes');
+      expect(g.groups!.noun, 'groups');
+      expect(g.tileSubtitle, '{initiative}');
+      expect(g.searchKeyboard, 'number');
+      final plain = GallerySpec.fromJson({'collection': 'c'}, 'b');
+      expect(plain.groups, isNull);
+      expect(plain.tileSubtitle, isNull);
+      expect(plain.searchKeyboard, 'text');
+      expect(() => GallerySpec.fromJson({'collection': 'c', 'searchKeyboard': 'phone'}, 'b'), failsAt('b.searchKeyboard'));
+      expect(() => GallerySpec.fromJson({'collection': 'c', 'groups': {'path': 'x'}}, 'b'), failsAt('b.groups.by'));
+    });
+  });
+
   group('hub', () {
     test('parses entries with defaults', () {
       final h =

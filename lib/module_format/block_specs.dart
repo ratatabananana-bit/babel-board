@@ -99,7 +99,27 @@ class SectionsSpec {
   }
 }
 
-/// `gallery`: `{collection, search?: [path], tileName?, filters?: [...], sections?: {...}, noun?, searchHint?}`.
+/// Drill-down: the gallery first shows one tile per item of collection [by] (a class crest,
+/// a monster portrait); tapping one shows the items whose [path] value is that item's id.
+class GroupsSpec {
+  const GroupsSpec({required this.path, required this.by, this.noun = 'groups'});
+
+  final String path;
+  final String by;
+
+  /// What the group tiles are called, for the way back ("All classes").
+  final String noun;
+
+  static GroupsSpec fromJson(Map<String, dynamic> j, String where) {
+    final f = Fields(j, where);
+    return GroupsSpec(path: f.text('path'), by: f.text('by'), noun: f.optText('noun') ?? 'groups');
+  }
+}
+
+const kSearchKeyboards = {'text', 'number'};
+
+/// `gallery`: `{collection, search?: [path], tileName?, tileSubtitle?, searchKeyboard?,
+/// filters?: [...], sections?: {...}, groups?: {...}, noun?, searchHint?}`.
 class GallerySpec extends BlockSpec {
   @override
   String get type => 'gallery';
@@ -108,8 +128,11 @@ class GallerySpec extends BlockSpec {
     required this.collection,
     this.search = const ['name'],
     this.tileName = true,
+    this.tileSubtitle,
+    this.searchKeyboard = 'text',
     this.filters = const [],
     this.sections,
+    this.groups,
     this.noun = 'cards',
     String? searchHint,
   }) : searchHint = searchHint ?? 'Search $noun';
@@ -117,8 +140,15 @@ class GallerySpec extends BlockSpec {
   final String collection;
   final List<String> search;
   final bool tileName;
+
+  /// Template for a second line under the tile name (e.g. the card's printed number).
+  final String? tileSubtitle;
+
+  /// `text` or `number`: the keypad the search box opens.
+  final String searchKeyboard;
   final List<FilterSpec> filters;
   final SectionsSpec? sections;
+  final GroupsSpec? groups;
 
   /// What the summary counts, e.g. "cards".
   final String noun;
@@ -127,12 +157,18 @@ class GallerySpec extends BlockSpec {
   static GallerySpec fromJson(Map<String, dynamic> j, String where) {
     final f = Fields(j, where);
     final sections = f.optObject('sections');
+    final groups = f.optObject('groups');
+    final keyboard = f.optText('searchKeyboard') ?? 'text';
+    if (!kSearchKeyboards.contains(keyboard)) f.fail('searchKeyboard', 'Should be "text" or "number"');
     return GallerySpec(
       collection: f.text('collection'),
       search: f.optTextList('search') ?? const ['name'],
       tileName: f.optBool('tileName') ?? true,
+      tileSubtitle: f.optText('tileSubtitle'),
+      searchKeyboard: keyboard,
       filters: [for (final x in f.objectList('filters')) FilterSpec.fromJson(x.json, x.where)],
       sections: sections == null ? null : SectionsSpec.fromJson(sections.json, sections.where),
+      groups: groups == null ? null : GroupsSpec.fromJson(groups.json, groups.where),
       noun: f.optText('noun') ?? 'cards',
       searchHint: f.optText('searchHint'),
     );

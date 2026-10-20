@@ -525,4 +525,31 @@ void main() {
     expect(find.byKey(const Key('chip-nessie')), findsOneWidget, reason: 'zone chip on the corner, no band');
     expect(find.text('LANE B'), findsNothing);
   });
+
+  testWidgets('a dock with more than 8 options becomes a picker button opening a searchable sheet', (tester) async {
+    await pumpModules(
+      tester,
+      edit: (m) {
+        final f = (m['tabs'] as List)[0]['block']['filters'][0] as Map;
+        f['options'] = [
+          for (var i = 0; i < 12; i++) {'value': 'fam$i', 'label': 'Family $i'},
+        ];
+      },
+    );
+    expect(find.text('Family: All families'), findsOneWidget);
+    expect(find.bySemanticsLabel('Family Family 3'), findsNothing, reason: 'no pill row');
+
+    await tester.tap(find.text('Family: All families'));
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('Family Family 3'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, 'Search family'), '11');
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('Family Family 11'), findsOneWidget);
+    expect(find.bySemanticsLabel('Family Family 1'), findsNothing);
+
+    await tester.tap(find.bySemanticsLabel('Family Family 11'));
+    await tester.pumpAndSettle();
+    expect(find.text('Family: Family 11'), findsOneWidget);
+    expect(tiles(), 0, reason: 'no card has family fam11');
+  });
 }

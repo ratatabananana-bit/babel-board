@@ -404,4 +404,47 @@ void main() {
     expect(issues, fatalAt('tabs[0].block.children[0].image'));
     expect(issues.where((i) => i.fatal), hasLength(2));
   });
+
+  test('groups.by must exist; items with a group value naming no group give a warning', () {
+    final m = fullManifest();
+    m['collections'] = {
+      ...(m['collections'] as Map),
+      'families': {
+        'items': [
+          {'id': 'fire', 'name': 'Fire'},
+          {'id': 'water', 'name': 'Water'},
+        ],
+      },
+    };
+    // The fixture's maps are typed by their literals, so the tab is replaced, not edited.
+    void groupBy(String by) => (m['tabs'] as List)[0] = <String, Object>{
+      'label': 'Gallery',
+      'icon': 'cards',
+      'block': <String, Object>{
+        'type': 'gallery',
+        'collection': 'items',
+        'groups': {'path': 'family', 'by': by},
+      },
+    };
+    groupBy('nope');
+    expect(check(m), fatalAt('tabs[0].block.groups.by', contains('Unknown collection "nope"')));
+
+    groupBy('families');
+    final list = [
+      {'id': 'one', 'name': 'One', 'family': 'fire'},
+      {'id': 'two', 'name': 'Two', 'family': 'lava'},
+      {'id': 'three', 'name': 'Three'},
+    ];
+    final issues = check(m, list: list);
+    expect(issues.where((i) => i.fatal), isEmpty);
+    expect(
+      issues,
+      contains(
+        isA<ValidationIssue>()
+            .having((i) => i.fatal, 'fatal', isFalse)
+            .having((i) => i.path, 'path', 'collections.items')
+            .having((i) => i.message, 'message', '2 items whose "family" names no item of "families"'),
+      ),
+    );
+  });
 }

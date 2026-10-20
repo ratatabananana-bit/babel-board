@@ -216,6 +216,17 @@
               "collection": { "type": "string" },
               "search": { "type": "array", "items": { "type": "string" } },
               "tileName": { "type": "boolean" },
+              "tileSubtitle": { "type": "string", "description": "Template for a second line under the tile name, e.g. \"{initiative}\"." },
+              "searchKeyboard": { "enum": ["text", "number"], "default": "text" },
+              "groups": {
+                "type": "object",
+                "required": ["path", "by"],
+                "properties": {
+                  "path": { "type": "string" },
+                  "by": { "type": "string", "description": "A collection whose items are the group tiles; an item belongs to the group whose id its path value equals." },
+                  "noun": { "type": "string", "default": "groups" }
+                }
+              },
               "noun": { "type": "string" },
               "searchHint": { "type": "string" },
               "filters": {

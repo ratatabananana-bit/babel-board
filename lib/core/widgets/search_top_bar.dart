@@ -8,10 +8,19 @@ import '../theme.dart';
 /// Top row of a picture-grid tab: game switcher, the search field (all the remaining
 /// width), and an optional [trailing] control such as the [ViewPill].
 class SearchTopBar extends StatelessWidget {
-  const SearchTopBar({super.key, required this.search, this.hint = 'Search cards', this.trailing});
+  const SearchTopBar({
+    super.key,
+    required this.search,
+    this.hint = 'Search cards',
+    this.trailing,
+    this.keyboardType = TextInputType.text,
+  });
   final TextEditingController search;
   final String hint;
   final Widget? trailing;
+
+  /// The keypad the field opens: numbers for games found by printed number.
+  final TextInputType keyboardType;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +37,7 @@ class SearchTopBar extends StatelessWidget {
               child: TextField(
                 controller: search,
                 style: T.body.copyWith(color: p.text),
+                keyboardType: keyboardType,
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
                   hintText: hint,

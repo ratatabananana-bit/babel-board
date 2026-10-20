@@ -82,7 +82,8 @@ Every block: `{"type": "<type>", …settings, "children": [...]}`.
   `{"type": "gallery", "collection": "cards", "search": ["name", "effects.text"], "tileName": true, "noun": "cards",
   "filters": [{"path": "family", "label": "Family", "position": "bottom", "allLabel": "All", "options": [{"value": "fire", "label": "Fire", "symbol": "fire"}]}],
   "sections": {"path": "cost", "label": "COST {value}", "onlyWhenFiltered": true, "rail": true, "railRange": [0, 12]}}`
-  Filters and sections are optional. `tileName: false` when the name is on the picture.
+  Filters and sections are optional. `tileName: false` when the name is on the picture. A filter with more than 8 options becomes a searchable picker button.
+  3.2.0 extras (set `minAppVersion` "3.2.0"): `"groups": {"path": "class", "by": "classes", "noun": "classes"}` shows one tile per item of the `classes` collection first, tap to drill down (use it for 10+ classes or monster types); `"tileSubtitle": "{initiative}"` puts a number under each tile; `"searchKeyboard": "number"` opens the number keypad.
 - `board`: lanes of tracked items with drag between them.
   `{"type": "board", "title": "My cards", "countLabel": "{count} tracked", "children": [<zone>, …]}`.
   Children are only `zone` blocks. One zone = a plain list without dragging.
