@@ -46,6 +46,8 @@ app.*.map.json
 
 # Built app copied to the project root for sideloading
 *.apk
+# ...except the current release, kept in the repository so a phone can download it
+!/BabelBoard.apk
 
 # Local Claude Code preview config (points at a temp folder)
 .claude/
