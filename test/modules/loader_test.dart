@@ -40,6 +40,17 @@ void main() {
     expect(f.image('https://example.com/x.png'), isA<NetworkImage>());
   });
 
+  test('a picture changed in place is a new image, even at the same size', () {
+    final dir = Directory.systemTemp.createTempSync('module_files_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final picture = File('${dir.path}/imp.webp')..writeAsBytesSync(File('${fixture.path}/images/imp.webp').readAsBytesSync());
+    final f = DirectoryModuleFiles(dir);
+    final before = f.image('imp.webp');
+
+    picture.setLastModifiedSync(picture.lastModifiedSync().add(const Duration(minutes: 1)));
+    expect(f.image('imp.webp'), isNot(before));
+  });
+
   test('http files resolve against the base', () {
     final f = HttpModuleFiles(Uri.parse('https://host.example/modules/mini/'));
     final img = f.image('images/imp.webp') as NetworkImage;

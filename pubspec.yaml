@@ -1,7 +1,7 @@
 name: vale_helper
 description: "Babel Board: plays data-only game modules for board games you can't read."
 publish_to: 'none'
-version: 3.3.1+8
+version: 3.3.2+9
 
 environment:
   sdk: ^3.11.5

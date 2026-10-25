@@ -138,6 +138,21 @@ void main() {
     expect(root.listSync().whereType<Directory>().map((d) => d.path.split(Platform.pathSeparator).last), ['mini']);
   });
 
+  test('an update that replaces a picture gives it a new image, so a screen showing it redraws', () async {
+    final store = ModuleStore(root);
+    final v1 = await store.installBytes(zipOf(miniFiles()));
+    final before = DirectoryModuleFiles(v1.dir!).image('images/imp.webp')! as ModuleFileImage;
+
+    final files = miniFiles();
+    files['module.json'] = jsonBytes(miniManifest()..['version'] = '2.0.0');
+    files['images/imp.webp'] = files['images/fire.webp']!;
+    final v2 = await store.installBytes(zipOf(files));
+    final after = DirectoryModuleFiles(v2.dir!).image('images/imp.webp')! as ModuleFileImage;
+
+    expect(after.path, before.path, reason: 'an update writes the same file again');
+    expect(after, isNot(before), reason: 'a key equal to the old one hands back the old decoded picture');
+  });
+
   test('uninstall removes the folder', () async {
     final store = ModuleStore(root);
     final m = await store.installBytes(zipOf(miniFiles()));

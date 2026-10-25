@@ -196,7 +196,9 @@ SettingsScreen      games · appearance · card gallery · about
 `@<expansion id>/<path>` picture from that expansion's files). `loadModule(files)` reads
 `module.json` and the collections (`readModuleLayer`), validates them (`buildModule`) and
 returns a `LoadedModule` (manifest + items + files + merged expansions). Image refs that
-could leave the module folder are refused everywhere (`isSafeImageRef`).
+could leave the module folder are refused everywhere (`isSafeImageRef`). An installed
+picture (`ModuleFileImage`) is keyed by path, last write and size: an update writes new
+bytes to the same path, and the new key makes screens drop the old decoded picture.
 
 ## Theme (`lib/core/theme.dart`)
 
@@ -205,7 +207,7 @@ colours (amber, mint, violet) mean zones only; the neutral **accent** (cream / i
 picked things, the My cards badge, Next; parchment is the checklist card in both themes.
 `T` holds the type scale. `context.pal` reaches the palette.
 
-## Tests (`test/`, 357)
+## Tests (`test/`, 361)
 
 `helpers.dart` pumps the app with the mini fixture module (`test/fixtures/mini_module`) and
 opens a tab; `test/fixtures/mini_expansion` (`mini-plus`) is its expansion, used by the merge,

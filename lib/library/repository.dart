@@ -158,14 +158,15 @@ class RepoClient {
       if (zip is! String || id is! String) continue;
       final icon = raw['icon'];
       final expands = raw['expands'];
+      final version = '${raw['version'] ?? '0'}';
       entries.add(
         RepoEntry(
           id: id,
           name: raw['name'] as String? ?? id,
-          version: '${raw['version'] ?? '0'}',
+          version: version,
           minAppVersion: '${raw['minAppVersion'] ?? '0'}',
           zipUrl: config.indexUrl.resolve(zip),
-          iconUrl: icon is String && icon.isNotEmpty ? config.indexUrl.resolve(icon) : null,
+          iconUrl: icon is String && icon.isNotEmpty ? _versioned(config.indexUrl.resolve(icon), version) : null,
           size: (raw['size'] as num?)?.toInt() ?? 0,
           expands: expands is String && expands.isNotEmpty ? expands : null,
         ),
@@ -173,6 +174,12 @@ class RepoClient {
     }
     return RepoListing(name: j['name'] as String? ?? config.indexUrl.host, entries: entries);
   }
+
+  /// [url] with the entry's version in its query. An icon keeps its file name from version to
+  /// version; the version makes each one a new link, so neither the image cache nor a CDN in
+  /// front of the repository hands back the last version's icon.
+  static Uri _versioned(Uri url, String version) =>
+      url.replace(queryParameters: {...url.queryParameters, 'v': version});
 
   /// Downloads a module zip to a temp file as it arrives (never whole in memory).
   Future<ModuleSource> download(Uri url) async {

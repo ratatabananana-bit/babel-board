@@ -48,18 +48,27 @@ class DirectoryModuleFiles implements ModuleFiles {
     final remote = _remote(ref!);
     if (remote != null) return remote;
     final f = _file(ref);
-    return f != null && f.existsSync() ? ModuleFileImage(f.path) : null;
+    if (f == null) return null;
+    final stat = f.statSync();
+    if (stat.type != FileSystemEntityType.file) return null;
+    return ModuleFileImage(f.path, modified: stat.modified, size: stat.size);
   }
 }
 
-/// An image read from a module folder. Keyed by path, so the image cache reuses decoded
-/// frames across rebuilds. Reads the bytes itself and decodes them from memory: the
-/// engine's file-path decoder never completes under flutter_tester, which would stall
-/// screenshots and widget tests.
+/// An image read from a module folder. Keyed by path and the file's last write and size, so
+/// the image cache reuses decoded frames across rebuilds, while an update, which writes new
+/// bytes to the same path, gives a new key and screens showing the old picture redraw.
+/// Reads the bytes itself and decodes them from memory: the engine's file-path decoder
+/// never completes under flutter_tester, which would stall screenshots and widget tests.
 @immutable
 class ModuleFileImage extends ImageProvider<ModuleFileImage> {
-  const ModuleFileImage(this.path, {this.scale = 1.0});
+  const ModuleFileImage(this.path, {required this.modified, required this.size, this.scale = 1.0});
   final String path;
+
+  /// When the file was last written, and its length: together they tell this version of the
+  /// file from the one an update puts in its place.
+  final DateTime modified;
+  final int size;
   final double scale;
 
   @override
@@ -85,13 +94,18 @@ class ModuleFileImage extends ImageProvider<ModuleFileImage> {
   }
 
   @override
-  bool operator ==(Object other) => other is ModuleFileImage && other.path == path && other.scale == scale;
+  bool operator ==(Object other) =>
+      other is ModuleFileImage &&
+      other.path == path &&
+      other.modified == modified &&
+      other.size == size &&
+      other.scale == scale;
 
   @override
-  int get hashCode => Object.hash(path, scale);
+  int get hashCode => Object.hash(path, modified, size, scale);
 
   @override
-  String toString() => 'ModuleFileImage("$path", scale: $scale)';
+  String toString() => 'ModuleFileImage("$path", modified: $modified, size: $size, scale: $scale)';
 }
 
 /// A module served over HTTP (the web preview reads `modules/<id>/` next to the app).

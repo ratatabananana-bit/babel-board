@@ -6,7 +6,7 @@ features. The authoritative format is `modules/MODULE_SPEC.md`; the code map is
 `docs/ARCHITECTURE.md`. **Keep this file current: any change to blocks, sheet settings,
 saved state, zones, filters, limits or tools must be reflected here in the same commit.**
 
-Last synced with: app 3.3.1, module format 1, 2026-10-26.
+Last synced with: app 3.3.2, module format 1, 2026-10-26.
 
 ## 1. Data model
 
@@ -92,7 +92,9 @@ not merge is left out and shown as broken, and its base still opens.
 Install from zip, single JSON (images as links), a pasted link, a shared file, or a GitHub
 repository of packed modules (`tool/pack.dart`; Install / Update / Uninstall per game).
 Validator (`tool/validate.dart`, also run on install) reports path + message. Game switcher
-in the top bar swaps modules in two taps. Web preview serves unpacked modules.
+in the top bar swaps modules in two taps. Web preview serves unpacked modules. An update's
+new pictures (icon, cards, symbols) show at once, with no restart; a repository row fetches
+each new version's icon again.
 
 Expansions install the same ways, after their game: without it the install is refused
 ("… is an expansion for X. Install X first."), and it must merge with the installed game to
@@ -122,6 +124,7 @@ branching scripts. Those still need new block types or a bigger state model.
 
 ## 9. Change log of capabilities
 
+- 3.3.2: an update redraws pictures already on screen (they stayed the old version until a restart); repository icon links carry the version.
 - 3.3.1: release builds may use the internet: repositories, install-from-link and image links work outside debug builds.
 - 3.3.0: expansions (`expands`): an overlay module merged into its base game; tab `id`.
 - 3.3.0: flow position saved by step id (`phase.step`); tracking sees only the open game's items and zones.

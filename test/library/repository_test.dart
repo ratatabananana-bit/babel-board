@@ -45,13 +45,30 @@ void main() {
     expect(listing.name, 'Our games');
     final v = listing.entries[0];
     expect(v.zipUrl.toString(), 'https://raw.githubusercontent.com/owner/repo/main/vale-of-eternity-1.0.0.zip');
-    expect(v.iconUrl.toString(), 'https://raw.githubusercontent.com/owner/repo/main/icons/vale-of-eternity.webp');
+    expect(v.iconUrl.toString(), 'https://raw.githubusercontent.com/owner/repo/main/icons/vale-of-eternity.webp?v=1.0.0');
     expect(v.size, 1234);
     expect(v.needsAppUpdate, isFalse);
     final f = listing.entries[1];
     expect(f.iconUrl, isNull);
     expect(f.needsAppUpdate, isTrue, reason: 'minAppVersion 9.0.0 > $kAppVersion');
     expect(v.expands, isNull);
+  });
+
+  test('a new version of an entry has a new icon link, so its icon is fetched again', () async {
+    Future<Uri?> iconOf(String version) async {
+      final i = index();
+      ((i['modules'] as List)[0] as Map)['version'] = version;
+      final repo = RepoClient(
+        RepoConfig(indexUrl: indexUrl),
+        client: MockClient((req) async => http.Response(jsonEncode(i), 200)),
+      );
+      return (await repo.fetchIndex()).entries[0].iconUrl;
+    }
+
+    final v1 = await iconOf('1.0.0');
+    final v2 = await iconOf('1.0.1');
+    expect(v2!.path, v1!.path, reason: 'the same file in the repository');
+    expect(v2, isNot(v1), reason: 'an image cache keyed by the old link would keep the old icon');
   });
 
   test('an index entry names the game an expansion is for', () async {
