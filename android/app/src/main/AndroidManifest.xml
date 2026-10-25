@@ -1,4 +1,6 @@
 ﻿<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Repositories, install-from-link and image links are downloaded over the internet. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="Babel Board"
         android:name="${applicationName}"

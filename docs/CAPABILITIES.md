@@ -6,7 +6,7 @@ features. The authoritative format is `modules/MODULE_SPEC.md`; the code map is
 `docs/ARCHITECTURE.md`. **Keep this file current: any change to blocks, sheet settings,
 saved state, zones, filters, limits or tools must be reflected here in the same commit.**
 
-Last synced with: app 3.3.0, module format 1, 2026-10-25.
+Last synced with: app 3.3.1, module format 1, 2026-10-26.
 
 ## 1. Data model
 
@@ -122,6 +122,7 @@ branching scripts. Those still need new block types or a bigger state model.
 
 ## 9. Change log of capabilities
 
+- 3.3.1: release builds may use the internet: repositories, install-from-link and image links work outside debug builds.
 - 3.3.0: expansions (`expands`): an overlay module merged into its base game; tab `id`.
 - 3.3.0: flow position saved by step id (`phase.step`); tracking sees only the open game's items and zones.
 - 3.3.0: `backImageField`: a second picture per item, flipped to on the sheet; labelled chips with no value hidden.
