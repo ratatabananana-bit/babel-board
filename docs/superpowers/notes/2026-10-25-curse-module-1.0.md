@@ -15,9 +15,11 @@ The first expansion module: `modules/vale-of-eternity-curse/`, merged into Vale 
   resources in the top-left corner. Pictures are those photos, cropped to the tile.
 - **Rules.** From the two rulebook photos on the same page: setup, cursed cards, the Curse
   Phase, final scoring, wards, the Summoner notes and the Abilities FAQ & Reminders.
-- **Symbols.** The curse token, the printed curse mark, the active and broken ward and the
-  flip mark were cropped from the tile photos and cut to their printed shape (diamond, circle,
-  rounded tile), 96 px like the base symbols. The expansion icon is the curse mark.
+- **Symbols.** 1.0.1 uses the owner's clean, transparent drawings (`VoE Curse Icon WIP/` in the
+  modules repository folder) for the printed curse mark (`curse_symbol`, from "Curse Symbol"),
+  the active ward (`ward`, "Totem Unbroken"), the broken ward (`ward_broken`, "Totem Broken")
+  and the flip mark (`flip`, "Turnaround"), at 96 px like the base symbols. The curse token
+  (`curse`) is still the 1.0.0 crop from a tile photo. The expansion icon is the curse mark.
 - **Conventions kept from the base module**: family labels and sell values, `:symbol:` text,
   stones repeated for counts, `N :points:` for points, rulings only in the drag-up details,
   printed typos smoothed (Strix "for each your" → "for each of your").
