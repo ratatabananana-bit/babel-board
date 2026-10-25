@@ -1,0 +1,50 @@
+{
+  "format": 1,
+  "id": "mini-plus",
+  "name": "Mini Plus",
+  "version": "1.0.0",
+  "minAppVersion": "3.3.0",
+  "icon": "images/icon.webp",
+  "source": "Test fixture",
+  "expands": { "id": "mini", "minVersion": "1.0.0" },
+  "collections": {
+    "items": { "items": "data/items.json" }
+  },
+  "zones": [
+    { "id": "c", "label": "Lane C", "icon": "grid", "accent": "violet", "hint": "Third lane" }
+  ],
+  "tabs": [
+    {
+      "id": "more",
+      "after": "gallery",
+      "label": "More",
+      "icon": "book",
+      "block": { "type": "text", "title": "More", "paragraphs": ["From the expansion."] }
+    },
+    {
+      "id": "board",
+      "block": {
+        "children": [
+          { "type": "zone", "zone": "c", "before": "a", "list": { "type": "cardList", "collection": "items", "style": "mini", "columns": 2 } }
+        ]
+      }
+    },
+    {
+      "id": "flow",
+      "block": {
+        "reminders": ["Rule three."],
+        "children": [
+          {
+            "type": "step",
+            "id": "mid",
+            "after": "one",
+            "title": "Middle",
+            "short": "Mid",
+            "summary": "Between one and two.",
+            "checklist": [ { "id": "mid.a", "text": "Middle row" } ]
+          }
+        ]
+      }
+    }
+  ]
+}

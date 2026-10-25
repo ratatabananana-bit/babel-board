@@ -355,6 +355,46 @@ String defaultActionLabel(ChecklistAction action) => switch (action.type) {
   _ => 'Do it',
 };
 
+/// A step's name in the phase bar. It wraps between words like any label, but when one word
+/// is wider than its segment (five steps on a narrow phone), the label shrinks until that
+/// word fits instead of breaking it in two.
+class _StepLabel extends StatelessWidget {
+  const _StepLabel(this.text, {required this.style});
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final base = DefaultTextStyle.of(context).style.merge(style);
+      double widestAt(double size) {
+        var widest = 0.0;
+        for (final word in text.split(' ')) {
+          final painter = TextPainter(
+            text: TextSpan(text: word, style: base.copyWith(fontSize: size)),
+            textDirection: Directionality.of(context),
+            textScaler: MediaQuery.textScalerOf(context),
+            maxLines: 1,
+          )..layout();
+          if (painter.width > widest) widest = painter.width;
+          painter.dispose();
+        }
+        return widest;
+      }
+
+      final full = base.fontSize!;
+      final widest = widestAt(full);
+      if (widest <= box.maxWidth) return Text(text, style: style);
+      // Proportional first, then down in tenths: letter spacing does not shrink with the size.
+      var size = (full * box.maxWidth / widest * 10).floorToDouble() / 10;
+      while (size > 1 && widestAt(size) > box.maxWidth) {
+        size -= 0.1;
+      }
+      return Text(text, style: style.copyWith(fontSize: size));
+    },
+  );
+}
+
 /// Full-width progress bar; labels wrap instead of being cut off.
 class _PhaseBar extends StatelessWidget {
   const _PhaseBar({required this.steps, required this.index, required this.onTap});
@@ -394,7 +434,7 @@ class _PhaseBar extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
+                          _StepLabel(
                             steps[i].short ?? steps[i].title,
                             style: TextStyle(
                               fontSize: 13,

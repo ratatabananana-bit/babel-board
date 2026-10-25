@@ -81,7 +81,7 @@ void main() {
   group('FlowState', () {
     test('next wraps around and clears ticks of the step left', () async {
       final prefs = await SharedPreferences.getInstance();
-      final p = FlowState(prefs, prefix: 'mod.mini.', phaseCount: 4);
+      final p = FlowState(prefs, prefix: 'mod.mini.', steps: const ['one', 'two', 'three', 'four']);
       p.toggle('one.a');
       p.toggle('two.b');
       p.next(['one.a']);
@@ -97,13 +97,83 @@ void main() {
 
     test('survives a restart under the module prefix', () async {
       final prefs = await SharedPreferences.getInstance();
-      FlowState(prefs, prefix: 'mod.mini.', phaseCount: 4)
+      FlowState(prefs, prefix: 'mod.mini.', steps: const ['one', 'two', 'three', 'four'])
         ..goTo(2)
         ..toggle('x');
       expect(prefs.getInt('mod.mini.phase.index'), 2);
-      final reloaded = FlowState(prefs, prefix: 'mod.mini.', phaseCount: 4);
+      final reloaded = FlowState(prefs, prefix: 'mod.mini.', steps: const ['one', 'two', 'three', 'four']);
       expect(reloaded.index, 2);
       expect(reloaded.isChecked('x'), isTrue);
+    });
+
+    test('saves the step id beside the index', () async {
+      final prefs = await SharedPreferences.getInstance();
+      FlowState(prefs, prefix: 'mod.mini.', steps: const ['one', 'two', 'three']).goTo(1);
+      expect(prefs.getString('mod.mini.phase.step'), 'two');
+    });
+
+    test('reopens on its saved step after an expansion inserts a step before it', () async {
+      SharedPreferences.setMockInitialValues({'mod.mini.phase.index': 1, 'mod.mini.phase.step': 'two'});
+      final prefs = await SharedPreferences.getInstance();
+      final f = FlowState(prefs, prefix: 'mod.mini.', steps: const ['one', 'mid', 'two']);
+      expect(f.index, 2);
+    });
+
+    test('a 3.2.x save (index only) is pinned to its step; a step inserted later cannot move it', () async {
+      SharedPreferences.setMockInitialValues({'mod.vale.phase.index': 3});
+      final prefs = await SharedPreferences.getInstance();
+      FlowState(prefs, prefix: 'mod.vale.', steps: const ['hunting', 'action', 'resolution', 'end']);
+      expect(prefs.getString('mod.vale.phase.step'), 'end');
+      const withCurse = ['hunting', 'action', 'resolution', 'curse', 'end'];
+      final merged = FlowState(prefs, prefix: 'mod.vale.', steps: withCurse);
+      expect(merged.index, 4, reason: 'still End of round');
+    });
+
+    test('an old save with only an index opens there; an unknown step id falls back to it', () async {
+      SharedPreferences.setMockInitialValues({'mod.mini.phase.index': 1});
+      final prefs = await SharedPreferences.getInstance();
+      expect(FlowState(prefs, prefix: 'mod.mini.', steps: const ['one', 'two']).index, 1);
+      await prefs.setString('mod.mini.phase.step', 'gone');
+      expect(FlowState(prefs, prefix: 'mod.mini.', steps: const ['one', 'two', 'three']).index, 1);
+    });
+  });
+
+  group('ZoneState seen through a game', () {
+    test('entries for items or zones the game lacks are hidden and kept', () async {
+      final p = await SharedPreferences.getInstance();
+      ZoneState(p, 'mini')
+        ..put('imp', 'a')
+        ..put('kraken', 'a')
+        ..put('nessie', 'c');
+      final z = ZoneState(p, 'mini', items: {'imp', 'nessie'}, zones: {'a', 'b'});
+      expect(z.total, 1);
+      expect(z.idsIn('a'), ['imp']);
+      expect(z.count('a'), 1);
+      expect(z.zoneOf('kraken'), isNull);
+      expect(z.zoneOf('nessie'), isNull, reason: 'its zone is not in this game');
+
+      z.put('imp', 'b');
+      expect(ZoneState(p, 'mini').total, 3, reason: 'hidden entries stay saved through changes');
+    });
+
+    test('forget drops the entries of the items and zones named, seen or not, and nothing else', () async {
+      final p = await SharedPreferences.getInstance();
+      ZoneState(p, 'mini')
+        ..put('imp', 'a')
+        ..put('kraken', 'a')
+        ..put('nessie', 'c')
+        ..put('leviathan', 'd');
+      final z = ZoneState(p, 'mini', items: {'imp'}, zones: {'a'})..forget(items: {'kraken'}, zones: {'c'});
+      final saved = ZoneState(p, 'mini');
+      expect([for (final id in ['imp', 'kraken', 'nessie', 'leviathan']) saved.zoneOf(id)], ['a', null, null, 'd']);
+      expect(z.total, 1);
+    });
+
+    test('clearAll (new game) forgets hidden entries too', () async {
+      final p = await SharedPreferences.getInstance();
+      ZoneState(p, 'mini').put('kraken', 'a');
+      ZoneState(p, 'mini', items: {'imp'}, zones: {'a'}).clearAll();
+      expect(ZoneState(p, 'mini').total, 0);
     });
   });
 }

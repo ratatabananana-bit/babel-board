@@ -79,6 +79,31 @@ void main() {
     expect(modules.single.items('items'), hasLength(4));
   });
 
+  test('web preview merges an expansion listed in the index into its game', () async {
+    final base = Uri.parse('https://preview.example/');
+    final folders = {'mini': miniFiles(), 'mini-plus': plusFiles()};
+    final client = MockClient((req) async {
+      final path = req.url.path;
+      if (path == '/modules/index.json') {
+        return http.Response(
+          jsonEncode({
+            'modules': [
+              {'id': 'mini', 'zip': 'mini.zip'},
+              {'id': 'mini-plus', 'zip': 'mini-plus.zip', 'expands': 'mini'},
+            ],
+          }),
+          200,
+        );
+      }
+      final parts = path.split('/'); // ['', 'modules', '<id>', ...]
+      final b = folders[parts[2]]?[parts.skip(3).join('/')];
+      return b == null ? http.Response('', 404) : http.Response.bytes(b, 200);
+    });
+    final modules = await loadWebModules(base, client: client);
+    expect(modules.map((m) => m.manifest.id), ['mini'], reason: 'an expansion is not a game of its own');
+    expect(modules.single.item('items', 'kraken'), isNotNull);
+  });
+
   test('web preview with no index starts empty', () async {
     final modules = await loadWebModules(
       Uri.parse('https://preview.example/'),

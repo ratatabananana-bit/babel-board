@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vale_helper/app_version.dart';
 import 'package:vale_helper/core/settings.dart';
 import 'package:vale_helper/library/settings_screen.dart';
 import 'package:vale_helper/main.dart';
@@ -31,7 +32,7 @@ void main() {
       'Card size',
       'Flowing family grid',
       'Copy instructions for AI',
-      'Babel Board 3.2.0',
+      'Babel Board $kAppVersion',
     ]) {
       await tester.scrollUntilVisible(find.text(t), 100, scrollable: find.byType(Scrollable).first);
       expect(find.text(t), findsOneWidget, reason: t);

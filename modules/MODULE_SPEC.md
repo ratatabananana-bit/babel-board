@@ -57,7 +57,7 @@ An image value is either an `https://…` link or a relative path inside the mod
 | `format` | Always `1`. |
 | `id` | Lowercase letters, digits, `-`, `_`, `.`. Saved progress is kept per id: never change it. |
 | `name`, `version` | Shown in the Library. Raise `version` (`1.0.1`, `1.1.0`…) for every update. |
-| `minAppVersion` | `"3.0.0"`, or `"3.2.0"` when the module uses `hub`, gallery `groups` / `tileSubtitle` / `searchKeyboard`, `inZone`, `moveZone` / `clearZones` or several flows. |
+| `minAppVersion` | `"3.0.0"`, or `"3.2.0"` when the module uses `hub`, gallery `groups` / `tileSubtitle` / `searchKeyboard`, `inZone`, `moveZone` / `clearZones` or several flows, or `"3.3.0"` for an expansion (`expands`, see Expansions) or a `backImageField`. |
 | `icon` | Round game icon (square picture works best). |
 | `players`, `source` | Free text. |
 | `collections` | Lists of items, see below. |
@@ -78,6 +78,7 @@ Each item is a JSON object with any fields you like. It needs a unique text `id`
 | `imageField` | `image` | Field holding the picture. |
 | `imageShape` | `card` | `card`: the picture is the whole printed card. `square`: square art on a cream card with the name below it. |
 | `cardAspect` | `0.716` | Width ÷ height of the printed card. |
+| `backImageField` | none | 3.3.0: field holding a second picture (a card back, a tile's other side). The sheet gets a flip button that turns the picture over; tiles and lists keep the front. Same rules as `imageField`. |
 | `sheet` | `{}` | How the item's detail sheet looks, see below. |
 
 Add `"verified": false` to any item whose text you couldn't confirm, and set the sheet's
@@ -110,7 +111,8 @@ Tapping an item opens its sheet: picture, name, subtitle, then:
 ```
 
 - `chips`: small pills. `symbol` is a template naming a symbol; `text` a template; `symbols`
-  a path to a list of symbol names drawn in a row; `label` plain text.
+  a path to a list of symbol names drawn in a row; `label` plain text. A chip that would show
+  only its `label` (the item has no value for it) is left out.
 - `effects`: for items with a list of `{"type": …, "text": …}` effects. Each effect shows its
   type's symbol and label above the text. List rows on boards show these effects too.
 - `sections`: labeled text blocks from a path (a string or a list of strings). List rows show
@@ -164,10 +166,12 @@ Icons (tabs and zones): `cards`, `hand`, `flag`, `run`, `race`, `table`, `grid`,
 ## Tabs
 
 ```json
-{ "label": "My cards", "icon": "hand", "badge": "zoneCount", "block": { … } }
+{ "id": "mine", "label": "My cards", "icon": "hand", "badge": "zoneCount", "block": { … } }
 ```
 
 `badge: "zoneCount"` shows how many items are tracked. Keep labels to one or two words.
+`id` is optional: it is the handle an expansion names to add to that tab (see Expansions).
+Give every tab one in a game that has, or may get, expansions.
 
 ## Blocks
 
@@ -310,6 +314,69 @@ Anything goes inside an entry: a `gallery`, a `text`, a `board`, a `flow`, even 
 
 One row of a `hub`: `label`, an `icon` (default `grid`) or an `image` (shown instead of the
 icon), an optional one-line `summary`, and the `block` it opens. Needs `minAppVersion` `"3.2.0"`.
+
+## Expansions
+
+An **expansion** is a module that adds to another module, its base game, instead of
+standing alone: new cards in the base's collections, a new phase in its round, new tabs,
+lanes, zones and symbols. It installs, updates and uninstalls on its own, needs its base
+installed, and has an on/off switch in the Library. While it is on, the game switcher shows
+one game: the base with everything the expansion adds. Saved progress stays the base's.
+
+Its header is a module header plus `expands` (needs `minAppVersion` `"3.3.0"`):
+
+```json
+{
+  "format": 1, "id": "vale-of-eternity-curse", "name": "Vale of Eternity: Curse", "version": "1.0.0",
+  "minAppVersion": "3.3.0", "icon": "images/icon.webp", "source": "Official rulebook",
+  "expands": { "id": "vale-of-eternity", "minVersion": "2.1.0" },
+  "collections": { … }, "symbols": { … }, "zones": [ … ], "tabs": [ … ]
+}
+```
+
+`minVersion` is optional: an older base does not get the expansion. The header (`id`,
+`name`, `version`, `minAppVersion`, `icon`, `players`, `source`) describes the expansion
+itself. **Everything else is an overlay**: the same shape as a module, holding only what the
+expansion adds or changes, merged into the base by these rules:
+
+1. **Objects** merge key by key. A key the base lacks is added.
+2. **A plain value** (text, number, true/false), or a value of another kind than the base's,
+   **replaces** the base's. A block whose `type` differs from the base block's replaces it.
+3. **Lists of things with ids merge by id**: zones, tabs, steps, checklist rows (and a
+   board's lanes, by `zone`). An element whose id the base has merges into it by these same
+   rules. A new element goes right after the one its `"after"` names, right before the one
+   its `"before"` names, or at the end.
+4. **Other lists**: a list of numbers (`railRange`) replaces; any other list is appended
+   to, skipping what is already there (`reminders`, `how`, `search`, `chips`, `sheet.zones`).
+5. **Collections**: a collection the base has gets the expansion's `items` added; an item
+   whose id the base has replaces that item (errata; the validator warns). A new collection
+   name adds a collection. Its other settings merge by rules 1–4.
+6. **Pictures**: the expansion's pictures are read from the expansion's own folder; paths
+   are written as usual (`images/cards/ares.webp`).
+
+An expansion cannot remove anything from its base (a `null` is an error), expand another
+expansion, or change the base's header. Keep item ids unique across base and expansion.
+
+Example: a new phase after the base's `resolution` step, two reminders, and a lane:
+
+```json
+"tabs": [
+  { "id": "round", "block": { "reminders": ["Curse tokens cost 2 points each at the end."],
+    "children": [ { "type": "step", "id": "curse", "after": "resolution", "title": "Curse",
+                    "summary": "Move 1 curse token from each cursed card onto yourself." } ] } },
+  { "id": "mine", "block": { "children": [
+    { "type": "zone", "zone": "soothed", "after": "field", "list": { "type": "cardList", "collection": "cards" } } ] } },
+  { "id": "summoners", "after": "cards", "label": "Summoners", "icon": "star",
+    "block": { "type": "gallery", "collection": "summoners" } }
+]
+```
+
+The app checks the merged game exactly like any module. When the merge fails (an `after`
+naming a step the base no longer has, say), the base still opens on its own and the Library
+shows the expansion as broken with the reason. Merge errors (an `after` naming nothing, a
+`null`) name paths in the expansion's own `module.json`; problems found in the merged game
+(an unknown zone, a duplicate id) name paths in the merged game, as for any module. Check an expansion with its base: `dart run tool/validate.dart
+<expansion folder>` finds the base in the folder next to it (or pass `--base <folder>`).
 
 ## Checklist before you deliver
 

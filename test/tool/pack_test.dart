@@ -94,6 +94,84 @@ void main() {
     expect(Directory('${out.path}/mini').existsSync(), isFalse, reason: 'no unpacked copy unless asked');
   });
 
+  group('expansions', () {
+    final plus = Directory('test/fixtures/mini_expansion');
+
+    /// Rewrites module.json of a copied folder.
+    void editManifest(Directory dir, void Function(Map<String, dynamic> m) edit) {
+      final f = File('${dir.path}/module.json');
+      final m = jsonDecode(f.readAsStringSync()) as Map<String, dynamic>;
+      edit(m);
+      f.writeAsStringSync(jsonEncode(m));
+    }
+
+    test('validate checks an expansion merged into the base folder next to it', () {
+      final modules = modulesWith({'mini': Directory('test/fixtures/mini_module'), 'mini-plus': plus});
+      final r = validatePath('${modules.path}/mini-plus');
+      expect(r.exitCode, 0, reason: r.lines.join('\n'));
+      expect(r.lines.last, 'OK mini-plus 1.0.0');
+    });
+
+    test('validate --base names the base; a merge error names the expansion\'s own path', () {
+      expect(validatePath(plus.path, base: 'test/fixtures/mini_module').lines.last, 'OK mini-plus 1.0.0');
+      final broken = copyDir(plus, Directory('${tmp.path}/broken'));
+      editManifest(broken, (m) => ((m['tabs'] as List)[2]['block']['children'] as List)[0]['after'] = 'gone');
+      final r = validatePath(broken.path, base: 'test/fixtures/mini_module');
+      expect(r.exitCode, 1);
+      expect(
+        r.lines,
+        contains('ERROR tabs[2].block.children[0].after: No element "gone" to place this after (merging into mini 1.0.0)'),
+      );
+    });
+
+    test('validate without a base in sight warns and checks the expansion on its own', () {
+      final r = validatePath(plus.path);
+      expect(r.exitCode, 0);
+      expect(r.lines, contains('WARN expands: Base "mini" not found next to this folder; checked on its own'));
+      expect(r.lines.last, 'OK mini-plus 1.0.0');
+    });
+
+    test('Review Focus 5: an item replacing a base item is a warning, not an error', () {
+      final modules = modulesWith({'mini': Directory('test/fixtures/mini_module'), 'mini-plus': plus});
+      final data = File('${modules.path}/mini-plus/data/items.json');
+      final items = jsonDecode(data.readAsStringSync()) as Map<String, dynamic>;
+      ((items['items'] as List).single as Map)['id'] = 'imp';
+      data.writeAsStringSync(jsonEncode(items));
+      final r = validatePath('${modules.path}/mini-plus');
+      expect(r.exitCode, 0, reason: r.lines.join('\n'));
+      expect(r.lines, contains('WARN collections.items: item "imp" replaces the base game\'s item'));
+    });
+
+    test('validate reports a picture field that is not text, without crashing', () {
+      final dir = copyDir(plus, Directory('${tmp.path}/bad'));
+      editManifest(dir, (m) => m['collections']['items']['backImageField'] = 3);
+      final r = validatePath(dir.path, base: 'test/fixtures/mini_module');
+      expect(r.exitCode, 1);
+      expect(r.lines, contains(startsWith('ERROR collections.items.backImageField')));
+    });
+
+    test('validate reports an expansion\'s own missing picture files', () {
+      final dir = copyDir(plus, Directory('${tmp.path}/p'));
+      File('${dir.path}/images/kraken.webp').deleteSync();
+      final r = validatePath(dir.path, base: 'test/fixtures/mini_module');
+      expect(r.lines.any((l) => l.startsWith('WARN') && l.contains('images/kraken.webp')), isTrue);
+    });
+
+    test('pack writes "expands" into the index and fails on an expansion that does not merge', () {
+      final modules = modulesWith({'mini': Directory('test/fixtures/mini_module'), 'mini-plus': plus});
+      final out = Directory('${tmp.path}/out');
+      final r = packModules(modules, out);
+      expect(r.exitCode, 0, reason: r.lines.join('\n'));
+      final index = jsonDecode(File('${out.path}/index.json').readAsStringSync()) as Map<String, dynamic>;
+      final entries = {for (final e in index['modules'] as List) e['id']: e as Map};
+      expect(entries['mini-plus']!['expands'], 'mini');
+      expect(entries['mini']!.containsKey('expands'), isFalse);
+
+      editManifest(Directory('${modules.path}/mini-plus'), (m) => m['zones'] = [{'id': 'a', 'label': 'A', 'accent': 'red'}]);
+      expect(packModules(modules, Directory('${tmp.path}/out2')).exitCode, 1);
+    });
+  });
+
   test('pack --unpacked also writes each module folder for the web preview', () {
     final modules = modulesWith({'mini': Directory('test/fixtures/mini_module')});
     final out = Directory('${tmp.path}/out');
@@ -168,8 +246,12 @@ void main() {
     expect(schema[r'$schema'], 'https://json-schema.org/draft/2020-12/schema');
     expect(
       (schema['required'] as List).toSet(),
-      containsAll(['format', 'id', 'name', 'version', 'minAppVersion', 'tabs']),
+      containsAll(['format', 'id', 'name', 'version', 'minAppVersion']),
     );
+    expect(schema['if'], {
+      'required': ['expands'],
+    }, reason: 'an expansion is an overlay; only a game must have tabs');
+    expect((schema['else'] as Map)['required'], ['tabs']);
     final types = ((schema[r'$defs'] as Map)['blockType'] as Map)['enum'] as List;
     expect(types.toSet(), kBlockTypes);
     final accents = ((schema[r'$defs'] as Map)['zone'] as Map)['properties']['accent']['enum'] as List;

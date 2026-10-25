@@ -2,7 +2,7 @@
   "format": 1,
   "id": "vale-of-eternity",
   "name": "Vale of Eternity",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "minAppVersion": "3.0.0",
   "icon": "images/icon.webp",
   "players": "2-4",
@@ -108,6 +108,7 @@
   ],
   "tabs": [
     {
+      "id": "cards",
       "label": "Cards",
       "icon": "cards",
       "block": {
@@ -168,6 +169,7 @@
       }
     },
     {
+      "id": "mine",
       "label": "My cards",
       "icon": "hand",
       "badge": "zoneCount",
@@ -210,6 +212,7 @@
       }
     },
     {
+      "id": "round",
       "label": "Round",
       "icon": "flag",
       "block": {

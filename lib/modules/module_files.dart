@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:http/http.dart' as http;
 
+import '../module_format/expansion.dart' show splitLayerRef;
 import '../module_format/validator.dart' show isSafeImageRef;
 
 /// Where a module's files come from: a folder on the phone, a web server (preview), or
@@ -112,6 +113,26 @@ class HttpModuleFiles implements ModuleFiles {
   ImageProvider? image(String? ref) {
     if (!_usable(ref)) return null;
     return _remote(ref!) ?? NetworkImage(base.resolve(ref).toString(), headers: headers);
+  }
+}
+
+/// A game merged with its expansions: text from the base, and each picture from the
+/// package it came from. Expansion pictures are named `@<expansion id>/<path>` by the
+/// merge; an unknown layer is a missing picture, never a fall-through to the base.
+class LayeredModuleFiles implements ModuleFiles {
+  LayeredModuleFiles(this.base, this.layers);
+
+  final ModuleFiles base;
+  final Map<String, ModuleFiles> layers;
+
+  @override
+  Future<String> readText(String path) => base.readText(path);
+
+  @override
+  ImageProvider? image(String? ref) {
+    final layered = ref == null ? null : splitLayerRef(ref);
+    if (layered == null) return base.image(ref);
+    return layers[layered.layer]?.image(layered.path);
   }
 }
 

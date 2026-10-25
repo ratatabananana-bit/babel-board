@@ -13,20 +13,35 @@ import 'package:vale_helper/modules/module_files.dart';
 
 final miniDir = Directory('test/fixtures/mini_module');
 
-/// Every file of the mini module, keyed by relative path with `/` separators.
-Map<String, Uint8List> miniFiles() => {
-  for (final f in miniDir.listSync(recursive: true).whereType<File>())
-    f.path.substring(miniDir.path.length + 1).replaceAll(r'\', '/'): f.readAsBytesSync(),
+/// The mini module's expansion `mini-plus`: a Kraken, Lane C (before Lane A), a Middle
+/// step after Step one, a reminder and a More tab after Gallery.
+final plusDir = Directory('test/fixtures/mini_expansion');
+
+/// Every file of [dir], keyed by relative path with `/` separators.
+Map<String, Uint8List> filesIn(Directory dir) => {
+  for (final f in dir.listSync(recursive: true).whereType<File>())
+    f.path.substring(dir.path.length + 1).replaceAll(r'\', '/'): f.readAsBytesSync(),
 };
+
+/// Every file of the mini module.
+Map<String, Uint8List> miniFiles() => filesIn(miniDir);
+
+/// Every file of the mini expansion, its module.json edited by [edit] when given.
+Map<String, Uint8List> plusFiles([void Function(Map<String, dynamic> manifest)? edit]) =>
+    withManifest(filesIn(plusDir), edit);
+
+/// [files] with `module.json` decoded, passed to [edit] and encoded again.
+Map<String, Uint8List> withManifest(Map<String, Uint8List> files, void Function(Map<String, dynamic> manifest)? edit) {
+  if (edit == null) return files;
+  final manifest = jsonDecode(utf8.decode(files['module.json']!)) as Map<String, dynamic>;
+  edit(manifest);
+  return {...files, 'module.json': Uint8List.fromList(utf8.encode(jsonEncode(manifest)))};
+}
 
 /// Loads the mini module, optionally after editing its manifest in memory.
 Future<LoadedModule> loadMini({void Function(Map<String, dynamic> manifest)? edit}) async {
   if (edit == null) return loadModule(DirectoryModuleFiles(miniDir));
-  final files = miniFiles();
-  final manifest = jsonDecode(utf8.decode(files['module.json']!)) as Map<String, dynamic>;
-  edit(manifest);
-  files['module.json'] = Uint8List.fromList(utf8.encode(jsonEncode(manifest)));
-  return loadModule(MemoryModuleFiles(files));
+  return loadModule(MemoryModuleFiles(withManifest(miniFiles(), edit)));
 }
 
 Finder navLabel(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));

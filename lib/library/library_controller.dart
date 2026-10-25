@@ -4,11 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/app_state.dart';
-import '../modules/loaded_module.dart';
 import '../modules/module_files.dart';
+import '../modules/module_layer.dart';
+import '../modules/module_state.dart';
 import 'install_sources.dart';
 import 'module_store.dart';
 import 'repository.dart';
+import 'startup.dart';
+
+export 'startup.dart' show ExpansionState, ExpansionStatus;
 
 /// What the Library screen works with: installed modules, the repository listing, and
 /// the install/update/uninstall actions. Keeps [AppState.games] in step with the store.
@@ -21,6 +25,7 @@ class LibraryController extends ChangeNotifier {
     RepoClient Function(RepoConfig config)? repoClientFactory,
     InstallSources? sources,
     this.installed = const [],
+    this.expansions = const {},
   }) : _repoClientFactory = repoClientFactory ?? ((c) => RepoClient(c)),
        sources = sources ?? InstallSources();
 
@@ -34,6 +39,9 @@ class LibraryController extends ChangeNotifier {
   final InstallSources sources;
 
   List<InstalledModule> installed;
+
+  /// Where each installed expansion stands: merged, switched off, waiting for its game, broken.
+  Map<String, ExpansionStatus> expansions;
   RepoConfig? repo;
   RepoClient? _repoClient;
   RepoListing? listing;
@@ -57,6 +65,11 @@ class LibraryController extends ChangeNotifier {
 
   InstalledModule? installedById(String id) => installed.where((i) => i.id == id).firstOrNull;
 
+  /// A module's name for sentences ("install Vale of Eternity first"): installed, else as
+  /// the repository lists it, else its id.
+  String nameOf(String id) =>
+      installedById(id)?.name ?? listing?.entries.where((e) => e.id == id).firstOrNull?.name ?? id;
+
   /// Loads the repository config and listing, and the installed list.
   Future<void> init() async {
     final c = await repoConfigStore?.load();
@@ -73,17 +86,21 @@ class LibraryController extends ChangeNotifier {
     final s = store;
     if (s == null) return;
     installed = await s.list();
-    final games = <OpenGame>[];
-    for (final i in installed) {
-      if (i.broken) continue;
-      try {
-        games.add(OpenGame.load(prefs, await loadModule(DirectoryModuleFiles(i.dir!))));
-      } catch (e) {
-        // list() already marked it broken; a race here just leaves it out.
-      }
-    }
-    app.setGames(games);
+    final loaded = await loadInstalledGames(prefs, installed);
+    expansions = loaded.expansions;
+    app.setGames([for (final m in loaded.modules) OpenGame.load(prefs, m)]);
     notifyListeners();
+  }
+
+  /// The Library's switch: an expansion off plays its game without it. Its tracked cards
+  /// stay saved for when it is back on.
+  Future<void> setExpansionEnabled(String id, bool on) async {
+    if (on) {
+      await prefs.remove(expansionEnabledKey(id));
+    } else {
+      await prefs.setBool(expansionEnabledKey(id), false);
+    }
+    await refresh();
   }
 
   Future<void> refreshRepo() async {
@@ -162,7 +179,12 @@ class LibraryController extends ChangeNotifier {
       throw InstallException('Installing is not available here');
     }
     return _withBusy('Installing ${label ?? 'module'}…', () async {
-      final m = await s.install(src, headersFor: headersFor);
+      final InstalledModule m;
+      try {
+        m = await s.install(src, headersFor: headersFor);
+      } on MissingBaseException catch (e) {
+        throw MissingBaseException(expansion: e.expansion, baseId: e.baseId, baseName: nameOf(e.baseId));
+      }
       await refresh();
       // The game played last (before an update, or before reinstalling) opens as soon as
       // it is installed again, so the owner lands back in it.
@@ -191,16 +213,43 @@ class LibraryController extends ChangeNotifier {
     return installSource(src, open: true);
   }
 
-  /// Removes the module's files and every saved `mod.<id>.` key.
+  /// Removes the module's files and every saved `mod.<id>.` key. An expansion's tracked
+  /// cards live in its game's state: the entries for cards and zones only it provided go
+  /// too, while those of the game and its other expansions (switched off or not) stay. A
+  /// game's expansions stay installed, waiting for it.
   Future<void> uninstall(String id) async {
     final s = store;
     if (s == null) return;
     if (app.active?.id == id) app.showLibrary();
+    final removed = installedById(id);
+    final baseId = removed?.expands?.id;
+    final removedLayer = baseId == null ? null : await _layerOf(removed!);
     await s.uninstall(id);
     for (final k in prefs.getKeys().where((k) => k.startsWith('mod.$id.')).toList()) {
       await prefs.remove(k);
     }
     await refresh();
+    if (baseId == null || removedLayer == null) return;
+    final still = [
+      for (final m in installed)
+        if (m.id == baseId || m.expands?.id == baseId) ?await _layerOf(m),
+    ];
+    final zones = app.games.where((g) => g.id == baseId).firstOrNull?.zones ?? ZoneState(prefs, baseId);
+    zones.forget(
+      items: removedLayer.itemIds.difference({for (final l in still) ...l.itemIds}),
+      zones: removedLayer.zoneIds.difference({for (final l in still) ...l.zoneIds}),
+    );
+  }
+
+  /// [m] as read from its folder, or null when it is gone or can't be read.
+  Future<ModuleLayer?> _layerOf(InstalledModule m) async {
+    final dir = m.dir;
+    if (dir == null) return null;
+    try {
+      return await readModuleLayer(DirectoryModuleFiles(dir));
+    } on ModuleLoadException {
+      return null;
+    }
   }
 
   /// Installs whatever arrives from the share sheet and opens it.

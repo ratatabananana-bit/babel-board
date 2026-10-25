@@ -7,8 +7,11 @@ import 'package:archive/archive.dart';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 
+import '../module_format/expansion.dart' show ExpansionRef, checkExpansion;
+import '../module_format/validator.dart' show isModuleId;
 import '../modules/loaded_module.dart';
 import '../modules/module_files.dart';
+import '../modules/module_layer.dart';
 
 class InstallException implements Exception {
   InstallException(this.message, [this.issues = const []]);
@@ -17,6 +20,17 @@ class InstallException implements Exception {
 
   @override
   String toString() => issues.isEmpty ? message : '$message\n${issues.where((i) => i.fatal).join('\n')}';
+}
+
+/// An expansion whose game is not installed. The store knows the game only by its id;
+/// whoever knows its name (the repository listing) words the message with [baseName].
+class MissingBaseException extends InstallException {
+  MissingBaseException({required this.expansion, required this.baseId, String? baseName})
+    : super('$expansion is an expansion for ${baseName ?? baseId}. Install ${baseName ?? baseId} first.');
+
+  /// The expansion's name.
+  final String expansion;
+  final String baseId;
 }
 
 /// Where a module to install comes from: bytes in memory, or a file on disk (a picked
@@ -64,7 +78,10 @@ class InstalledModule {
     this.dir,
     this.broken = false,
     this.error,
-  });
+    this.expands,
+    this.icon,
+    bool? isExpansion,
+  }) : isExpansion = isExpansion ?? expands != null;
   final String id;
   final String name;
   final String version;
@@ -73,6 +90,15 @@ class InstalledModule {
   final Directory? dir;
   final bool broken;
   final String? error;
+
+  /// The game this module is an expansion for; null for a game, or for an expansion whose
+  /// `expands` cannot be read (then [broken]).
+  final ExpansionRef? expands;
+
+  /// The module's own icon ref, read from its folder.
+  final String? icon;
+
+  final bool isExpansion;
 }
 
 /// Installs, updates, lists and removes modules under one folder: `root/<id>/`.
@@ -105,8 +131,27 @@ class ModuleStore {
       final folder = d.path.split(Platform.pathSeparator).last;
       if (folder.startsWith('.')) continue;
       try {
-        final m = await loadModule(DirectoryModuleFiles(d));
-        out.add(InstalledModule(id: m.manifest.id, name: m.manifest.name, version: m.manifest.version, dir: d));
+        final layer = await readModuleLayer(DirectoryModuleFiles(d));
+        if (layer.isExpansion) {
+          // Checked on its own here; whether it merges is decided when its game is built.
+          final fatal = [...layer.readIssues, ...checkExpansion(layer.data)].where((i) => i.fatal).toList();
+          out.add(
+            InstalledModule(
+              id: layer.id,
+              name: layer.name,
+              version: layer.version,
+              dir: d,
+              expands: layer.expands,
+              isExpansion: true,
+              icon: layer.icon,
+              broken: fatal.isNotEmpty,
+              error: fatal.isEmpty ? null : '${ModuleLoadException(fatal)}',
+            ),
+          );
+        } else {
+          final m = buildModule(layer).manifest;
+          out.add(InstalledModule(id: m.id, name: m.name, version: m.version, dir: d, icon: m.icon));
+        }
       } catch (e) {
         out.add(InstalledModule(id: folder, name: folder, version: '?', dir: d, broken: true, error: '$e'));
       }
@@ -153,20 +198,22 @@ class ModuleStore {
         }
         if (j is Map) _writeManifest(j.cast<String, dynamic>(), staging);
       }
-      await _fetchRemoteImages(staging, headersFor);
-
-      final LoadedModule loaded;
-      try {
-        loaded = await loadModule(DirectoryModuleFiles(staging));
-      } on ModuleLoadException catch (e) {
-        final first = e.issues.where((i) => i.fatal).firstOrNull;
-        throw InstallException(first == null ? 'This file is not a valid game module' : first.message, e.issues);
+      // An expansion is checked against the game it expands, so that game must be here.
+      final base = await _baseOf(await _readStaged(staging));
+      await _fetchRemoteImages(staging, headersFor, baseCollections: base?.manifest['collections']);
+      final layer = await _readStaged(staging);
+      if (base == null) {
+        _check(() => buildModule(layer));
+      } else if (buildGame(base, [layer]).rejected[layer.id] case final issues?) {
+        throw InstallException(issues.first.message, issues);
       }
-      final id = loaded.manifest.id;
-      if (!RegExp(r'^[a-z0-9][a-z0-9._-]*$').hasMatch(id)) {
+
+      final id = layer.id;
+      if (!isModuleId(id)) {
         throw InstallException('Module id "$id" may only use lowercase letters, digits, "-", "_" and "."');
       }
       final target = Directory(_p(root.path, id));
+      await _refuseKindChange(target, layer);
       final old = Directory(_p(root.path, '.old-$id-${DateTime.now().microsecondsSinceEpoch}'));
       if (target.existsSync()) await target.rename(old.path);
       try {
@@ -177,7 +224,14 @@ class ModuleStore {
       }
       if (old.existsSync()) await old.delete(recursive: true);
       await onInstalled?.call(id);
-      return InstalledModule(id: id, name: loaded.manifest.name, version: loaded.manifest.version, dir: target);
+      return InstalledModule(
+        id: id,
+        name: layer.name,
+        version: layer.version,
+        dir: target,
+        expands: layer.expands,
+        icon: layer.icon,
+      );
     } on InstallException {
       rethrow;
     } catch (e) {
@@ -189,6 +243,63 @@ class ModuleStore {
       if (stagingRoot.existsSync() && stagingRoot.listSync().isEmpty) await stagingRoot.delete();
       if (src case FileSource(temporary: true, :final file) when file.existsSync()) await file.delete();
     }
+  }
+
+  /// A load failure as the person reads it: its first fatal issue, in words.
+  static InstallException _refusal(ModuleLoadException e) {
+    final first = e.issues.where((i) => i.fatal).firstOrNull;
+    return InstallException(first == null ? 'This file is not a valid game module' : first.message, e.issues);
+  }
+
+  static void _check(void Function() load) {
+    try {
+      load();
+    } on ModuleLoadException catch (e) {
+      throw _refusal(e);
+    }
+  }
+
+  static Future<ModuleLayer> _readStaged(Directory staging) async {
+    try {
+      return await readModuleLayer(DirectoryModuleFiles(staging));
+    } on ModuleLoadException catch (e) {
+      throw _refusal(e);
+    }
+  }
+
+  /// The installed game [layer] expands, or null when [layer] is a game. Refuses an
+  /// expansion that is malformed on its own, or whose game is missing or cannot load.
+  Future<ModuleLayer?> _baseOf(ModuleLayer layer) async {
+    if (!layer.isExpansion) return null;
+    final issues = checkExpansion(layer.data);
+    if (issues.where((i) => i.fatal).firstOrNull case final first?) throw InstallException(first.message, issues);
+    final baseId = layer.expands!.id;
+    final dir = Directory(_p(root.path, baseId));
+    if (!File(_p(dir.path, 'module.json')).existsSync()) {
+      throw MissingBaseException(expansion: layer.name, baseId: baseId);
+    }
+    try {
+      final base = await readModuleLayer(DirectoryModuleFiles(dir));
+      buildModule(base);
+      return base;
+    } on ModuleLoadException {
+      throw InstallException('${layer.name} is an expansion for $baseId, which is installed but cannot load.');
+    }
+  }
+
+  /// A game and an expansion never replace each other: one id, one kind.
+  static Future<void> _refuseKindChange(Directory target, ModuleLayer layer) async {
+    if (!target.existsSync()) return;
+    final ModuleLayer existing;
+    try {
+      existing = await readModuleLayer(DirectoryModuleFiles(target));
+    } on ModuleLoadException {
+      return; // A broken install may be replaced by anything.
+    }
+    if (existing.isExpansion == layer.isExpansion) return;
+    final was = existing.isExpansion ? 'an expansion' : 'a game';
+    final now = layer.isExpansion ? 'an expansion' : 'a game';
+    throw InstallException('"${layer.id}" is installed as $was; $now cannot replace it');
   }
 
   static bool _isZip(Uint8List b) => b.length > 4 && b[0] == 0x50 && b[1] == 0x4B && b[2] == 3 && b[3] == 4;
@@ -345,8 +456,14 @@ class ModuleStore {
   }
 
   /// Downloads every `https` image ref into `images/remote/` and rewrites the refs.
-  /// A failed download leaves the ref empty, which draws the text-only card style.
-  Future<void> _fetchRemoteImages(Directory staging, Map<String, String> Function(Uri)? headersFor) async {
+  /// A failed download leaves the ref empty, which draws the text-only card style. For an
+  /// expansion, [baseCollections] (the base's) name the picture fields of the collections
+  /// it adds items to without naming them again.
+  Future<void> _fetchRemoteImages(
+    Directory staging,
+    Map<String, String> Function(Uri)? headersFor, {
+    Object? baseCollections,
+  }) async {
     final manifestFile = _staged(staging, 'module.json');
     if (!manifestFile.existsSync()) return;
     final Object? decoded;
@@ -388,9 +505,17 @@ class ModuleStore {
         }
         if (dj is! Map || dj['items'] is! List) continue;
         dataFiles[path] = dj.cast<String, dynamic>();
-        final field = spec['imageField'] as String? ?? 'image';
+        final baseSpec = baseCollections is Map ? baseCollections[e.key] : null;
+        String? setting(String key) => switch (spec[key] ?? (baseSpec is Map ? baseSpec[key] : null)) {
+          final String text => text,
+          _ => null, // A wrong type is the loader's to report, in words.
+        };
+        final fields = [setting('imageField') ?? 'image', ?setting('backImageField')];
         for (final it in dj['items'] as List) {
-          if (it is Map) slot(it, field);
+          if (it is! Map) continue;
+          for (final f in fields) {
+            slot(it, f);
+          }
         }
       }
     }

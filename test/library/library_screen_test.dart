@@ -388,4 +388,83 @@ void main() {
     await settleAsync(tester);
     expect(find.textContaining('Paste a link'), findsOneWidget);
   });
+
+  group('expansions', () {
+    testWidgets('get their own section with a switch, not a game tile; off plays the game without them', (
+      tester,
+    ) async {
+      final app = await pumpLibrary(tester, preinstalled: [miniZip(), zipOf(plusFiles())]);
+      expect(find.text('EXPANSIONS'), findsOneWidget);
+      expect(find.text('Mini Plus'), findsOneWidget, reason: 'one row, no tile');
+      expect(find.text('For Mini Game · 1.0.0'), findsOneWidget);
+      expect(find.text('1.0.0 · +1 expansion'), findsOneWidget, reason: 'the game tile counts what merged');
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+
+      await tester.tap(find.byType(Switch));
+      await settleAsync(tester);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+      expect(app.games.single.module.item('items', 'kraken'), isNull);
+      expect(find.text('1.0.0'), findsOneWidget);
+    });
+
+    testWidgets('the switch is named for screen readers', (tester) async {
+      await pumpLibrary(tester, preinstalled: [miniZip(), zipOf(plusFiles())]);
+      expect(tester.getSemantics(find.byType(Switch)).label, 'Mini Plus');
+    });
+
+    testWidgets('one without its game says what it needs; its switch is disabled', (tester) async {
+      await pumpLibrary(tester, preinstalled: [miniZip(), zipOf(plusFiles())]);
+      await tester.runAsync(() => library(tester).uninstall('mini'));
+      await tester.pumpAndSettle();
+      expect(find.text('Needs mini'), findsOneWidget);
+      expect(tester.widget<Switch>(find.byType(Switch)).onChanged, isNull);
+    });
+
+    testWidgets('long-press an expansion to uninstall it, with its own confirm', (tester) async {
+      await pumpLibrary(tester, preinstalled: [miniZip(), zipOf(plusFiles())]);
+      await tester.longPress(find.text('Mini Plus'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Uninstall'));
+      await tester.pumpAndSettle();
+      expect(find.text('Removes the expansion. Its cards you tracked are forgotten.'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Uninstall'));
+      await settleAsync(tester);
+      expect(find.text('EXPANSIONS'), findsNothing);
+      expect(library(tester).installedById('mini-plus'), isNull);
+    });
+
+    testWidgets('a repository expansion waits for its game: Install is disabled until the game is in', (
+      tester,
+    ) async {
+      await pumpLibrary(
+        tester,
+        repoIndex: {
+          'name': 'Test repo',
+          'modules': [
+            {'id': 'mini', 'name': 'Mini Game', 'version': '1.0.0', 'minAppVersion': '3.0.0', 'zip': 'mini.zip'},
+            {
+              'id': 'mini-plus',
+              'name': 'Mini Plus',
+              'version': '1.0.0',
+              'minAppVersion': '3.3.0',
+              'zip': 'mini-plus.zip',
+              'expands': 'mini',
+            },
+          ],
+        },
+        zips: {'mini.zip': miniZip(), 'mini-plus.zip': zipOf(plusFiles())},
+      );
+      expect(find.text('Expansion · 1.0.0 · install Mini Game first'), findsOneWidget);
+      List<bool> enabled() => [
+        for (final b in tester.widgetList<FilledButton>(find.widgetWithText(FilledButton, 'Install')))
+          b.onPressed != null,
+      ];
+      expect(enabled(), [true, false]);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Install').first);
+      await settleAsync(tester);
+      expect(find.text('Expansion · 1.0.0'), findsOneWidget);
+      expect(enabled(), [true]);
+    });
+  });
 }

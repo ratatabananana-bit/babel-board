@@ -107,10 +107,21 @@ ImageProvider sizedImage(ImageProvider img, double logicalWidth, double dpr) {
 /// An item's picture in its printed shape: `card` fills the shape with the picture,
 /// `square` frames square art above the title and subtitle. No picture → [TextOnlyCard].
 class ItemPicture extends StatelessWidget {
-  const ItemPicture(this.item, this.collection, {super.key, this.radius = 12, this.artOnly = false, this.decodeWidth});
+  const ItemPicture(
+    this.item,
+    this.collection, {
+    super.key,
+    this.radius = 12,
+    this.artOnly = false,
+    this.decodeWidth,
+    this.back = false,
+  });
 
   /// For the `square` shape: draw just the square art, without the card frame (list rows).
   final bool artOnly;
+
+  /// Draw the item's second picture (`backImageField`) instead of its front.
+  final bool back;
 
   final Item item;
   final CollectionSpec collection;
@@ -122,7 +133,8 @@ class ItemPicture extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final raw = context.read<LoadedModule>().files.image(item.imageRef(collection));
+    final ref = back ? item.backImageRef(collection) : item.imageRef(collection);
+    final raw = context.read<LoadedModule>().files.image(ref);
     final textOnly = TextOnlyCard(item, collection, radius: radius);
     if (raw == null) return AspectRatio(aspectRatio: collection.cardAspect, child: textOnly);
     final w = decodeWidth;

@@ -44,9 +44,17 @@ ToolResult packModules(
   final read = <ModuleFolder>[];
   final ids = <String>{};
   var failed = false;
+  // Games first, so each expansion is checked merged into the game it expands, wherever
+  // that game's folder is among those packed.
+  final firstRead = {for (final d in folders) d: readModuleFolder(d)};
+  final gameDirs = {
+    for (final e in firstRead.entries)
+      if (e.value.ok && !e.value.isExpansion) '${e.value.manifest!['id']}': e.key,
+  };
   for (final d in folders) {
     final label = d.path.split(Platform.pathSeparator).last.split('/').last;
-    final f = readModuleFolder(d);
+    final expands = firstRead[d]!.isExpansion ? firstRead[d]!.manifest!['expands'] : null;
+    final f = expands is Map ? readModuleFolder(d, base: gameDirs[expands['id']]) : firstRead[d]!;
     for (final i in f.issues) {
       lines.add('$label: $i');
     }
@@ -108,6 +116,7 @@ ToolResult packModules(
       'zip': zipName,
       'icon': ?icon,
       'size': zipFile.lengthSync(),
+      if (m['expands'] case {'id': final String base}) 'expands': base,
     });
     lines.add('Packed $id $version → $zipName (${zipFile.lengthSync()} bytes)');
   }

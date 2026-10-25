@@ -193,4 +193,28 @@ void main() {
     expect(flows['scenario']!.index, 0);
     expect(flows.first!.index, 0, reason: 'New game is for the whole module, not one tracker');
   });
+
+  testWidgets('on a narrow phone a step label shrinks to fit its longest word, never breaking it', (tester) async {
+    await pumpModules(
+      tester,
+      tab: 'Flow',
+      edit: (m) {
+        final steps = (m['tabs'] as List)[2]['block']['children'] as List;
+        for (final (id, title) in [('res', 'Resolution'), ('curse', 'Curse'), ('end', 'End of round')]) {
+          steps.add({'type': 'step', 'id': id, 'title': title});
+        }
+      },
+    );
+    tester.view.physicalSize = const Size(990, 2200); // 360 dp at 2.75
+    await tester.pumpAndSettle();
+    for (final word in ['Resolution', 'Curse']) {
+      final label = find.text(word).first;
+      final oneLine = TextPainter(
+        text: TextSpan(text: word, style: tester.widget<Text>(label).style),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      expect(tester.getSize(label).height, closeTo(oneLine.height, 0.5), reason: '"$word" on one line');
+    }
+    expect(tester.takeException(), isNull);
+  });
 }

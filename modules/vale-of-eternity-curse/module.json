@@ -1,0 +1,206 @@
+{
+  "format": 1,
+  "id": "vale-of-eternity-curse",
+  "name": "Vale of Eternity: Curse",
+  "version": "1.0.0",
+  "minAppVersion": "3.3.0",
+  "icon": "images/icon.webp",
+  "players": "2-4",
+  "source": "Card and Summoner text read from the card and tile images on valeofeternity.wiki.gg (Curse Expansion page, 2026-10-25). Rules: the Curse rulebook (Mandoo Games / Renegade Game Studios, 2025), photos on the same page.",
+  "expands": { "id": "vale-of-eternity", "minVersion": "2.1.0" },
+  "collections": {
+    "cards": {
+      "items": "data/cards.json",
+      "sheet": {
+        "chips": [
+          { "label": "Curses", "symbols": "curses" }
+        ]
+      }
+    },
+    "summoners": {
+      "items": "data/summoners.json",
+      "titleField": "name",
+      "subtitleField": "sides",
+      "imageShape": "card",
+      "cardAspect": 0.64,
+      "backImageField": "back",
+      "sheet": {
+        "chips": [
+          { "label": "Start", "symbol": "curse", "text": "×{startCurses}" },
+          { "text": "{startExtra}" }
+        ],
+        "effects": {
+          "path": "effects",
+          "typeLabels": {
+            "front_permanent": "Front · Permanent",
+            "front_active": "Front · Active",
+            "back_permanent": "Back · Permanent",
+            "back_active": "Back · Active",
+            "back_artifact": "Back · Artifact"
+          },
+          "typeSymbols": {
+            "front_permanent": "effect_permanent",
+            "front_active": "effect_active",
+            "back_permanent": "effect_permanent",
+            "back_active": "effect_active"
+          },
+          "typeHelp": {
+            "front_permanent": "Always on while this side is up.",
+            "front_active": "Once per round, during the Resolution Phase.",
+            "back_permanent": "Always on while this side is up.",
+            "back_active": "Once per round, during the Resolution Phase.",
+            "back_artifact": "An Artifacts expansion effect."
+          }
+        },
+        "verifiedPath": "verified",
+        "details": {
+          "hint": "Rulings",
+          "sections": [ { "label": "Rulings", "path": "interactions" } ]
+        },
+        "zones": ["summoner"]
+      }
+    }
+  },
+  "symbols": {
+    "curse": "images/symbols/curse.webp",
+    "curse_symbol": "images/symbols/curse_symbol.webp",
+    "ward": "images/symbols/ward.webp",
+    "ward_broken": "images/symbols/ward_broken.webp",
+    "flip": "images/symbols/flip.webp"
+  },
+  "zones": [
+    { "id": "summoner", "label": "Summoner", "icon": "star", "accent": "mint", "hint": "Your Summoner tile" },
+    { "id": "soothed", "label": "Soothed", "icon": "flag", "accent": "violet", "hint": "Under your Summoner · 1 point each" }
+  ],
+  "tabs": [
+    {
+      "id": "summoners",
+      "after": "cards",
+      "label": "Summoners",
+      "icon": "star",
+      "block": {
+        "type": "gallery",
+        "collection": "summoners",
+        "search": ["name", "sides", "effects.text"],
+        "tileName": false,
+        "noun": "summoners",
+        "searchHint": "Search summoners"
+      }
+    },
+    {
+      "id": "mine",
+      "block": {
+        "children": [
+          {
+            "type": "zone",
+            "zone": "summoner",
+            "before": "table",
+            "list": { "type": "cardList", "collection": "summoners", "style": "rows", "emptyText": "Pick your Summoner in the Summoners tab." }
+          },
+          {
+            "type": "zone",
+            "zone": "soothed",
+            "after": "field",
+            "list": { "type": "cardList", "collection": "cards", "style": "mini", "columns": 2 }
+          }
+        ]
+      }
+    },
+    {
+      "id": "round",
+      "block": {
+        "reminders": [
+          "Wards: when you summon a card or pay to remove one, you may break exactly 1 active :ward: to pay 2 of the cost. Never for other payments.",
+          "Mend: turn a :ward_broken: active again. With all wards active, remove one of your :curse: instead.",
+          "A cursed card that is discarded sends its :curse: back to the supply; one taken into a hand (Recover) puts them on that player.",
+          "Summoner tiles flip whenever their :flip: condition is met; that is mandatory. They are not cards, so card effects (Genie…) don't touch them.",
+          "Final score: −2 per :curse: on you or your cards, +1 per active :ward: and per soothed card. These don't count toward the 60-point game end."
+        ],
+        "setup": {
+          "how": [
+            "With Curse: shuffle its 28 cards into the draw pile too (98 in all)."
+          ],
+          "checklist": [
+            {
+              "id": "setup.curse.tree",
+              "before": "setup.app",
+              "text": "Tree standee and all Curse tokens next to the supply"
+            },
+            {
+              "id": "setup.curse.wards",
+              "before": "setup.app",
+              "text": "Each player takes 3 Ward tokens, active side up"
+            },
+            {
+              "id": "setup.curse.summoners",
+              "before": "setup.app",
+              "text": "Pick Summoners: the last player first, then counterclockwise",
+              "sub": "First games: Varena, Iwo, Belledin or Marcosa. Kang San needs the Artifacts expansion."
+            },
+            {
+              "id": "setup.curse.start",
+              "before": "setup.app",
+              "text": "Summoner on its starting side; take what it shows",
+              "sub": "Its Curse tokens and extras (Iwo, Tolvar: wards broken; Varena: draw 1; Kang San: shelter 2). Add it to Summoner in the app after the new game."
+            }
+          ]
+        },
+        "children": [
+          {
+            "id": "hunting",
+            "how": [
+              "With Curse, Summoner effects that say \"at the start of the round\" happen first (Marcosa, Muura, Tolvar)."
+            ]
+          },
+          {
+            "id": "action",
+            "how": [
+              "WARD: when summoning or paying to remove, you may break 1 active :ward: to pay 2 of the cost.",
+              "SUMMON a card with :curse_symbol: printed on it: after paying, put that many :curse: on it, resolve Permanent effects the summon triggers, then its Instant effect."
+            ]
+          },
+          {
+            "id": "resolution",
+            "how": [
+              "Your Summoner's Active effect resolves in this phase too, once."
+            ]
+          },
+          {
+            "type": "step",
+            "id": "curse",
+            "after": "resolution",
+            "title": "Curse",
+            "summary": "Move 1 curse token from each of your cursed cards onto yourself.",
+            "listTitle": "Your cursed cards",
+            "emptyText": "No cursed cards in your Field. Nothing to move.",
+            "how": [
+              "All players at once. From each of your cursed cards, move one :curse: onto yourself, in any order.",
+              "The last :curse: off a card soothes it: place it face down under your Summoner tile. It frees its space and is worth 1 :points: at the end. In the app, drag it to Soothed.",
+              "Cards without a printed :curse_symbol: can carry tokens too (Tyr, Dunia): they count the same."
+            ],
+            "checklist": [],
+            "cardChecklist": {
+              "collection": "cards",
+              "filter": { "zone": "field", "where": [ { "path": "curses", "has": "curse_symbol" } ] },
+              "sub": "Move 1 :curse: onto yourself"
+            }
+          },
+          {
+            "id": "end",
+            "how": [
+              "Final score with Curse: −2 per :curse: on you and your cards, +1 per active :ward: and per soothed card."
+            ],
+            "checklist": [
+              {
+                "id": "end.curse.score",
+                "before": "end.table",
+                "text": "Game over? Score curses, wards and soothed cards",
+                "sub": "−2 per :curse:, +1 per active :ward: and soothed card"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

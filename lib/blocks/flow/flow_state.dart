@@ -2,17 +2,35 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Current step in a game's flow and which checklist items are ticked.
-/// Saved under a per-game [prefix] so games never share progress.
+/// Saved under a per-game [prefix] so games never share progress. The current step is
+/// saved by id as well as by position, so a step an expansion inserts (or takes away when
+/// switched off) does not move a game in progress onto another step.
 class FlowState extends ChangeNotifier {
-  FlowState(this._prefs, {required this.prefix, required this.phaseCount})
-    : _index = _prefs.getInt('${prefix}phase.index') ?? 0,
-      _checked = (_prefs.getStringList('${prefix}phase.checked') ?? []).toSet();
+  FlowState(this._prefs, {required this.prefix, required List<String> steps})
+    : steps = List.unmodifiable(steps),
+      _index = _savedIndex(_prefs, prefix, steps),
+      _checked = (_prefs.getStringList('${prefix}phase.checked') ?? []).toSet() {
+    // A save from before step ids (index only) is pinned to its step now, while the steps
+    // are still the ones it was made with, so an expansion installed later can't shift it.
+    if (steps.isNotEmpty && !_prefs.containsKey('${prefix}phase.step')) {
+      _prefs.setString('${prefix}phase.step', steps[index]);
+    }
+  }
 
   final SharedPreferences _prefs;
   final String prefix;
-  final int phaseCount;
+
+  /// The flow's step ids, in order.
+  final List<String> steps;
   int _index;
   final Set<String> _checked;
+
+  int get phaseCount => steps.isEmpty ? 1 : steps.length;
+
+  static int _savedIndex(SharedPreferences prefs, String prefix, List<String> steps) {
+    final at = steps.indexOf(prefs.getString('${prefix}phase.step') ?? '');
+    return at >= 0 ? at : prefs.getInt('${prefix}phase.index') ?? 0;
+  }
 
   int get index => _index.clamp(0, phaseCount - 1);
 
@@ -43,6 +61,7 @@ class FlowState extends ChangeNotifier {
 
   void _save() {
     _prefs.setInt('${prefix}phase.index', _index);
+    if (steps.isNotEmpty) _prefs.setString('${prefix}phase.step', steps[index]);
     _prefs.setStringList('${prefix}phase.checked', _checked.toList());
     notifyListeners();
   }

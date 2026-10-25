@@ -22,7 +22,6 @@ import 'library/module_store.dart';
 import 'library/repository.dart';
 import 'library/startup.dart';
 import 'modules/loaded_module.dart';
-import 'modules/module_files.dart';
 import 'modules/module_state.dart';
 
 void main() {
@@ -36,6 +35,7 @@ class AppData {
     this.prefs,
     this.modules, {
     this.installed = const [],
+    this.expansions = const {},
     this.store,
     this.repoConfigStore,
     this.repoClientFactory,
@@ -48,14 +48,17 @@ class AppData {
   /// What the store listed at startup, including broken modules.
   final List<InstalledModule> installed;
 
+  /// Where each installed expansion stands at startup.
+  final Map<String, ExpansionStatus> expansions;
+
   /// Null on the web preview: nothing can be installed there.
   final ModuleStore? store;
   final RepoConfigStore? repoConfigStore;
   final RepoClient Function(RepoConfig config)? repoClientFactory;
   final InstallSources? installSources;
 
-  /// Loads every installed module from [store]; broken ones are left out (the Library
-  /// still lists them from the store).
+  /// Loads every installed game from [store] with its expansions; broken ones are left out
+  /// (the Library still lists them from the store).
   static Future<AppData> fromStore(
     SharedPreferences prefs,
     ModuleStore store, {
@@ -63,20 +66,13 @@ class AppData {
     RepoClient Function(RepoConfig config)? repoClientFactory,
     InstallSources? installSources,
   }) async {
-    final modules = <LoadedModule>[];
     final installed = await store.list();
-    for (final i in installed) {
-      if (i.broken) continue;
-      try {
-        modules.add(await loadModule(DirectoryModuleFiles(i.dir!)));
-      } catch (_) {
-        // Listed as broken by the Library.
-      }
-    }
+    final loaded = await loadInstalledGames(prefs, installed);
     return AppData(
       prefs,
-      modules,
+      loaded.modules,
       installed: installed,
+      expansions: loaded.expansions,
       store: store,
       repoConfigStore: repoConfigStore,
       repoClientFactory: repoClientFactory,
@@ -168,6 +164,7 @@ class _HelperAppState extends State<HelperApp> {
       repoClientFactory: d.repoClientFactory,
       sources: d.installSources,
       installed: d.installed,
+      expansions: d.expansions,
     );
     _app = app;
     _library = library;

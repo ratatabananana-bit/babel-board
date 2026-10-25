@@ -12,22 +12,30 @@ class OpenGame {
 
   /// Builds the state for [module]: zones under `mod.<id>.zones`, and one flow state per
   /// flow (hubs walked). The first flow keeps the keys `mod.<id>.phase.*` a one-flow module
-  /// always used; later ones live under `mod.<id>.flow.<flowId>.`.
+  /// always used; later ones live under `mod.<id>.flow.<flowId>.`. The zones see only the
+  /// items and zones this game has, so cards of an expansion switched off stay saved but
+  /// out of sight.
   factory OpenGame.load(SharedPreferences prefs, LoadedModule module) {
-    final id = module.manifest.id;
+    final m = module.manifest;
     final byId = <String, FlowState>{};
     FlowState? first;
-    for (final t in module.manifest.tabs) {
+    for (final t in m.tabs) {
       for (final b in walkBlocks(t.block)) {
         if (b case FlowSpec f when !byId.containsKey(f.id)) {
-          final prefix = first == null ? 'mod.$id.' : 'mod.$id.flow.${f.id}.';
-          final s = FlowState(prefs, prefix: prefix, phaseCount: f.steps.length.clamp(1, 1 << 20));
+          final prefix = first == null ? 'mod.${m.id}.' : 'mod.${m.id}.flow.${f.id}.';
+          final s = FlowState(prefs, prefix: prefix, steps: [for (final step in f.steps) step.id]);
           byId[f.id] = s;
           first ??= s;
         }
       }
     }
-    return OpenGame(module: module, zones: ZoneState(prefs, id), flows: FlowStates(byId, first: first));
+    final zones = ZoneState(
+      prefs,
+      m.id,
+      items: {for (final list in module.collections.values) ...list.map((i) => i.id)},
+      zones: {for (final z in m.zones) z.id},
+    );
+    return OpenGame(module: module, zones: zones, flows: FlowStates(byId, first: first));
   }
 
   final LoadedModule module;

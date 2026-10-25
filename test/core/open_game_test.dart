@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vale_helper/core/app_state.dart';
+import 'package:vale_helper/modules/loaded_module.dart';
+import 'package:vale_helper/modules/module_files.dart';
+import 'package:vale_helper/modules/module_layer.dart';
 
 import '../helpers.dart';
 
@@ -49,5 +52,24 @@ void main() {
     expect(g.flows['inner'], isNotNull);
     expect(g.flows['flow'], isNotNull, reason: "the mini module's own flow has the default id");
     expect(g.flows.byId.length, 2);
+  });
+
+  test('a game sees its own items, zones and steps: with the expansion and without it', () async {
+    SharedPreferences.setMockInitialValues({
+      'mod.mini.phase.index': 1,
+      'mod.mini.phase.step': 'two',
+      'mod.mini.zones': '{"imp":"a","kraken":"c"}',
+    });
+    final prefs = await SharedPreferences.getInstance();
+    final base = await readModuleLayer(DirectoryModuleFiles(miniDir));
+    final plus = await readModuleLayer(DirectoryModuleFiles(plusDir));
+
+    final merged = OpenGame.load(prefs, buildGame(base, [plus]).module);
+    expect(merged.flow!.index, 2, reason: 'step "two" moved down one when "mid" was inserted');
+    expect(merged.zones.total, 2);
+
+    final alone = OpenGame.load(prefs, buildModule(base));
+    expect(alone.flow!.index, 1);
+    expect(alone.zones.total, 1, reason: 'the Kraken in Lane C is not part of the base game');
   });
 }

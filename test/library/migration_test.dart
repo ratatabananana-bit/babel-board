@@ -56,7 +56,8 @@ void main() {
     await adoptLegacyState(p, 'magical-athlete');
     final zones = ZoneState(p, 'magical-athlete');
     expect(zones.idsIn('race'), ['banana', 'baba_yaga']);
-    final flow = FlowState(p, prefix: 'mod.magical-athlete.', phaseCount: 6);
+    const steps = ['setup', 'draft', 'race1', 'race2', 'race3', 'final'];
+    final flow = FlowState(p, prefix: 'mod.magical-athlete.', steps: steps);
     expect(flow.index, 2);
     expect(flow.isChecked('race2.reveal'), isTrue);
     expect(p.containsKey('ma.lineup'), isFalse);
@@ -77,7 +78,8 @@ void main() {
     final p = await SharedPreferences.getInstance();
     await adoptLegacyState(p, 'vale-of-eternity');
     expect(ZoneState(p, 'vale-of-eternity').zoneOf('nessie'), 'field');
-    expect(FlowState(p, prefix: 'mod.vale-of-eternity.', phaseCount: 4).index, 1);
+    const valeSteps = ['hunting', 'action', 'resolution', 'end'];
+    expect(FlowState(p, prefix: 'mod.vale-of-eternity.', steps: valeSteps).index, 1);
     expect(p.containsKey('vale.tracker.zones'), isFalse);
 
     // Legacy keys reappearing later never overwrite what the module already saved.

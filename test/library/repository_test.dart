@@ -51,6 +51,22 @@ void main() {
     final f = listing.entries[1];
     expect(f.iconUrl, isNull);
     expect(f.needsAppUpdate, isTrue, reason: 'minAppVersion 9.0.0 > $kAppVersion');
+    expect(v.expands, isNull);
+  });
+
+  test('an index entry names the game an expansion is for', () async {
+    final i = index();
+    (i['modules'] as List).add({
+      'id': 'vale-of-eternity-curse',
+      'name': 'Vale of Eternity: Curse',
+      'version': '1.0.0',
+      'minAppVersion': '3.3.0',
+      'zip': 'vale-of-eternity-curse-1.0.0.zip',
+      'expands': 'vale-of-eternity',
+    });
+    final client = MockClient((req) async => http.Response(jsonEncode(i), 200));
+    final listing = await RepoClient(RepoConfig(indexUrl: indexUrl), client: client).fetchIndex();
+    expect(listing.entries.last.expands, 'vale-of-eternity');
   });
 
   test('errors: 404 → notFound, 401/403 → tokenRejected, bad JSON → badIndex, network → network', () async {

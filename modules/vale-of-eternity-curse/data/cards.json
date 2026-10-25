@@ -1,0 +1,684 @@
+{
+  "items": [
+    {
+      "id": "ares",
+      "name": "Ares",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 0,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "You can keep one more stone."
+        },
+        {
+          "type": "active",
+          "text": "Earn :stone_red::stone_red::stone_red::stone_red:."
+        }
+      ],
+      "interactions": [
+        "Takes effect at once: if Ares leaves your area and you have too many stones, discard down to your limit right away."
+      ],
+      "verified": true,
+      "image": "images/cards/ares.webp"
+    },
+    {
+      "id": "mephisto",
+      "name": "Mephisto",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 1,
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn :stone_red::stone_red::stone_red:."
+        },
+        {
+          "type": "active",
+          "text": "Pay 1, then mend a :ward_broken:. -or- Recover."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/mephisto.webp"
+    },
+    {
+      "id": "tyr",
+      "name": "Tyr",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 2,
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Transfer 2 of your :curse: to this card, then earn 1 :points: for each :curse: on your summoned cards."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/tyr.webp"
+    },
+    {
+      "id": "berserker",
+      "name": "Berserker",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 3,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 2 :points: for each :curse: on your summoned cards."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/berserker.webp"
+    },
+    {
+      "id": "manticore",
+      "name": "Manticore",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 3,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 2 :points: for each card with a written cost of 3 or less in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/manticore.webp"
+    },
+    {
+      "id": "dullahan",
+      "name": "Dullahan",
+      "family": "fire",
+      "familyLabel": "Fire",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 4,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "The :curse: on cursed cards you recover are discarded instead."
+        },
+        {
+          "type": "active",
+          "text": "Recover one of your other cursed cards."
+        }
+      ],
+      "interactions": [
+        "Without Dullahan, a cursed card that returns to your hand puts its :curse: on you."
+      ],
+      "verified": true,
+      "image": "images/cards/dullahan.webp"
+    },
+    {
+      "id": "selkie",
+      "name": "Selkie",
+      "family": "water",
+      "familyLabel": "Water",
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "cost": 0,
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Pay any amount to remove one :curse: from yourself per 2 paid."
+        }
+      ],
+      "interactions": [
+        "Any amount, even zero, paid with stones only: wards can't be broken for it."
+      ],
+      "verified": true,
+      "image": "images/cards/selkie.webp"
+    },
+    {
+      "id": "umibozu",
+      "name": "Umibozu",
+      "family": "water",
+      "familyLabel": "Water",
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "cost": 1,
+      "curses": [
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Reveal the top card of the deck. Add it to your hand, or discard it to earn :stone_blue: and 1 :points:."
+        },
+        {
+          "type": "active",
+          "text": "Recover."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/umibozu.webp"
+    },
+    {
+      "id": "hantu_banyu",
+      "name": "Hantu Banyu",
+      "family": "water",
+      "familyLabel": "Water",
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "cost": 3,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Earn :stone_blue::stone_blue::stone_blue:."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/hantu_banyu.webp"
+    },
+    {
+      "id": "scylla",
+      "name": "Scylla",
+      "family": "water",
+      "familyLabel": "Water",
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "cost": 5,
+      "effects": [
+        {
+          "type": "active",
+          "text": "Discard one of your :stone_blue:, then mend up to 3 :ward_broken:."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/scylla.webp"
+    },
+    {
+      "id": "taniwha",
+      "name": "Taniwha",
+      "family": "water",
+      "familyLabel": "Water",
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "cost": 5,
+      "curses": [
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Choose a :dragon: card from any area and add it to your hand."
+        },
+        {
+          "type": "permanent",
+          "text": "The summoning cost of your :dragon: cards is fixed to :stone_blue:."
+        }
+      ],
+      "interactions": [
+        "The Instant effect must be done: with no :dragon: card in anyone's area, Taniwha can't be summoned. The card can come from your own area and goes to your hand.",
+        "A cursed card taken this way puts its :curse: on you.",
+        "A fixed cost is paid with exactly one :stone_blue:, never red or purple stones. Free summons (Dragon Egg, Young Forest Spirit) still work."
+      ],
+      "verified": true,
+      "image": "images/cards/taniwha.webp"
+    },
+    {
+      "id": "ix_chel",
+      "name": "Ix Chel",
+      "family": "water",
+      "familyLabel": "Water",
+      "sellsFor": [
+        "stone_blue"
+      ],
+      "cost": 7,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 3 :points: for each card with an odd written cost in your area."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/ix_chel.webp"
+    },
+    {
+      "id": "skeleton",
+      "name": "Skeleton",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 1,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Earn 4 :points:."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/skeleton.webp"
+    },
+    {
+      "id": "dryad",
+      "name": "Dryad",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 2,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "Whenever you tame an :earth: card, earn :stone_red::stone_red::stone_purple:."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/dryad.webp"
+    },
+    {
+      "id": "tarasque",
+      "name": "Tarasque",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 4,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Discard up to 2 of your other summoned cards, then earn 1 :points: for each of your empty areas."
+        }
+      ],
+      "interactions": [
+        "\"Up to\": you may discard none. Empty areas are your unused spaces: with one summoned card in round 3, you have 2."
+      ],
+      "verified": true,
+      "image": "images/cards/tarasque.webp"
+    },
+    {
+      "id": "axomama",
+      "name": "Axomama",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 6,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "permanent",
+          "text": "Keep one less stone."
+        },
+        {
+          "type": "active",
+          "text": "Exchange each of your stones with :stone_purple:."
+        }
+      ],
+      "interactions": [
+        "Takes effect at once: if you are over the new limit, discard down to it right away."
+      ],
+      "verified": true,
+      "image": "images/cards/axomama.webp"
+    },
+    {
+      "id": "skeleton_exalted",
+      "name": "Skeleton Exalted",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 6,
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 8 :points:."
+        },
+        {
+          "type": "active",
+          "text": "Discard this card. -or- Earn a :curse:, then Recover."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/skeleton_exalted.webp"
+    },
+    {
+      "id": "anansi",
+      "name": "Anansi",
+      "family": "earth",
+      "familyLabel": "Earth",
+      "sellsFor": [
+        "stone_red",
+        "stone_red",
+        "stone_red",
+        "stone_red"
+      ],
+      "cost": 8,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 3 :points: for each card with an even written cost in your area."
+        }
+      ],
+      "interactions": [
+        "Zero is even."
+      ],
+      "verified": true,
+      "image": "images/cards/anansi.webp"
+    },
+    {
+      "id": "aes_sidhe",
+      "name": "Aes Sidhe",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "cost": 3,
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Mend up to 3 :ward_broken:, then put this card on the top of the draw deck."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/aes_sidhe.webp"
+    },
+    {
+      "id": "ghost",
+      "name": "Ghost",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "cost": 3,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Discard one of your other summoned cards to summon a card of the same family as the discarded card for free."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/ghost.webp"
+    },
+    {
+      "id": "luan",
+      "name": "Luan",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "cost": 4,
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Draw a card."
+        },
+        {
+          "type": "permanent",
+          "text": "Whenever you break a :ward:, earn 2 :points:."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/luan.webp"
+    },
+    {
+      "id": "strix",
+      "name": "Strix",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "cost": 5,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn 2 :points: for each of your :ward_broken:, then mend up to 3 :ward_broken:."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/strix.webp"
+    },
+    {
+      "id": "cockatrice",
+      "name": "Cockatrice",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "cost": 6,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "active",
+          "text": "Mend up to 3 :ward_broken:. -or- Draw 2 cards."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/cockatrice.webp"
+    },
+    {
+      "id": "pazuzu",
+      "name": "Pazuzu",
+      "family": "wind",
+      "familyLabel": "Wind",
+      "sellsFor": [
+        "stone_red",
+        "stone_blue"
+      ],
+      "cost": 6,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Reveal up to 5 cards with a written cost of 4 or more from your hand. Earn 3 :points: for each card revealed this way."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/pazuzu.webp"
+    },
+    {
+      "id": "brook",
+      "name": "Brook",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "cost": 7,
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Remove up to 4 :curse: from yourself and earn 2 :points: for each :curse: removed this way."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/brook.webp"
+    },
+    {
+      "id": "inferno",
+      "name": "Inferno",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "cost": 8,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Earn any 4 stones. For each :stone_red: gained, earn 2 :points:, and for each :stone_blue: gained, earn 1 :points:."
+        }
+      ],
+      "interactions": [
+        "You may go over your stone limit while earning, then discard down to it."
+      ],
+      "verified": true,
+      "image": "images/cards/inferno.webp"
+    },
+    {
+      "id": "redleaf",
+      "name": "Redleaf",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "cost": 8,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Discard a card from your hand. Earn :stone_red::stone_blue::stone_purple: and 8 :points:."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/redleaf.webp"
+    },
+    {
+      "id": "void",
+      "name": "Void",
+      "family": "dragon",
+      "familyLabel": "Dragon",
+      "sellsFor": [
+        "stone_purple"
+      ],
+      "cost": 9,
+      "curses": [
+        "curse_symbol",
+        "curse_symbol"
+      ],
+      "effects": [
+        {
+          "type": "instant",
+          "text": "Reveal the top 3 cards of the draw deck. Add one to your hand. Discard the other two and earn ? :points: (combined cost of the discarded cards)."
+        }
+      ],
+      "verified": true,
+      "image": "images/cards/void.webp"
+    }
+  ]
+}

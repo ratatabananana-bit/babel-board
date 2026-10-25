@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../core/settings.dart';
 import '../core/theme.dart';
+import '../core/widgets/flip_card.dart';
 import '../module_format/path_expr.dart';
 import '../module_format/sheet_spec.dart';
 import '../modules/loaded_module.dart';
@@ -194,7 +195,8 @@ class ItemSheet extends StatelessWidget {
       final t = fillTemplate(c.text!, item.data).trim();
       if (t.isNotEmpty) {
         if (children.isNotEmpty) children.add(const SizedBox(width: 6));
-        children.add(Text(t));
+        // A pill is one line: text longer than the sheet ends in "…" instead of overflowing.
+        children.add(Flexible(child: Text(t, maxLines: 1, overflow: TextOverflow.ellipsis)));
       }
     }
     if (c.symbols != null) {
@@ -215,7 +217,8 @@ class ItemSheet extends StatelessWidget {
         );
       }
     }
-    if (children.isEmpty) return null;
+    // A label names a value; with no value there is nothing to label.
+    if (children.isEmpty || (c.label != null && children.length == 1)) return null;
     return _Chip(children: children);
   }
 
@@ -610,29 +613,30 @@ class _SheetGesturesState extends State<_SheetGestures> with TickerProviderState
   );
 }
 
-class _Thumb extends StatelessWidget {
+/// The sheet's picture: tap to zoom; with a back picture, a button turns it over.
+class _Thumb extends StatefulWidget {
   const _Thumb({required this.item, required this.collection});
   final Item item;
   final CollectionSpec collection;
 
   @override
+  State<_Thumb> createState() => _ThumbState();
+}
+
+class _ThumbState extends State<_Thumb> {
+  bool _back = false;
+
+  bool get _flips => widget.item.backImageRef(widget.collection) != null;
+
+  @override
   Widget build(BuildContext context) {
+    final item = widget.item;
+    final collection = widget.collection;
     return GestureDetector(
       onTap: () => showDialog<void>(
         context: context,
         barrierColor: Colors.black87,
-        builder: (d) => GestureDetector(
-          onTap: () => Navigator.pop(d),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: InteractiveViewer(
-                maxScale: 4,
-                child: SizedBox(width: 300, child: ItemPicture(item, collection, radius: 14)),
-              ),
-            ),
-          ),
-        ),
+        builder: (d) => _Zoomed(item: item, collection: collection, back: _back, flips: _flips),
       ),
       child: SizedBox(
         width: 88,
@@ -643,23 +647,113 @@ class _Thumb extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: const [BoxShadow(blurRadius: 12, offset: Offset(0, 4), color: Colors.black38)],
               ),
-              child: ItemPicture(item, collection, radius: 8),
+              child: _flips
+                  ? _FlippingPicture(item, collection, back: _back, radius: 8)
+                  : ItemPicture(item, collection, radius: 8),
             ),
-            Positioned(
-              right: 4,
-              bottom: 4,
-              child: Container(
-                width: 26,
-                height: 26,
-                decoration: const BoxDecoration(color: Color(0xCC121315), shape: BoxShape.circle),
-                child: const Icon(Icons.open_in_full_rounded, size: 16, color: Color(0xFFF2EDE4)),
-              ),
-            ),
+            if (_flips)
+              Positioned(right: 4, top: 4, child: _FlipButton(onFlip: () => setState(() => _back = !_back))),
+            const Positioned(right: 4, bottom: 4, child: _RoundBadge(icon: Icons.open_in_full_rounded)),
           ],
         ),
       ),
     );
   }
+}
+
+/// The zoomed picture: opens on the side the sheet shows; it can flip too. Tap to close.
+class _Zoomed extends StatefulWidget {
+  const _Zoomed({required this.item, required this.collection, required this.back, required this.flips});
+  final Item item;
+  final CollectionSpec collection;
+  final bool back;
+  final bool flips;
+
+  @override
+  State<_Zoomed> createState() => _ZoomedState();
+}
+
+class _ZoomedState extends State<_Zoomed> {
+  late bool _back = widget.back;
+
+  @override
+  Widget build(BuildContext context) {
+    final picture = widget.flips
+        ? _FlippingPicture(widget.item, widget.collection, back: _back, radius: 14)
+        : ItemPicture(widget.item, widget.collection, radius: 14);
+    return GestureDetector(
+      onTap: () => Navigator.pop(context),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: InteractiveViewer(maxScale: 4, child: SizedBox(width: 300, child: picture)),
+              ),
+              if (widget.flips) ...[
+                const SizedBox(height: 16),
+                _FlipButton(onFlip: () => setState(() => _back = !_back), size: 44),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// An item's front or back, turning over when [back] changes, at the app's animation speed.
+class _FlippingPicture extends StatelessWidget {
+  const _FlippingPicture(this.item, this.collection, {required this.back, required this.radius});
+  final Item item;
+  final CollectionSpec collection;
+  final bool back;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) => FlipCard(
+    showBack: back,
+    duration: context.watch<Settings>().anim(const Duration(milliseconds: 360)),
+    front: ItemPicture(item, collection, radius: radius),
+    back: ItemPicture(item, collection, radius: radius, back: true),
+  );
+}
+
+class _FlipButton extends StatelessWidget {
+  const _FlipButton({required this.onFlip, this.size = 26});
+  final VoidCallback onFlip;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    // Its own node: inside the thumb it would otherwise merge into the zoom's tap target.
+    container: true,
+    button: true,
+    label: 'Flip card',
+    excludeSemantics: true,
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onFlip,
+      child: _RoundBadge(icon: Icons.flip_rounded, size: size),
+    ),
+  );
+}
+
+/// A small dark disc with a light icon, laid over the sheet's picture.
+class _RoundBadge extends StatelessWidget {
+  const _RoundBadge({required this.icon, this.size = 26});
+  final IconData icon;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: const BoxDecoration(color: Color(0xCC121315), shape: BoxShape.circle),
+    child: Icon(icon, size: size * 8 / 13, color: const Color(0xFFF2EDE4)),
+  );
 }
 
 class _Chip extends StatelessWidget {

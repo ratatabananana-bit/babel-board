@@ -103,6 +103,7 @@ class CollectionSpec {
     this.cardAspect = 0.716,
     this.titleField = 'name',
     this.subtitleField,
+    this.backImageField,
     this.sheet = SheetSpec.empty,
   });
 
@@ -119,6 +120,10 @@ class CollectionSpec {
   final double cardAspect;
   final String titleField;
   final String? subtitleField;
+
+  /// The field holding an item's second picture (a card back, a tile's other side), which
+  /// the sheet can flip to; null when items have one picture.
+  final String? backImageField;
 
   /// Item sheet template (chips, effects, sections, zones…).
   final SheetSpec sheet;
@@ -151,6 +156,7 @@ class CollectionSpec {
       cardAspect: f.optNumber('cardAspect') ?? 0.716,
       titleField: f.optText('titleField') ?? 'name',
       subtitleField: f.optText('subtitleField'),
+      backImageField: f.optText('backImageField'),
       sheet: sheet == null
           ? SheetSpec.empty
           : _collect(report, () => SheetSpec.fromJson(sheet.json, sheet.where)) ?? SheetSpec.empty,
@@ -201,8 +207,10 @@ class ZoneSpec {
 }
 
 class TabSpec {
-  TabSpec({required this.label, required this.icon, required this.block, this.badge});
+  TabSpec({required this.label, required this.icon, required this.block, this.id, this.badge});
 
+  /// Optional handle an expansion names to merge into this tab (`cards`, `round`…).
+  final String? id;
   final String label;
   final String icon;
 
@@ -216,6 +224,7 @@ class TabSpec {
     final f = Fields(j, where);
     final block = f.optObject('block') ?? f.fail('block', 'Missing "block"');
     return TabSpec(
+      id: f.optText('id'),
       label: f.text('label'),
       icon: f.optText('icon') ?? 'grid',
       badge: f.optText('badge'),

@@ -46,6 +46,7 @@
   ],
   "tabs": [
     {
+      "id": "gallery",
       "label": "Gallery",
       "icon": "cards",
       "block": {
@@ -69,6 +70,7 @@
       }
     },
     {
+      "id": "board",
       "label": "Board",
       "icon": "hand",
       "badge": "zoneCount",
@@ -83,6 +85,7 @@
       }
     },
     {
+      "id": "flow",
       "label": "Flow",
       "icon": "flag",
       "block": {
@@ -137,6 +140,7 @@
       }
     },
     {
+      "id": "text",
       "label": "Text",
       "icon": "book",
       "block": {

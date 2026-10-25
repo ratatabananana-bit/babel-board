@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "id": "kraken",
+      "name": "Kraken",
+      "family": "water",
+      "familyLabel": "Water",
+      "cost": 5,
+      "effects": [ { "type": "active", "text": "Pull." } ],
+      "verified": true,
+      "image": "images/kraken.webp"
+    }
+  ]
+}

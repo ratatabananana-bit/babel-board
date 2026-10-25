@@ -8,6 +8,7 @@ import '../core/game_switcher.dart';
 import '../core/theme.dart';
 import '../core/widgets/confirm.dart';
 import '../module_format/validator.dart' show compareVersions;
+import '../modules/module_files.dart';
 import 'library_controller.dart';
 import 'module_store.dart';
 import 'repository.dart';
@@ -74,29 +75,38 @@ class LibraryScreen extends StatelessWidget {
 
   List<Widget> _installed(BuildContext context, LibraryController lib, AppState app) {
     final p = context.pal;
-    if (lib.shown.isEmpty) {
-      return [Text('No games installed yet.', style: T.body.copyWith(color: p.text2)), const SizedBox(height: 16)];
-    }
+    final games = [for (final i in lib.shown) if (!i.isExpansion) i];
+    final expansions = [for (final i in lib.shown) if (i.isExpansion) i];
     return [
-      Text('INSTALLED', style: T.label.copyWith(color: p.muted)),
-      const SizedBox(height: 10),
-      LayoutBuilder(
-        builder: (context, box) {
-          final w = (box.maxWidth - 2 * 12) / 3;
-          return Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              for (final i in lib.shown)
-                SizedBox(
-                  width: w,
-                  child: _GameTile(installed: i, game: app.games.where((g) => g.id == i.id).firstOrNull),
-                ),
-            ],
-          );
-        },
-      ),
+      if (games.isEmpty)
+        Text('No games installed yet.', style: T.body.copyWith(color: p.text2))
+      else ...[
+        Text('INSTALLED', style: T.label.copyWith(color: p.muted)),
+        const SizedBox(height: 10),
+        LayoutBuilder(
+          builder: (context, box) {
+            final w = (box.maxWidth - 2 * 12) / 3;
+            return Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                for (final i in games)
+                  SizedBox(
+                    width: w,
+                    child: _GameTile(installed: i, game: app.games.where((g) => g.id == i.id).firstOrNull),
+                  ),
+              ],
+            );
+          },
+        ),
+      ],
       const SizedBox(height: 24),
+      if (expansions.isNotEmpty) ...[
+        Text('EXPANSIONS', style: T.label.copyWith(color: p.muted)),
+        const SizedBox(height: 4),
+        for (final e in expansions) _ExpansionRow(installed: e),
+        const SizedBox(height: 24),
+      ],
     ];
   }
 
@@ -397,7 +407,8 @@ class _GameTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  broken ? "Can't load" : installed.version,
+                  broken ? "Can't load" : _caption(),
+                  textAlign: TextAlign.center,
                   style: T.caption.copyWith(color: broken ? p.danger : p.muted),
                 ),
               ],
@@ -406,6 +417,12 @@ class _GameTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// The version, and how many expansions are merged into the game.
+  String _caption() {
+    final n = game?.module.expansions.length ?? 0;
+    return n == 0 ? installed.version : '${installed.version} · +$n expansion${n == 1 ? '' : 's'}';
   }
 
   void _showError(BuildContext context) {
@@ -428,32 +445,106 @@ class _GameTile extends StatelessWidget {
     );
   }
 
-  void _showActions(BuildContext context, LibraryController lib) {
-    final p = context.pal;
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (sheet) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.delete_outline_rounded, color: p.danger),
-              title: Text(
-                'Uninstall',
-                style: TextStyle(color: p.danger, fontWeight: FontWeight.w700),
-              ),
-              onTap: () async {
-                Navigator.pop(sheet);
-                final ok = await confirm(
-                  context,
-                  'Uninstall ${installed.name}?',
-                  'Removes the game and everything you tracked in it.',
-                  'Uninstall',
-                );
-                if (ok) await lib.uninstall(installed.id);
-              },
+  void _showActions(BuildContext context, LibraryController lib) => _showUninstallSheet(context, lib, installed);
+}
+
+/// Asks, then uninstalls; the sentence says what goes with it.
+Future<void> _confirmUninstall(
+  BuildContext context,
+  LibraryController lib, {
+  required String id,
+  required String name,
+  required bool expansion,
+}) async {
+  final ok = await confirm(
+    context,
+    'Uninstall $name?',
+    expansion
+        ? 'Removes the expansion. Its cards you tracked are forgotten.'
+        : 'Removes the game and everything you tracked in it.',
+    'Uninstall',
+  );
+  if (ok) await lib.uninstall(id);
+}
+
+/// The long-press sheet of an installed game or expansion.
+void _showUninstallSheet(BuildContext context, LibraryController lib, InstalledModule m) {
+  final p = context.pal;
+  showModalBottomSheet<void>(
+    context: context,
+    builder: (sheet) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(Icons.delete_outline_rounded, color: p.danger),
+            title: Text(
+              'Uninstall',
+              style: TextStyle(color: p.danger, fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 8),
+            onTap: () {
+              Navigator.pop(sheet);
+              _confirmUninstall(context, lib, id: m.id, name: m.name, expansion: m.isExpansion);
+            },
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    ),
+  );
+}
+
+/// An installed expansion: its icon, what it is for or what it waits for, and its switch.
+class _ExpansionRow extends StatelessWidget {
+  const _ExpansionRow({required this.installed});
+  final InstalledModule installed;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    final lib = context.watch<LibraryController>();
+    final status = lib.expansions[installed.id];
+    final state = installed.broken ? ExpansionState.broken : status?.state ?? ExpansionState.needsBase;
+    final base = lib.nameOf(installed.expands?.id ?? '');
+    final (caption, color) = switch (state) {
+      ExpansionState.on || ExpansionState.off => ('For $base · ${installed.version}', p.muted),
+      ExpansionState.needsBase => ('Needs $base', p.muted),
+      ExpansionState.broken => (status?.message ?? installed.error ?? "Can't load", p.danger),
+    };
+    final dir = installed.dir;
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onLongPress: () => _showUninstallSheet(context, lib, installed),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            _ModuleAvatar(
+              name: installed.name,
+              image: dir == null ? null : DirectoryModuleFiles(dir).image(installed.icon),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(installed.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                  Text(caption, style: T.caption.copyWith(color: color)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Its own node, named, so a screen reader says which expansion it turns on or off.
+            Semantics(
+              container: true,
+              label: installed.name,
+              child: Switch(
+                value: state == ExpansionState.on,
+                onChanged: state == ExpansionState.on || state == ExpansionState.off
+                    ? (on) => lib.setExpansionEnabled(installed.id, on)
+                    : null,
+              ),
+            ),
           ],
         ),
       ),
@@ -471,15 +562,19 @@ class _RepoRow extends StatelessWidget {
     final p = context.pal;
     final have = lib.installedById(entry.id);
     final busy = lib.busy != null;
+    // An expansion installs only next to its game.
+    final base = entry.expands;
+    final waitsFor = base != null && lib.installedById(base) == null ? base : null;
+    final canInstall = !busy && waitsFor == null;
     // One button per row: Install, then Update when the repository has a newer version,
     // else Uninstall.
     final Widget action;
     if (entry.needsAppUpdate) {
       action = const FilledButton(onPressed: null, child: Text('Needs app update'));
     } else if (have == null) {
-      action = FilledButton(onPressed: busy ? null : () => _install(context), child: const Text('Install'));
+      action = FilledButton(onPressed: canInstall ? () => _install(context) : null, child: const Text('Install'));
     } else if (compareVersions(have.version, entry.version) < 0) {
-      action = FilledButton(onPressed: busy ? null : () => _install(context), child: const Text('Update'));
+      action = FilledButton(onPressed: canInstall ? () => _install(context) : null, child: const Text('Update'));
     } else {
       action = OutlinedButton(
         onPressed: busy ? null : () => _uninstall(context),
@@ -487,8 +582,10 @@ class _RepoRow extends StatelessWidget {
         child: const Text('Uninstall'),
       );
     }
+    final kind = entry.expands == null ? '' : 'Expansion · ';
     final installed = have == null ? '' : ' · installed ${have.version}';
     final size = entry.size > 0 ? ' · ${(entry.size / 1024).round()} KB' : '';
+    final first = waitsFor == null ? '' : ' · install ${lib.nameOf(waitsFor)} first';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -500,7 +597,7 @@ class _RepoRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(entry.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                Text('${entry.version}$size$installed', style: T.caption.copyWith(color: p.muted)),
+                Text('$kind${entry.version}$size$installed$first', style: T.caption.copyWith(color: p.muted)),
               ],
             ),
           ),
@@ -511,15 +608,8 @@ class _RepoRow extends StatelessWidget {
     );
   }
 
-  Future<void> _uninstall(BuildContext context) async {
-    final ok = await confirm(
-      context,
-      'Uninstall ${entry.name}?',
-      'Removes the game and everything you tracked in it.',
-      'Uninstall',
-    );
-    if (ok) await lib.uninstall(entry.id);
-  }
+  Future<void> _uninstall(BuildContext context) =>
+      _confirmUninstall(context, lib, id: entry.id, name: entry.name, expansion: entry.expands != null);
 
   Future<void> _install(BuildContext context) async {
     try {
@@ -541,6 +631,22 @@ class _EntryIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final icon = entry.iconUrl;
+    return _ModuleAvatar(
+      name: entry.name,
+      image: icon == null ? null : NetworkImage(icon.toString(), headers: lib.headersFor(icon)),
+    );
+  }
+}
+
+/// A module's round 44 dp icon; its initial on a disc when it has none or it fails.
+class _ModuleAvatar extends StatelessWidget {
+  const _ModuleAvatar({required this.name, this.image});
+  final String name;
+  final ImageProvider? image;
+
+  @override
+  Widget build(BuildContext context) {
     final p = context.pal;
     final fallback = Container(
       width: 44,
@@ -548,21 +654,14 @@ class _EntryIcon extends StatelessWidget {
       decoration: BoxDecoration(color: p.surface2, shape: BoxShape.circle),
       alignment: Alignment.center,
       child: Text(
-        entry.name.isEmpty ? '?' : entry.name[0].toUpperCase(),
+        name.isEmpty ? '?' : name[0].toUpperCase(),
         style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: p.text),
       ),
     );
-    final icon = entry.iconUrl;
-    if (icon == null) return fallback;
+    final img = image;
+    if (img == null) return fallback;
     return ClipOval(
-      child: Image.network(
-        icon.toString(),
-        width: 44,
-        height: 44,
-        fit: BoxFit.cover,
-        headers: lib.headersFor(icon),
-        errorBuilder: (_, _, _) => fallback,
-      ),
+      child: Image(image: img, width: 44, height: 44, fit: BoxFit.cover, errorBuilder: (_, _, _) => fallback),
     );
   }
 }

@@ -39,6 +39,35 @@ int compareVersions(String a, String b) {
 final _driveLetter = RegExp(r'^[A-Za-z]:');
 final _plainName = RegExp(r'^[A-Za-z0-9_-]+$');
 
+final _moduleId = RegExp(r'^[a-z0-9][a-z0-9._-]*$');
+
+/// True for collection names: letters, digits, `-` and `_` (they become file names).
+bool isPlainName(String name) => _plainName.hasMatch(name);
+
+/// True for module ids: lowercase letters, digits, `-`, `_` and `.`, starting with a letter
+/// or digit. An id names a folder of the store, so it can never be a path.
+bool isModuleId(String id) => _moduleId.hasMatch(id);
+
+/// The issue with an image value at [path], or null when it is absent, empty or a safe ref.
+ValidationIssue? imageRefIssue(String path, Object? ref) {
+  if (ref == null) return null;
+  if (ref is! String) return ValidationIssue(path, 'Image should be a path or https link');
+  if (ref.isEmpty || isSafeImageRef(ref)) return null;
+  return ValidationIssue(
+    path,
+    'Image must be an https link or a relative path inside the module (no "..", no leading slash or drive letter): "$ref"',
+  );
+}
+
+/// What a module's `format` and `minAppVersion` say about this app: nothing, or that the
+/// module needs a newer Babel Board. Shared by games and expansions.
+List<ValidationIssue> versionIssues(int format, String minAppVersion, String appVersion) => [
+  if (format > kModuleFormat)
+    ValidationIssue('format', '$kNeedsNewerApp (module format $format, app understands $kModuleFormat)'),
+  if (compareVersions(minAppVersion, appVersion) > 0)
+    ValidationIssue('minAppVersion', '$kNeedsNewerApp (needs $minAppVersion, this is $appVersion)'),
+];
+
 /// True for `https://…` links and relative paths that stay inside the module folder.
 bool isSafeImageRef(String ref) {
   if (ref.startsWith('https://')) return true;
@@ -50,7 +79,8 @@ bool isSafeImageRef(String ref) {
 }
 
 /// Validates the manifest JSON plus the resolved item lists of its collections.
-/// Inline collections need no entry in [collections]; they are read from the manifest.
+/// Inline collections need no entry in [collections]; they are read from the manifest
+/// unless [collections] has a list for them (a game merged with its expansions).
 List<ValidationIssue> validateModule(
   Map<String, dynamic> manifestJson, {
   required Map<String, List<Map<String, dynamic>>> collections,
@@ -72,6 +102,11 @@ List<ValidationIssue> validateModule(
   for (final k in ['format', 'id', 'name', 'version', 'minAppVersion']) {
     if (manifestJson[k] == null) fatal(k, 'Missing required field "$k"');
   }
+  // An expansion only holds what it adds; it becomes a game merged into its base.
+  if (manifestJson['expands'] case final expands?) {
+    final base = expands is Map ? expands['id'] : expands;
+    fatal('expands', 'This is an expansion for "$base", not a game');
+  }
   if (issues.isNotEmpty) return (manifest: null, issues: issues);
 
   final ModuleManifest m;
@@ -88,26 +123,20 @@ List<ValidationIssue> validateModule(
     return (manifest: null, issues: issues);
   }
 
-  if (m.format > kModuleFormat) {
-    fatal('format', '$kNeedsNewerApp (module format ${m.format}, app understands $kModuleFormat)');
-  }
-  if (compareVersions(m.minAppVersion, appVersion) > 0) {
-    fatal('minAppVersion', '$kNeedsNewerApp (needs ${m.minAppVersion}, this is $appVersion)');
-  }
+  issues.addAll(versionIssues(m.format, m.minAppVersion, appVersion));
   // Read from the JSON: a tab that failed to parse is already an issue of its own.
   final rawTabs = manifestJson['tabs'];
   if (rawTabs == null || (rawTabs is List && rawTabs.isEmpty)) fatal('tabs', 'A module needs at least one tab');
+  if (rawTabs is List) {
+    // From the JSON too, so the path counts tabs that failed to parse.
+    final tabIds = <String>{};
+    for (var i = 0; i < rawTabs.length; i++) {
+      if (rawTabs[i] case {'id': final String id} when !tabIds.add(id)) fatal('tabs[$i].id', 'Duplicate tab id "$id"');
+    }
+  }
 
   void checkImage(String path, Object? ref) {
-    if (ref == null) return;
-    if (ref is! String) {
-      fatal(path, 'Image should be a path or https link');
-    } else if (ref.isNotEmpty && !isSafeImageRef(ref)) {
-      fatal(
-        path,
-        'Image must be an https link or a relative path inside the module (no "..", no leading slash or drive letter): "$ref"',
-      );
-    }
+    if (imageRefIssue(path, ref) case final issue?) issues.add(issue);
   }
 
   checkImage('icon', m.icon);
@@ -124,15 +153,20 @@ List<ValidationIssue> validateModule(
     }
   }
 
+  /// A collection's items: the list handed in (read from its file, or merged from a game's
+  /// expansions) wins over the manifest's inline list; null when neither exists.
+  List<Map<String, dynamic>>? itemsGiven(String name, CollectionSpec spec) =>
+      collections[name] ?? (spec.isInline ? spec.inlineItems : null);
+
   // Collections: resolved items, unique ids, safe image refs, unverified count.
   for (final e in m.collections.entries) {
     final name = e.key;
     final spec = e.value;
-    if (!_plainName.hasMatch(name)) {
+    if (!isPlainName(name)) {
       fatal('collections.$name', 'Collection names may only use letters, digits, "-" and "_"');
       continue;
     }
-    final items = spec.isInline ? spec.inlineItems : collections[name];
+    final items = itemsGiven(name, spec);
     if (items == null) {
       fatal('collections.$name', 'Collection file "${spec.path}" was not loaded');
       continue;
@@ -148,6 +182,7 @@ List<ValidationIssue> validateModule(
         fatal('collections.$name[$i].${spec.idField}', 'Duplicate item id "$id"');
       }
       checkImage('collections.$name[$i].${spec.imageField}', item[spec.imageField]);
+      if (spec.backImageField case final back?) checkImage('collections.$name[$i].$back', item[back]);
       if (item['verified'] == false) unverified++;
     }
     if (unverified > 0) {
@@ -173,8 +208,7 @@ List<ValidationIssue> validateModule(
     if (!m.collections.containsKey(name)) fatal(path, 'Unknown collection "$name"');
   }
 
-  List<Map<String, dynamic>> itemsOf(String name, CollectionSpec spec) =>
-      spec.isInline ? spec.inlineItems : collections[name] ?? const [];
+  List<Map<String, dynamic>> itemsOf(String name, CollectionSpec spec) => itemsGiven(name, spec) ?? const [];
 
   void checkFilter(String path, ItemFilter? f) {
     if (f == null) return;

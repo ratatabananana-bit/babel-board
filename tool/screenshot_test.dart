@@ -81,6 +81,17 @@ Future<void> _shot(WidgetTester tester, String name, {bool settle = true}) async
 
 Finder _nav(String label) => find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
 
+/// A module folder under `modules/` zipped as the store installs it.
+Uint8List _zipModule(String id) {
+  final archive = Archive();
+  final dir = Directory('modules/$id');
+  for (final f in dir.listSync(recursive: true).whereType<File>()) {
+    final bytes = f.readAsBytesSync();
+    archive.addFile(ArchiveFile(f.path.substring(dir.path.length + 1).replaceAll(r'\', '/'), bytes.length, bytes));
+  }
+  return Uint8List.fromList(ZipEncoder().encode(archive));
+}
+
 /// Taps the density button until it reads [n] cards per row (it cycles 4 → 3 → 2).
 Future<void> _density(WidgetTester tester, int n) async {
   final cycle = find.byKey(const Key('densityCycle'));
@@ -365,13 +376,7 @@ void main() {
     final withRepo = await tester.runAsync(() async {
       final prefs = await SharedPreferences.getInstance();
       final store = ModuleStore(Directory('${tmp.path}/repo'));
-      final archive = Archive();
-      final dir = Directory('modules/$_vale');
-      for (final f in dir.listSync(recursive: true).whereType<File>()) {
-        final bytes = f.readAsBytesSync();
-        archive.addFile(ArchiveFile(f.path.substring(dir.path.length + 1).replaceAll(r'\', '/'), bytes.length, bytes));
-      }
-      await store.installBytes(Uint8List.fromList(ZipEncoder().encode(archive)));
+      await store.installBytes(_zipModule(_vale));
       return AppData.fromStore(
         prefs,
         store,
@@ -396,5 +401,75 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Repository'));
     await _shot(tester, '33_repository_sheet');
+  });
+
+  testWidgets('curse expansion screenshots', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 2.75;
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+
+    // Installed through the store, as on a phone: Vale first, then its expansion.
+    // ignore: invalid_use_of_visible_for_testing_member
+    SharedPreferences.setMockInitialValues({
+      'mod.$_vale.zones': jsonEncode({
+        'iwo': 'summoner',
+        'void': 'table',
+        'luan': 'hand',
+        'ares': 'field',
+        'hantu_banyu': 'field',
+        'skeleton': 'field',
+        'umibozu': 'soothed',
+      }),
+    });
+    final tmp = (await tester.runAsync(() => Directory.systemTemp.createTemp('shots_curse_')))!;
+    addTearDown(() {
+      try {
+        tmp.deleteSync(recursive: true);
+      } on FileSystemException {
+        // Disposable.
+      }
+    });
+    final data = await tester.runAsync(() async {
+      final store = ModuleStore(Directory('${tmp.path}/modules'));
+      await store.installBytes(_zipModule(_vale));
+      await store.installBytes(_zipModule('$_vale-curse'));
+      return AppData.fromStore(await SharedPreferences.getInstance(), store);
+    });
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: _shotKey,
+        child: HelperApp(key: UniqueKey(), loader: () async => data!),
+      ),
+    );
+    await _shot(tester, '34_library_expansions');
+
+    await tester.tap(find.text('Vale of Eternity').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Family Water'));
+    await _shot(tester, '35_curse_cards_water');
+
+    await tester.enterText(find.byType(TextField), 'taniwha');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(ItemTile).first);
+    await _shot(tester, '36_curse_card_sheet');
+    await tester.tapAt(const Offset(200, 60));
+    await tester.pumpAndSettle();
+
+    await tester.tap(_nav('My cards'));
+    await _shot(tester, '37_curse_my_cards');
+
+    await tester.tap(_nav('Round'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Curse').first);
+    await _shot(tester, '38_curse_round_curse_step');
+
+    await tester.tap(_nav('Summoners'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel(RegExp('^Iwo')).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Flip card'));
+    await _shot(tester, '39_curse_summoner_flip');
   });
 }

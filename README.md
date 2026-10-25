@@ -58,7 +58,9 @@ adding your own.
 
 A big game fits in one module too: a menu tab holds any number of card sets, galleries
 can drill down by class or monster type, and a game can have several trackers (a scenario
-and its rounds). Making a module needs no programming. Paste the instructions the app gives you into an AI
+and its rounds). An expansion is a module of its own that merges into its game when installed
+(new cards in the same gallery, a new phase in the same round), with an on/off switch in the
+Library. Making a module needs no programming. Paste the instructions the app gives you into an AI
 chat, describe the game, and install the file it answers with. The walkthrough is in
 [docs/CREATING_MODULES.md](docs/CREATING_MODULES.md); the exact format is in
 [modules/MODULE_SPEC.md](modules/MODULE_SPEC.md).

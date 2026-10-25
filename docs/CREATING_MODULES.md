@@ -81,6 +81,31 @@ time; both are complete, working examples.
   card, and only when they change play. The main sheet stays the card's own text.
 - Write for any player count the box supports ("2 cards per player"), not for one table.
 
+## Making an expansion
+
+A game expansion (new cards, a new phase, new player boards) is its own module that adds to
+the base game's module instead of copying it. Install it after the game; the Library then
+shows it under Expansions with an on/off switch, and the game opens with everything it adds.
+
+1. Give the base game's tabs ids if they have none (`"id": "cards"`, `"mine"`, `"round"`),
+   raise its `version`, and publish it. Those ids are what an expansion adds to.
+2. Make a folder next to the base's, with its own `module.json`:
+   - the usual header (a new `id`, `name`, `version`, `"minAppVersion": "3.3.0"`, `icon`,
+     `source`) plus `"expands": {"id": "<base id>", "minVersion": "<base version>"}`;
+   - then only what the expansion adds, written like a module: new cards under the base's
+     collection name, new collections, zones, symbols, tabs. To add to a base tab, name its
+     `id` and write only the new parts; a new step or lane says where it goes with
+     `"after": "<id>"` or `"before": "<id>"`.
+3. Pictures go in the expansion's own `images/`, written as usual.
+
+Nothing in the base can be removed, only added to or changed. The exact rules are in
+[`modules/MODULE_SPEC.md`](../modules/MODULE_SPEC.md#expansions); `modules/vale-of-eternity-curse/`
+is a worked example.
+
+Check it merged into its base: `dart run tool/validate.dart modules/my-game-expansion` (the base
+folder next to it is found by id, or pass `--base <folder>`). `tool/pack.dart` packs both and
+marks the expansion in the repository index.
+
 ## Check it before installing
 
 ```bash

@@ -509,4 +509,48 @@ void main() {
     (dup['tabs'] as List).add(flowTab('Again'));
     expect(check(dup), fatalAt('tabs[4].block', 'Flow id "flow" is used twice; give each flow its own id'));
   });
+
+  test('tab ids are optional and unique', () {
+    final m = fullManifest();
+    (m['tabs'] as List)[0]['id'] = 'cards';
+    (m['tabs'] as List)[1]['id'] = 'mine';
+    expect(check(m).where((i) => i.fatal), isEmpty);
+    (m['tabs'] as List)[2]['id'] = 'cards';
+    expect(check(m), fatalAt('tabs[2].id', 'Duplicate tab id "cards"'));
+  });
+
+  test('back pictures are checked like pictures', () {
+    final m = fullManifest();
+    m['collections']['items']['backImageField'] = 'back';
+    final list = items()..[0]['back'] = '../x.png';
+    expect(check(m, list: list), fatalAt('collections.items[0].back'));
+    list[0]['back'] = 'images/one_back.webp';
+    expect(check(m, list: list).where((i) => i.fatal), isEmpty);
+  });
+
+  test('an expansion is not a game on its own', () {
+    final m = fullManifest()..['expands'] = {'id': 'vale'};
+    expect(check(m), fatalAt('expands', 'This is an expansion for "vale", not a game'));
+  });
+
+  test('item lists handed in win over inline items (a game merged with its expansions)', () {
+    final m = fullManifest();
+    m['collections'] = {
+      'items': {
+        'items': [
+          {'id': 'one'},
+        ],
+      },
+    };
+    final issues = validateModule(
+      m,
+      collections: {
+        'items': [
+          {'id': 'one'},
+          {'id': 'one'},
+        ],
+      },
+    );
+    expect(issues, fatalAt('collections.items[1].id', 'Duplicate item id "one"'));
+  });
 }

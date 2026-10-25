@@ -51,6 +51,20 @@ module.json  (ModuleManifest)
                                                         └─ GallerySpec | BoardSpec(zones) | FlowSpec(steps) | TextSpec | …
 ```
 
+A module with `expands` is an **expansion**: everything after its header is an overlay in
+the same shape, merged into its base game. The merge is JSON in, JSON out
+(`module_format/expansion.dart`), so the result is checked by the same `checkModule` as any
+game and nothing downstream knows expansions exist:
+
+```
+readModuleLayer(files) ─ ModuleLayer(files, ModuleData(manifest JSON, items), readIssues)   one package, unvalidated
+buildModule(layer)     ─ checkModule → LoadedModule                                          a game on its own
+buildGame(base, [exp]) ─ buildModule(base); stackExpansions(base, exps)                      expansions in id order;
+                          → LoadedModule(files: LayeredModuleFiles) + rejected{id: issues}     one that fails is left out
+mergeExpansion(base, exp)  overlay rules: objects merge, keyed lists (id / lane zone) merge and place by after/before,
+                           number lists replace, other lists append; expansion pictures become "@<exp id>/<path>"
+```
+
 `BlockSpec` is a sealed class: one subclass per entry of `blockParsers` (`block_specs.dart`),
 whose keys are `kBlockTypes`. `ModuleManifest.parse` turns every block and every collection's
 `sheet` into its typed spec once, through `Fields` (`spec_json.dart`), so a wrong value is a
@@ -149,8 +163,8 @@ FlowState           index + ticked ids, saved per module
 | Key | Owner | What |
 |---|---|---|
 | `app.lastGame` | `AppState` | reopened on launch |
-| `mod.<id>.zones` | `ZoneState` | `{itemId: zoneId}`, insertion-ordered |
-| `mod.<id>.phase.index`, `.phase.checked` | `FlowState` | the first flow's progress |
+| `mod.<id>.zones` | `ZoneState` | `{itemId: zoneId}`, insertion-ordered; the open game sees only its own items and zones |
+| `mod.<id>.phase.index`, `.phase.step`, `.phase.checked` | `FlowState` | the first flow's progress; the step id wins over the index on load |
 | `mod.<id>.flow.<flowId>.phase.*` | `FlowState` (via `FlowStates`) | every later flow's progress |
 | `settings.*` | `Settings` | theme, columns, animation speed, flowing grid |
 | `repo.indexUrl` (+ token in secure storage) | `RepoConfigStore` | the private module repository |
@@ -162,7 +176,10 @@ Uninstalling a module deletes every `mod.<id>.` key. Updating keeps them.
 ```
 LibraryController ──┬─ ModuleStore        install(ModuleSource): a BytesSource is unzipped in memory, a FileSource
                     │                     (picked file, shared file, spooled download) streams entry by entry to .staging → download https
-                    │                     images → loadModule (validates) → swap folder into place
+                    │                     images → buildModule, or buildGame(installed base, [it]) for an expansion
+                    │                     → swap folder into place
+                    ├─ loadInstalledGames the one place store modules become games: each game with its switched-on
+                    │                     expansions; ExpansionStatus per expansion (on/off/needsBase/broken)
                     ├─ RepoClient         index.json + zips; token sent to the index host only
                     ├─ RepoConfigStore    URL in prefs, token in secure storage
                     ├─ InstallSources     file picker, pasted link, share sheet
@@ -175,9 +192,11 @@ SettingsScreen      games · appearance · card gallery · about
 
 `ModuleFiles` is the one seam: `DirectoryModuleFiles` (installed on the phone),
 `HttpModuleFiles` (web preview reads `build/web/modules/<id>/`), `MemoryModuleFiles`
-(tests). `loadModule(files)` reads `module.json` and the collections, runs `validateModule`,
-and returns a `LoadedModule` (manifest + items + files). Image refs that could leave the
-module folder are refused everywhere (`isSafeImageRef`).
+(tests), and `LayeredModuleFiles` (a game with expansions: text from the base, each
+`@<expansion id>/<path>` picture from that expansion's files). `loadModule(files)` reads
+`module.json` and the collections (`readModuleLayer`), validates them (`buildModule`) and
+returns a `LoadedModule` (manifest + items + files + merged expansions). Image refs that
+could leave the module folder are refused everywhere (`isSafeImageRef`).
 
 ## Theme (`lib/core/theme.dart`)
 
@@ -186,8 +205,10 @@ colours (amber, mint, violet) mean zones only; the neutral **accent** (cream / i
 picked things, the My cards badge, Next; parchment is the checklist card in both themes.
 `T` holds the type scale. `context.pal` reaches the palette.
 
-## Tests (`test/`, 224)
+## Tests (`test/`, 357)
 
 `helpers.dart` pumps the app with the mini fixture module (`test/fixtures/mini_module`) and
-opens a tab. `test/games/` runs the real Vale and Magical Athlete modules through the same
-screens. `tool/screenshot_test.dart` is a test that writes `design/screenshots/*.png`.
+opens a tab; `test/fixtures/mini_expansion` (`mini-plus`) is its expansion, used by the merge,
+loader, store and Library tests. `test/games/` runs the real Vale, Vale + Curse and Magical
+Athlete modules through the same screens. `tool/screenshot_test.dart` is a test that writes
+`design/screenshots/*.png`.

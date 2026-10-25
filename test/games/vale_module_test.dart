@@ -49,7 +49,7 @@ void main() {
       }
       expect(File('modules/$valeId/${m.manifest.icon}').existsSync(), isTrue);
       expect(m.manifest.id, valeId);
-      expect(m.manifest.version, '2.0.0');
+      expect(m.manifest.version, '2.1.0');
     });
 
     test('small stone counts are repeated icons, like the printed cards', () async {

@@ -1,0 +1,226 @@
+{
+  "items": [
+    {
+      "id": "belledin",
+      "name": "Belledin",
+      "sides": "The Friendly · The Protective",
+      "startCurses": 5,
+      "effects": [
+        {
+          "type": "front_permanent",
+          "text": "Whenever you summon a card of a family you do not have, earn :stone_blue: and :flip:."
+        },
+        {
+          "type": "back_active",
+          "text": "Mend a :ward_broken:. -or- Earn :stone_red: and :flip:."
+        }
+      ],
+      "interactions": [
+        "She earns the stone and flips first, then the summoned card's Instant effect resolves."
+      ],
+      "verified": true,
+      "image": "images/summoners/belledin_front.webp",
+      "back": "images/summoners/belledin_back.webp"
+    },
+    {
+      "id": "marcosa",
+      "name": "Marcosa",
+      "sides": "The Caring · The Tempted",
+      "startCurses": 3,
+      "effects": [
+        {
+          "type": "front_permanent",
+          "text": "Whenever you break a :ward:, :flip:."
+        },
+        {
+          "type": "front_active",
+          "text": "Mend a :ward_broken:."
+        },
+        {
+          "type": "back_permanent",
+          "text": "At the start of the round, :flip:."
+        },
+        {
+          "type": "back_active",
+          "text": "Earn :stone_blue:."
+        }
+      ],
+      "interactions": [
+        "Breaking a ward flips her at once, so she earns the stone in Resolution; with no ward broken she mends instead.",
+        "Tempted flips at the start of the round, before any game action."
+      ],
+      "verified": true,
+      "image": "images/summoners/marcosa_front.webp",
+      "back": "images/summoners/marcosa_back.webp"
+    },
+    {
+      "id": "varena",
+      "name": "Varena",
+      "sides": "The Exploring · The Enlightened",
+      "startCurses": 6,
+      "startExtra": "Draw 1 card",
+      "effects": [
+        {
+          "type": "front_permanent",
+          "text": "Whenever you soothe a card, :flip:."
+        },
+        {
+          "type": "front_active",
+          "text": "Draw a card then discard a card from your hand."
+        },
+        {
+          "type": "back_active",
+          "text": "Mend up to 2 :ward_broken:. -or- Draw a card."
+        }
+      ],
+      "interactions": [
+        "Setup: she draws a card from the draw pile before the first round's cards are revealed.",
+        "She flips once and stays Enlightened."
+      ],
+      "verified": true,
+      "image": "images/summoners/varena_front.webp",
+      "back": "images/summoners/varena_back.webp"
+    },
+    {
+      "id": "iwo",
+      "name": "Iwo",
+      "sides": "The Thrill-Seeker · The Prodigy",
+      "startCurses": 7,
+      "startExtra": "3 wards broken",
+      "effects": [
+        {
+          "type": "front_permanent",
+          "text": "Whenever you earn 7 :points: or more by resolving an :effect_instant:, :flip:."
+        },
+        {
+          "type": "back_permanent",
+          "text": "Breaking a :ward: pays for 3 instead of 2."
+        },
+        {
+          "type": "back_active",
+          "text": "Mend up to 3 :ward_broken:."
+        }
+      ],
+      "interactions": [
+        "Starts with all 3 wards broken. Flips once and stays the Prodigy."
+      ],
+      "verified": true,
+      "image": "images/summoners/iwo_front.webp",
+      "back": "images/summoners/iwo_back.webp"
+    },
+    {
+      "id": "dunia",
+      "name": "Dunia",
+      "sides": "The Wise · The Reckless",
+      "startCurses": 2,
+      "effects": [
+        {
+          "type": "front_permanent",
+          "text": "Whenever you summon a card with :effect_instant:, :flip:."
+        },
+        {
+          "type": "back_active",
+          "text": "Earn a :curse: and :stone_purple:. -or- Transfer one of your :curse: to one of your summoned cards, then :flip:."
+        }
+      ],
+      "interactions": [
+        "A transferred :curse: makes a cursed card stay longer, or curses a card that had none, so it can be soothed and frees its space."
+      ],
+      "verified": true,
+      "image": "images/summoners/dunia_front.webp",
+      "back": "images/summoners/dunia_back.webp"
+    },
+    {
+      "id": "tolvar",
+      "name": "Tolvar",
+      "sides": "The Burdened · The Redeemed",
+      "startCurses": 5,
+      "startExtra": "3 wards broken",
+      "effects": [
+        {
+          "type": "front_permanent",
+          "text": "At the start of the round, if you have no :curse: and no :ward_broken:, discard all your wards and :flip:."
+        },
+        {
+          "type": "front_active",
+          "text": "Pay up to 3, then mend a :ward_broken: per 1 paid."
+        },
+        {
+          "type": "back_permanent",
+          "text": "You cannot earn any :curse:. You cannot have any cursed cards in your area."
+        },
+        {
+          "type": "back_active",
+          "text": "Earn 4 :points:."
+        }
+      ],
+      "interactions": [
+        "Starts with all 3 wards broken.",
+        "Redeemed, he can't resolve effects that would earn him :curse:, and can't summon cards with :curse_symbol: printed in the top right corner."
+      ],
+      "verified": true,
+      "image": "images/summoners/tolvar_front.webp",
+      "back": "images/summoners/tolvar_back.webp"
+    },
+    {
+      "id": "muura",
+      "name": "Muura",
+      "sides": "The Tormented · The Jolly",
+      "startCurses": 0,
+      "effects": [
+        {
+          "type": "front_permanent",
+          "text": "Whenever you summon a card, earn :curse::curse: and :flip:."
+        },
+        {
+          "type": "front_active",
+          "text": "Discard one card from your hand or any number of cards from your area, then earn :stone_purple: for each card discarded this way."
+        },
+        {
+          "type": "back_permanent",
+          "text": "At the start of the round, :flip:."
+        },
+        {
+          "type": "back_active",
+          "text": "Draw a card."
+        }
+      ],
+      "interactions": [
+        "The two :curse: go on your Summoner, then the summoned card's Instant effect resolves.",
+        "Either exactly one card from your hand, or any number (even none) from your area.",
+        "Jolly flips at the start of the round, before any game action."
+      ],
+      "verified": true,
+      "image": "images/summoners/muura_front.webp",
+      "back": "images/summoners/muura_back.webp"
+    },
+    {
+      "id": "kang_san",
+      "name": "Kang San",
+      "sides": "The Humble · The Extravagant",
+      "startCurses": 5,
+      "startExtra": "Shelter 2 cards",
+      "effects": [
+        {
+          "type": "front_permanent",
+          "text": "Whenever you sell your second card each round, retrieve a card."
+        },
+        {
+          "type": "front_active",
+          "text": "Pay 4, then :flip:."
+        },
+        {
+          "type": "back_artifact",
+          "text": "Copy the artifact effect of the Artifact you have, then :flip:. -or- Shelter the top 2 cards from the draw deck, then :flip:."
+        }
+      ],
+      "interactions": [
+        "Needs the Artifacts expansion; with Artifacts the game ends at 80 points.",
+        "Setup: he shelters the top 2 cards of the draw pile before the first round's cards are revealed."
+      ],
+      "verified": true,
+      "image": "images/summoners/kang_san_front.webp",
+      "back": "images/summoners/kang_san_back.webp"
+    }
+  ]
+}

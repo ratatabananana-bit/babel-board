@@ -41,7 +41,8 @@ validates it on install and rejects anything else.
 
 `items` (the list), `titleField` (default `name`), `subtitleField`, `imageField` (default
 `image`), `imageShape` (`card` = the picture is the whole printed card; `square` = square art
-with the name under it), `cardAspect` (width ÷ height, default 0.716), `sheet`.
+with the name under it), `cardAspect` (width ÷ height, default 0.716), `backImageField` (from 3.3.0:
+the field with a second picture, e.g. a card back or a tile's other side; the sheet can flip to it), `sheet`.
 
 `sheet` (the item's detail view), all optional:
 - `chips`: `[{"symbol": "{field}", "text": "Cost {cost}", "symbols": "pathToListOfSymbolNames", "label": "Sells"}]`
@@ -73,8 +74,8 @@ with the name under it), `cardAspect` (width ÷ height, default 0.716), `sheet`.
 
 ### Tabs
 
-`{"label": "Cards", "icon": "cards", "badge": "zoneCount", "block": <block>}`. Use 2–4 tabs;
-`badge` (optional) shows the tracked count.
+`{"id": "cards", "label": "Cards", "icon": "cards", "badge": "zoneCount", "block": <block>}`. Use 2–4 tabs;
+`badge` (optional) shows the tracked count; `id` (optional) lets an expansion add to the tab.
 
 ## Blocks (the only types)
 
@@ -103,6 +104,17 @@ Every block: `{"type": "<type>", …settings, "children": [...]}`.
 - `text`: `{"type": "text", "title": "Scoring", "paragraphs": ["…"], "bullets": ["…"]}`.
 - `hub` (needs `minAppVersion` "3.2.0"): a menu page when a game has more sets of cards than four tabs can hold. `{"type": "hub", "title": "Cards", "children": [{"type": "entry", "label": "Items", "icon": "cards", "image": "https://… (optional)", "summary": "optional line", "block": <any block>}]}`. Tapping an entry opens its block on its own screen with a back arrow.
 - `entry`: only inside a `hub` (see above).
+
+## Expansions (a module that adds to another)
+
+For a game expansion, write a module whose header adds `"expands": {"id": "<base module id>", "minVersion": "<optional>"}`
+with `"minAppVersion": "3.3.0"`, its own `id`/`name`/`version`, and then only what it adds, in the same shape as a
+module: new items for the base's collections (`"collections": {"cards": {"items": [...]}}`), new collections, zones,
+symbols, tabs. It merges into the base: objects merge; lists of things with ids (zones, tabs, steps, checklist rows,
+a board's lanes by `zone`) merge by id, and a new one goes `"after"` or `"before"` the id it names; other lists are
+appended to; lists of numbers replace. To add to a base tab, name the tab's `id` and write only the additions, e.g.
+`{"id": "round", "block": {"children": [{"type": "step", "id": "curse", "after": "resolution", "title": "Curse", ...}]}}`.
+Ask for the base module's JSON first if you don't know its ids. Nothing can be removed from the base.
 
 ## A complete small example
 

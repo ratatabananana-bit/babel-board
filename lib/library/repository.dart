@@ -91,6 +91,7 @@ class RepoEntry {
     required this.zipUrl,
     required this.size,
     this.iconUrl,
+    this.expands,
   });
 
   final String id;
@@ -100,6 +101,9 @@ class RepoEntry {
   final Uri zipUrl;
   final Uri? iconUrl;
   final int size;
+
+  /// The id of the game this entry is an expansion for; null for a game.
+  final String? expands;
 
   bool get needsAppUpdate => compareVersions(minAppVersion, kAppVersion) > 0;
 }
@@ -153,6 +157,7 @@ class RepoClient {
       final id = raw['id'];
       if (zip is! String || id is! String) continue;
       final icon = raw['icon'];
+      final expands = raw['expands'];
       entries.add(
         RepoEntry(
           id: id,
@@ -162,6 +167,7 @@ class RepoClient {
           zipUrl: config.indexUrl.resolve(zip),
           iconUrl: icon is String && icon.isNotEmpty ? config.indexUrl.resolve(icon) : null,
           size: (raw['size'] as num?)?.toInt() ?? 0,
+          expands: expands is String && expands.isNotEmpty ? expands : null,
         ),
       );
     }

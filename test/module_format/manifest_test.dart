@@ -45,7 +45,7 @@ Map<String, dynamic> minimalManifest() => {
 
 void main() {
   test('app version and format constants', () {
-    expect(kAppVersion, '3.2.0');
+    expect(kAppVersion, '3.3.0');
     expect(kModuleFormat, 1);
     expect(kBlockTypes, {'gallery', 'board', 'zone', 'cardList', 'flow', 'step', 'text', 'hub', 'entry'});
   });
@@ -70,11 +70,18 @@ void main() {
     expect(m.zones[0].accent, 'amber');
     expect(m.tabs, hasLength(1));
     expect(m.tabs[0].badge, 'zoneCount');
+    expect(m.tabs[0].id, isNull);
     expect(m.tabs[0].block.type, 'board');
     final board = m.tabs[0].block as BoardSpec;
     expect(board.title, 'Board');
     expect(board.zones.single.zone, 'table');
     expect(board.zones.single.list, isNull);
+  });
+
+  test('a tab may carry an id, the handle an expansion merges into', () {
+    final j = looseManifest();
+    (j['tabs'] as List)[0]['id'] = 'mine';
+    expect(ModuleManifest.fromJson(j).tabs[0].id, 'mine');
   });
 
   test('every tab block is parsed into its typed spec', () {
