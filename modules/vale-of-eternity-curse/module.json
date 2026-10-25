@@ -2,7 +2,7 @@
   "format": 1,
   "id": "vale-of-eternity-curse",
   "name": "Vale of Eternity: Curse",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "minAppVersion": "3.3.0",
   "icon": "images/icon.webp",
   "players": "2-4",
@@ -62,7 +62,7 @@
     }
   },
   "symbols": {
-    "curse": "images/symbols/curse.webp",
+    "curse": "images/symbols/curse_symbol.webp",
     "curse_symbol": "images/symbols/curse_symbol.webp",
     "ward": "images/symbols/ward.webp",
     "ward_broken": "images/symbols/ward_broken.webp",
