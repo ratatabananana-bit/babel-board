@@ -1,0 +1,321 @@
+{
+  "format": 1,
+  "id": "clank-catacombs",
+  "name": "Clank! Catacombs",
+  "version": "1.0.0",
+  "minAppVersion": "3.2.0",
+  "icon": "images/icon.webp",
+  "players": "2-4",
+  "source": "Clank! Catacombs rulebook and Token Reference Guide (Dire Wolf Digital, 2022); card text read from scans of the English cards",
+  "collections": {
+    "cards": {
+      "items": "data/cards.json",
+      "titleField": "name",
+      "subtitleField": "kind",
+      "imageShape": "card",
+      "cardAspect": 0.72,
+      "sheet": {
+        "chips": [
+          { "symbol": "banner_{banner}", "text": "{kind}" },
+          { "text": "Cost {cost}" },
+          { "label": "Points", "text": "{points}" },
+          { "label": "Gives", "symbols": "resources" },
+          { "label": "Copies", "text": "{copies}" }
+        ],
+        "effects": {
+          "path": "effects",
+          "typeLabels": { "play": "When played", "acquire": "Acquire", "arrive": "Arrive", "danger": "Danger", "use": "Use", "defeat": "Defeat", "deep": "Deep" },
+          "typeSymbols": { "play": "fx_play", "acquire": "fx_acquire", "arrive": "fx_arrive", "danger": "fx_danger", "use": "fx_use", "defeat": "fx_defeat", "deep": "fx_deep" },
+          "typeHelp": {
+            "play": "Happens when you play the card from your hand.",
+            "acquire": "Once, the moment you take the card from the Dungeon Row (not when you play it later).",
+            "arrive": "At once when the card is revealed in the Dungeon Row, before any Dragon Attack.",
+            "danger": "While this card sits in the Dungeon Row, every Dragon Attack pulls one more cube.",
+            "use": "Pay the cost in Skill, do the USE text now, then put the card in the Dungeon discard pile.",
+            "defeat": "Spend Swords equal to the cost; take this reward, then the monster goes to the Dungeon discard pile.",
+            "deep": "Only while you are in the Depths (the dark tiles, or the top half of the starting tile)."
+          }
+        },
+        "verifiedPath": "verified",
+        "details": {
+          "hint": "Flavour",
+          "sections": [
+            { "label": "Flavour text", "path": "flavour" },
+            { "label": "Rulings", "path": "rulings" }
+          ]
+        }
+      }
+    },
+    "tokens": {
+      "items": "data/tokens.json",
+      "titleField": "name",
+      "subtitleField": "group",
+      "imageShape": "square",
+      "sheet": {
+        "chips": [
+          { "text": "{group}" },
+          { "label": "Points", "text": "{points}" }
+        ],
+        "sections": [
+          { "label": "Effect", "path": "text" },
+          { "label": "Keep or return", "path": "keep" }
+        ],
+        "verifiedPath": "verified"
+      }
+    },
+    "tiles": {
+      "items": "data/tiles.json",
+      "titleField": "name",
+      "subtitleField": "kind",
+      "imageShape": "square",
+      "sheet": {
+        "sections": [
+          { "label": "What it does", "path": "text" }
+        ]
+      }
+    }
+  },
+  "symbols": {
+    "skill": "images/symbols/skill.webp",
+    "sword": "images/symbols/sword.webp",
+    "boot": "images/symbols/boot.webp",
+    "gold": "images/symbols/gold.webp",
+    "clank": "images/symbols/clank.webp",
+    "heart": "images/symbols/heart.webp",
+    "draw": "images/symbols/draw.webp",
+    "dragon": "images/symbols/dragon.webp",
+    "rage": "images/symbols/rage.webp",
+    "ghost": "images/symbols/ghost.webp",
+    "artifact": "images/symbols/artifact.webp",
+    "mastery": "images/symbols/mastery.webp",
+    "points": "images/symbols/points.webp",
+    "banner_blue": "images/symbols/banner_blue.webp",
+    "banner_purple": "images/symbols/banner_purple.webp",
+    "banner_red": "images/symbols/banner_red.webp",
+    "banner_yellow": "images/symbols/banner_yellow.webp",
+    "banner_grey": "images/symbols/banner_grey.webp",
+    "fx_play": "images/symbols/fx_play.webp",
+    "fx_acquire": "images/symbols/fx_acquire.webp",
+    "fx_arrive": "images/symbols/fx_arrive.webp",
+    "fx_danger": "images/symbols/fx_danger.webp",
+    "fx_use": "images/symbols/fx_use.webp",
+    "fx_defeat": "images/symbols/fx_defeat.webp",
+    "fx_deep": "images/symbols/fx_deep.webp"
+  },
+  "zones": [],
+  "tabs": [
+    {
+      "id": "cards",
+      "label": "Cards",
+      "icon": "cards",
+      "block": {
+        "type": "gallery",
+        "collection": "cards",
+        "search": ["name", "effects.text", "tags", "kind"],
+        "tileName": true,
+        "noun": "cards",
+        "searchHint": "Name, text, or what you see",
+        "filters": [
+          {
+            "path": "banner",
+            "label": "Banner",
+            "position": "bottom",
+            "allLabel": "All cards",
+            "options": [
+              { "value": "blue", "label": "Blue", "symbol": "banner_blue" },
+              { "value": "purple", "label": "Device", "symbol": "banner_purple" },
+              { "value": "red", "label": "Monster", "symbol": "banner_red" },
+              { "value": "yellow", "label": "Reserve", "symbol": "banner_yellow" },
+              { "value": "grey", "label": "Starter", "symbol": "banner_grey" }
+            ]
+          }
+        ],
+        "sections": { "path": "cost", "label": "COST {value}", "onlyWhenFiltered": false, "rail": true, "railRange": [0, 8] }
+      }
+    },
+    {
+      "id": "tokens",
+      "label": "Tokens",
+      "icon": "star",
+      "block": {
+        "type": "gallery",
+        "collection": "tokens",
+        "search": ["name", "text", "tags", "group"],
+        "tileName": false,
+        "noun": "tokens",
+        "searchHint": "Prisoner, secret, market item",
+        "sections": { "path": "group", "label": "{value}" }
+      }
+    },
+    {
+      "id": "tiles",
+      "label": "Tiles",
+      "icon": "grid",
+      "block": {
+        "type": "gallery",
+        "collection": "tiles",
+        "search": ["name", "text", "tags"],
+        "tileName": false,
+        "noun": "icons",
+        "searchHint": "Tunnel or room icon",
+        "sections": { "path": "kind", "label": "{value}" }
+      }
+    },
+    {
+      "id": "turn",
+      "label": "Turn",
+      "icon": "flag",
+      "block": {
+        "type": "flow",
+        "id": "turn",
+        "title": "Turn",
+        "cyclic": true,
+        "newGameText": "Goes back to the first step. Nothing else is stored for this game.",
+        "reminders": [
+          "You must play all five cards each turn, in any order. Unused Skill, Swords and Boots are lost at the end of the turn.",
+          "Discard means from your hand, unplayed. If a card says discard to get something, you must really discard one.",
+          "Room rewards (minor secret, idol, gold, healing) come once per turn per room; re-enter on a later turn for another.",
+          "A Crystal Cave exhausts you for the turn even if you teleport out of it afterwards.",
+          "One-way tunnels only go with the arrow. Teleporting ignores tunnel icons and arrows; the Catacombs Map lets you walk against arrows.",
+          "Every Lock icon in a tunnel costs its own Lockpick. The icon stays covered: unlocked for everyone, all game.",
+          "You cannot take damage on purpose (a Monster tunnel without Swords) if you have no cubes in your supply, or if it would knock you out.",
+          "The Goblin in the Reserve is never discarded; anyone may fight it several times a turn.",
+          "\"Each player\" effects: if order matters (rotating tiles), start with the player whose turn it is and go clockwise, skipping players who are out.",
+          "The Depths are the 22 dark tiles plus the top half of the starting tile. Knocked out in the Depths, or without an Artifact: 0 points.",
+          "Only new cards in the Dungeon Row trigger a Dragon Attack, and only one attack however many marks appear. Each Danger card in the Row adds one cube to every attack.",
+          "You can take an Artifact at any point in your turn, not only on entering the room. Never a second one without a Backpack."
+        ],
+        "setup": {
+          "id": "setup",
+          "title": "Setup",
+          "summary": "A to H from the rulebook.",
+          "listTitle": "Setup",
+          "how": [
+            "Clank! board to one side; Dragon marker on the Rage Track space showing the number of players.",
+            "Tiles: shuffle the 22 Depths tiles face down. Of the 6 safety tiles, return 2 to the box unseen and put the other 4 on top of the stack.",
+            "Bank: Gold (1, 5, 10) and Lockpicks (not limited), the 5 Ghost cubes, the Dragon bag with its 24 black cubes, the 7 Artifacts face up in a stack with 5 on top and 20 at the bottom, major secrets, minor secrets and Prisoners each shuffled face down, the Market Board with 2 Backpacks, 2 Blood Amulets, 3 Burglar's Kits and 3 Crowns (10 on top, 8 at the bottom).",
+            "Starting tile in the middle, either side up. The 3 Monkey Idols go on the Monkey Shrine room; Mastery tokens near the Crypt, one per player.",
+            "Reserve: the Goblin and three stacks (15 Mercenary, 15 Explore, 12 Secret Tome). Shuffle the Dungeon Deck and deal 6 face up as the Dungeon Row, replacing any card with a Dragon Attack mark until none shows; shuffle those back in."
+          ],
+          "checklist": [
+            { "id": "setup.board", "text": "Board, Dragon marker on the player-count space", "sub": "Rage Track space 2 / 3 / 4 for 2 / 3 / 4 players" },
+            { "id": "setup.tiles", "text": "Tile stack: 22 Depths shuffled, 4 of 6 safety tiles on top", "sub": "2 safety tiles back in the box, unseen" },
+            { "id": "setup.bank", "text": "Bank: gold, lockpicks, ghosts, dragon bag, artifacts 5 to 20, secrets, prisoners, market" },
+            { "id": "setup.start", "text": "Starting tile, Monkey Idols on the shrine, Mastery tokens by the Crypt", "sub": "One Mastery token per player; extras to the box" },
+            { "id": "setup.row", "text": "Reserve + Dungeon Row of 6 with no Dragon Attack mark" },
+            { "id": "setup.players", "text": "Each player: colour, 30 cubes, pawn on the Crypt, 3 Lockpicks", "sub": "10-card deck: 6 Burgle, 2 Stumble, 1 Sidestep, 1 Scramble. Shuffle, draw 5." },
+            { "id": "setup.first", "text": "First player: the sneakiest (or random). Starting Clank!: 3 / 2 / 1 / 0", "sub": "First player puts 3 cubes in the Clank! area, second 2, third 1, fourth 0" },
+            { "id": "setup.arrive", "text": "Resolve any ARRIVE text already in the Row before the first turn" },
+            { "id": "setup.app", "text": "Start the tracker in the app", "action": { "type": "newGame" } }
+          ]
+        },
+        "children": [
+          {
+            "type": "step",
+            "id": "play",
+            "title": "Play cards",
+            "short": "Play",
+            "summary": "Play all five cards from your hand, in any order, into your play area.",
+            "listTitle": "Playing",
+            "how": [
+              "Cards give :skill: Skill (acquire cards, use devices), :sword: Swords (fight monsters, cover Monster tunnel icons) and :boot: Boots (move). They pool across cards and can be split across actions.",
+              "Gold goes from the Bank to your supply; it is also 1 point each at the end.",
+              "Clank!: for each +1 move a cube from your supply to the Clank! area (skip if your supply is empty). Negative Clank! takes your cubes back out; leftover negative Clank! can still be used later this turn, then it is lost.",
+              "Draws come from your own deck. If it runs out, shuffle your discard pile (not your play area) into a new deck.",
+              "A card's condition counts whatever order you play things in: Rebel General draws if another companion is in your play area, before or after."
+            ],
+            "checklist": [
+              { "id": "play.all", "text": "Play every card in your hand", "sub": "Any order; you may act between plays" },
+              { "id": "play.clank", "text": "Clank! cubes in or out as the cards say" },
+              { "id": "play.look", "text": "Look up any card you cannot read", "sub": "Cards tab: banner colour, cost, picture" }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "act",
+            "title": "Take actions",
+            "short": "Act",
+            "summary": "Any action, any number of times, as long as you can pay.",
+            "listTitle": "Actions",
+            "how": [
+              "Acquire a card: pay the Skill cost (lower right) of a blue card in the Dungeon Row or a yellow Reserve card; it goes to your discard pile. Do not refill the Row yet. Do its ACQUIRE text now.",
+              "Use a device: pay the Skill cost of a purple card in the Row, do its USE text at once, then put it in the Dungeon discard pile.",
+              "Fight a monster: pay the Swords cost of a red card in the Row, take its DEFEAT reward, then put it in the Dungeon discard pile. The Goblin in the Reserve stays and can be fought again and again.",
+              "Move: one Boot per tunnel. Footprints need two Boots; each Monster icon deals 1 damage unless you spend a Sword per icon; a Lock icon needs a Lockpick placed on it; arrows are one-way. Leaving a tile edge with nothing beyond discovers a new tile: take the top of the stack, place it in any orientation touching a whole edge (along the starting tile's long sides it lines up with the top or bottom half). Its icons apply to the tunnel you are on.",
+              "Buy from the Market: in a Market room, 7 Gold per item on the Market Board, any number of times.",
+              "Take an Artifact: in a room with one, put it in your supply and move the Dragon marker up one space. Only one Artifact (two with a Backpack).",
+              "Pick a Chest, Library or Prison: in that room, spend a Lockpick to cover the feature. Chest: a random major secret. Library: a Secret Tome from the Reserve into your discard pile, free. Prison: two random Prisoners face up into your supply.",
+              "Wayshrine: once per Wayshrine, put a cube from your supply on a free space and take Gold equal to the number of Wayshrines you have marked this game.",
+              "Rooms give their reward (minor secret, Monkey Idol, Gold, Healing) when you enter, once per turn per room."
+            ],
+            "checklist": [
+              { "id": "act.acquire", "text": "Acquire / use / fight from the Row", "sub": "Taken cards are not replaced until the end of your turn" },
+              { "id": "act.move", "text": "Move, discover tiles, pick locks", "sub": "Tiles tab explains every icon" },
+              { "id": "act.loot", "text": "Artifact, market, chest, library, prison, wayshrine", "sub": "Artifact: Dragon marker up one" },
+              { "id": "act.tokens", "text": "Read any token you drew", "sub": "Tokens tab: prisoners, secrets, market items" }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "end",
+            "title": "End of turn",
+            "short": "End",
+            "summary": "Clear your play area and draw five, refill the Row, check for a Dragon Attack.",
+            "listTitle": "End of turn",
+            "how": [
+              "1) Put every card from your play area in your discard pile (face up). Draw five new cards.",
+              "2) Refill the Dungeon Row to six cards from the Dungeon Deck. Do the ARRIVE text of each new card. If the deck cannot fill the Row, the game ends at once and everyone still inside is knocked out.",
+              "3) If any NEW Row card shows the Dragon Attack mark, the dragon attacks once: put all cubes from the Clank! area into the Dragon bag, shake, draw as many cubes as the Rage Track space shows plus one per Danger card in the Row. Black cubes go to the Bank. A coloured cube is 1 damage to that player (put it on their Health Meter). A white Ghost cube is 1 damage to every player, then goes back to the Clank! area.",
+              "If the bag is empty after an attack, the game ends at once; everyone still inside is knocked out.",
+              "Health: a full Health Meter knocks you out. Healing takes a cube back from the meter into your supply."
+            ],
+            "checklist": [
+              { "id": "end.discard", "text": "Play area to discard pile, draw 5" },
+              { "id": "end.refill", "text": "Refill the Row to 6, do ARRIVE texts" },
+              { "id": "end.dragon", "text": "Dragon Attack if a new card shows the mark", "sub": "Clank! cubes into the bag; draw rage number + Danger cards; black aside, colour = damage, ghost = all take 1" },
+              { "id": "end.escape", "text": "Escaped at the Crypt with an Artifact? Remove your pawn before refilling, take a Mastery token (+20)" }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "out",
+            "title": "Out players",
+            "short": "Out",
+            "summary": "What an escaped or knocked-out player does on their turns.",
+            "listTitle": "Escaped or knocked out",
+            "how": [
+              "You stop taking normal turns: no Clank!, no cards, no actions, no damage from the bag, and cards that affect all players skip you.",
+              "Each time your turn comes, put all cubes from the Clank! area into the Dragon bag and draw exactly four cubes (six in a 2-player game), ignoring the Rage Track and Danger cards. Damage applies as in a Dragon Attack.",
+              "Skip this step while nobody is out. The game ends when every player has escaped or been knocked out."
+            ],
+            "checklist": [
+              { "id": "out.bag", "text": "Out player's turn: Clank! cubes into the bag, draw 4 (6 with 2 players)" },
+              { "id": "out.all", "text": "Everyone escaped or knocked out? Go to Scoring" }
+            ]
+          },
+          {
+            "type": "step",
+            "id": "scoring",
+            "title": "Scoring",
+            "short": "Score",
+            "summary": "Only players who hold an Artifact and were not knocked out in the Depths score.",
+            "listTitle": "Final scoring",
+            "nextLabel": "New game",
+            "how": [
+              "No Artifact, or knocked out in the Depths (dark tiles or the top half of the starting tile): 0 points.",
+              "Add: the Artifact's value; all Gold (1 each); every other token (prisoners, secrets, market items, Monkey Idols, Mastery 20); the points in the top right corner of every card in your deck, hand and discard pile.",
+              "Most points wins the title Greatest Thief in the Realm. Tie: the more valuable Artifact."
+            ],
+            "checklist": [
+              { "id": "score.artifact", "text": "Artifact value (none = 0 points total)" },
+              { "id": "score.gold", "text": "Gold, 1 point each" },
+              { "id": "score.tokens", "text": "Tokens: prisoners, secrets, market items, idols, Mastery 20", "sub": "Conditional prisoners: Mayor needs a Mastery token, Prince/Princess a Crown, Sorceress two Secret Tomes, Primatologist a Monkey Idol" },
+              { "id": "score.cards", "text": "Card points (top right) from deck, hand and discard" },
+              { "id": "score.new", "text": "New game in the app", "action": { "type": "newGame" } }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,285 @@
+{
+ "items": [
+  {
+   "id": "footprints",
+   "name": "Footprints",
+   "kind": "Tunnel icons",
+   "text": "This tunnel needs two Boots instead of one.",
+   "tags": [
+    "two footprints",
+    "white circle"
+   ],
+   "image": "images/tiles/footprints.webp"
+  },
+  {
+   "id": "monster",
+   "name": "Monster",
+   "kind": "Tunnel icons",
+   "text": "Moving through deals you one damage for each Monster icon. Each Sword you spend prevents the damage from one icon. You do not have to use Swords.",
+   "tags": [
+    "cat face",
+    "black",
+    "horns"
+   ],
+   "image": "images/tiles/monster.webp"
+  },
+  {
+   "id": "lock",
+   "name": "Lock",
+   "kind": "Tunnel icons",
+   "text": "You cannot use this tunnel unless you spend a Lockpick: place it on the icon. The tunnel is unlocked for everyone for the rest of the game. Two Lock icons in one tunnel (on two tiles) cost two Lockpicks.",
+   "tags": [
+    "padlock",
+    "white circle"
+   ],
+   "image": "images/tiles/lock.webp"
+  },
+  {
+   "id": "one-way",
+   "name": "One-way arrow",
+   "kind": "Tunnel icons",
+   "text": "An arrow-shaped tunnel can only be used in the direction of the arrow. Teleporting ignores this; the Catacombs Map major secret lets you go against it.",
+   "tags": [
+    "white arrow",
+    "tunnel"
+   ],
+   "image": "images/tiles/one-way.webp"
+  },
+  {
+   "id": "portal",
+   "name": "Portal",
+   "kind": "Tunnel icons",
+   "text": "A tunnel ending in a portal: you do not stop there, you exit from any other portal on any tile. The whole move (room, both portals, next room) costs one Boot and follows normal tunnel rules. You may keep moving afterwards.",
+   "tags": [
+    "pink swirl",
+    "magenta",
+    "teleport"
+   ],
+   "image": "images/tiles/portal.webp"
+  },
+  {
+   "id": "artifact-room",
+   "name": "Artifact room",
+   "kind": "Rooms",
+   "text": "When you first place a tile with an Artifact room, take the top Artifact from the Bank and put it there. Pick it up with the Take an Artifact action (at any point in your turn); the Dragon marker moves up one space. Once the stack is empty you find nothing.",
+   "tags": [
+    "blue chest",
+    "hexagon",
+    "artifact"
+   ],
+   "image": "images/tiles/artifact-room.webp"
+  },
+  {
+   "id": "artifact-plus",
+   "name": "Artifact room with + or ++",
+   "kind": "Rooms",
+   "text": "Place the Artifact one (+) or two (++) down from the top of the stack instead of the top one. If fewer remain below the top, place the highest-valued Artifact that remains.",
+   "tags": [
+    "two chests",
+    "plus signs"
+   ],
+   "image": "images/tiles/artifact-plus.webp"
+  },
+  {
+   "id": "crypt",
+   "name": "Crypt",
+   "kind": "Rooms",
+   "text": "The room you start in, on the starting tile, above the dungeon. Returning here with an Artifact is how you escape: finish your turn, remove your pawn, take a Mastery token (+20). You cannot return empty-handed.",
+   "tags": [
+    "green glow",
+    "stone slab",
+    "start"
+   ],
+   "image": "images/tiles/crypt.webp"
+  },
+  {
+   "id": "crystal-cave",
+   "name": "Crystal Cave",
+   "kind": "Rooms",
+   "text": "Entering exhausts you: no more Boots for the rest of the turn. Teleport still works, but you stay exhausted. Crystal Kobolds can only be fought here (or in a Wayshrine).",
+   "tags": [
+    "blue crystals",
+    "round room",
+    "ice"
+   ],
+   "image": "images/tiles/crystal-cave.webp"
+  },
+  {
+   "id": "haunted",
+   "name": "Haunted tile",
+   "kind": "Rooms",
+   "text": "Four of the 22 Depths tiles carry a ghost mark. When you add one to the dungeon, take a Ghost cube from the Bank and put it in the Clank! area; it joins the Dragon Bag at the next attack and hurts everyone when drawn.",
+   "tags": [
+    "red ghost",
+    "tile corner"
+   ],
+   "image": "images/tiles/haunted.webp"
+  },
+  {
+   "id": "chest",
+   "name": "Chest (locked)",
+   "kind": "Rooms",
+   "text": "While in the room, spend a Lockpick to cover the Chest and take a random major secret from the Bank. Not possible when no major secrets remain. Each feature can be picked once per game.",
+   "tags": [
+    "treasure chest",
+    "padlock",
+    "round badge"
+   ],
+   "image": "images/tiles/chest.webp"
+  },
+  {
+   "id": "library",
+   "name": "Library (locked)",
+   "kind": "Rooms",
+   "text": "While in the room, spend a Lockpick to cover the Library and acquire a Secret Tome from the Reserve into your discard pile, for free. Not possible when no Secret Tomes remain.",
+   "tags": [
+    "book",
+    "padlock",
+    "olive badge"
+   ],
+   "image": "images/tiles/library.webp"
+  },
+  {
+   "id": "prison",
+   "name": "Prison (locked)",
+   "kind": "Rooms",
+   "text": "While in the room, spend a Lockpick to cover the Prison and free two Prisoners: take two random Prisoner tokens face up into your supply (keep them for scoring). Not possible when no Prisoners remain; one remaining can still be freed.",
+   "tags": [
+    "bars",
+    "red badge",
+    "2"
+   ],
+   "image": "images/tiles/prison.webp"
+  },
+  {
+   "id": "market",
+   "name": "Market",
+   "kind": "Rooms",
+   "text": "While in a Market room you may buy any item on the Market Board for 7 Gold each, as often as you can pay: Backpack, Blood Amulet, Burglar's Kit, Crown.",
+   "tags": [
+    "market stall",
+    "striped awning",
+    "goods"
+   ],
+   "image": "images/tiles/market.webp"
+  },
+  {
+   "id": "wayshrine",
+   "name": "Wayshrine",
+   "kind": "Rooms",
+   "text": "While here, once per Wayshrine and as a special action, place a cube from your supply on an empty space around it and take 1 Gold for every Wayshrine you have marked this game (1, then 2, then 3...). Needs a cube in your supply; those cubes never become Clank!. Four spaces per Wayshrine.",
+   "tags": [
+    "shrine",
+    "four diamonds",
+    "gold symbol"
+   ],
+   "image": "images/tiles/wayshrine.webp"
+  },
+  {
+   "id": "monkey-shrine",
+   "name": "Monkey Shrine",
+   "kind": "Rooms",
+   "text": "On the starting tile. The three Monkey Idols sit here at setup; entering the room takes one (5 points, not an Artifact).",
+   "tags": [
+    "three monkey heads",
+    "blue",
+    "5"
+   ],
+   "image": "images/tiles/monkey-shrine.webp"
+  },
+  {
+   "id": "reward-minor-secret",
+   "name": "Reward: minor secret",
+   "kind": "Rooms",
+   "text": "Entering the room gives one random minor secret from the Bank, revealed at once. Rewards come once per turn per room; re-enter on a later turn for another. No reward when the Bank is empty.",
+   "tags": [
+    "question mark",
+    "grey circle"
+   ],
+   "image": "images/tiles/reward-minor-secret.webp"
+  },
+  {
+   "id": "reward-monkey-idol",
+   "name": "Reward: Monkey Idol",
+   "kind": "Rooms",
+   "text": "Take one Monkey Idol from the room into your personal supply (5 points at the end).",
+   "tags": [
+    "monkey",
+    "orange",
+    "5"
+   ],
+   "image": "images/tiles/reward-monkey-idol.webp"
+  },
+  {
+   "id": "reward-gold",
+   "name": "Reward: Gold",
+   "kind": "Rooms",
+   "text": "Take the amount of Gold shown from the Bank, once per turn per room.",
+   "tags": [
+    "gold coin",
+    "1"
+   ],
+   "image": "images/tiles/reward-gold.webp"
+  },
+  {
+   "id": "reward-healing",
+   "name": "Reward: Healing",
+   "kind": "Rooms",
+   "text": "Heal 1 damage: take a cube of your colour back from your Health Meter into your supply. Once per turn per room.",
+   "tags": [
+    "red heart"
+   ],
+   "image": "images/tiles/reward-healing.webp"
+  },
+  {
+   "id": "start-a-top",
+   "name": "Starting tile, side A: upper half",
+   "kind": "Starting tile",
+   "text": "The upper half of the starting tile is in the Depths (you score 0 if knocked out there). Shown here: Wayshrine, Monkey Shrine, tunnels with Monster icons.",
+   "tags": [
+    "start tile",
+    "wayshrine",
+    "monkey shrine",
+    "depths"
+   ],
+   "image": "images/tiles/start-a-top.webp"
+  },
+  {
+   "id": "start-a-bottom",
+   "name": "Starting tile, side A: lower half",
+   "kind": "Starting tile",
+   "text": "The Crypt (start and escape room), a reward room and a Crystal Cave behind locked tunnels. Tiles placed along the long edges line up with either the top or the bottom half.",
+   "tags": [
+    "start tile",
+    "crypt",
+    "crystal cave",
+    "lock"
+   ],
+   "image": "images/tiles/start-a-bottom.webp"
+  },
+  {
+   "id": "start-b-top",
+   "name": "Starting tile, side B: upper half",
+   "kind": "Starting tile",
+   "text": "The other side of the starting tile; either side may be used. Its upper half is in the Depths too.",
+   "tags": [
+    "start tile",
+    "side b",
+    "depths"
+   ],
+   "image": "images/tiles/start-b-top.webp"
+  },
+  {
+   "id": "start-b-bottom",
+   "name": "Starting tile, side B: lower half",
+   "kind": "Starting tile",
+   "text": "Side B, lower half, with the Crypt.",
+   "tags": [
+    "start tile",
+    "side b",
+    "crypt"
+   ],
+   "image": "images/tiles/start-b-bottom.webp"
+  }
+ ]
+}

@@ -1,0 +1,2254 @@
+{
+ "items": [
+  {
+   "id": "animated-wall",
+   "name": "Animated Wall",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "arrive",
+     "text": "Rotate each square tile with any players on it 180 degrees."
+    },
+    {
+     "type": "defeat",
+     "text": "+:boot:. If you use a portal this turn, +:boot:."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "wall",
+    "stone face",
+    "bricks",
+    "torches"
+   ],
+   "flavour": "Forget \"talking to a brick wall.\" Try fighting one!",
+   "verified": true,
+   "image": "images/cards/animated-wall.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "archoverlord",
+   "name": "Archoverlord",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "arrive",
+     "text": "All players get +1 Clank!"
+    },
+    {
+     "type": "defeat",
+     "text": "Draw two cards, all other players get +1 Clank!"
+    }
+   ],
+   "dragon": false,
+   "copies": 3,
+   "tags": [
+    "wizard",
+    "purple robe",
+    "horns",
+    "tentacles",
+    "staff"
+   ],
+   "flavour": "Who lords over the overlords?",
+   "verified": true,
+   "image": "images/cards/archoverlord.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "astral-projection",
+   "name": "Astral Projection",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 3,
+   "points": 1,
+   "resources": [
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "If you generate 6 :skill: or more this turn, mark a Wayshrine (as though you were there)."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "ghost head",
+    "glowing face",
+    "white light",
+    "blue"
+   ],
+   "flavour": "For some, wealth is a spiritual experience.",
+   "verified": true,
+   "image": "images/cards/astral-projection.webp"
+  },
+  {
+   "id": "bandit",
+   "name": "Bandit",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 4,
+   "points": 2,
+   "resources": [
+    "skill",
+    "sword",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "acquire",
+     "text": "+:sword: +:boot:"
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "hooded man",
+    "sword",
+    "green cloak",
+    "forest"
+   ],
+   "flavour": "He always cuts and runs. Which is exactly what you're hiring him to do.",
+   "verified": true,
+   "image": "images/cards/bandit.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "bard",
+   "name": "Bard",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 3,
+   "points": 1,
+   "resources": [
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+1 Clank! If you make 2 or more Clank! this turn, :heart::heart:."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "woman",
+    "harp",
+    "singing",
+    "green hat",
+    "feather"
+   ],
+   "flavour": "\"Dank, sank, prank... hmm, there aren't many cheerful rhymes for 'clank!'\"",
+   "verified": true,
+   "image": "images/cards/bard.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "black-market",
+   "name": "Black Market",
+   "banner": "purple",
+   "kind": "Device",
+   "cost": 5,
+   "resources": [],
+   "effects": [
+    {
+     "type": "use",
+     "text": "Choose TWO: +2 :gold: -OR- Trash a card in your play area or discard pile -OR- Take a lockpick."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "shadow figure",
+    "potions",
+    "shelves",
+    "skull",
+    "hood"
+   ],
+   "verified": true,
+   "image": "images/cards/black-market.webp",
+   "subtype": "Device"
+  },
+  {
+   "id": "black-tourmaline",
+   "name": "Black Tourmaline",
+   "banner": "blue",
+   "kind": "Gem",
+   "cost": 6,
+   "points": 5,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Draw a card. When a Ghost would damage you, you may discard this to prevent that and draw a card."
+    },
+    {
+     "type": "acquire",
+     "text": "+2 Clank!"
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "black crystal",
+    "dark gem",
+    "rock"
+   ],
+   "verified": true,
+   "image": "images/cards/black-tourmaline.webp",
+   "subtype": "Gem"
+  },
+  {
+   "id": "blink-spell",
+   "name": "Blink Spell",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 8,
+   "points": 3,
+   "resources": [
+    "skill",
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Teleport to an adjacent room -OR- Teleport to another player in the Depths."
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "open book",
+    "spellbook",
+    "runes",
+    "figure drawing"
+   ],
+   "flavour": "The spell's name in Ancient means \"chant of being less here.\"",
+   "verified": true,
+   "image": "images/cards/blink-spell.webp"
+  },
+  {
+   "id": "boots-of-the-ape-lords",
+   "name": "Boots of the Ape Lords",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 3,
+   "points": 3,
+   "resources": [
+    "boot",
+    "boot",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+3 Clank! If you have a monkey idol, you don't have to stop in Crystal Caves this turn."
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "furry boots",
+    "feet",
+    "ape feet"
+   ],
+   "flavour": "Put a little lemur in your femur.",
+   "verified": true,
+   "image": "images/cards/boots-of-the-ape-lords.webp"
+  },
+  {
+   "id": "brave-hero",
+   "name": "Brave Hero",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 5,
+   "points": "?",
+   "resources": [
+    "skill",
+    "skill",
+    "sword",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Worth 5 points if you have freed three or more Prisoners."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "woman knight",
+    "shield",
+    "sword",
+    "white armor",
+    "blue"
+   ],
+   "flavour": "When it comes to doing good, no one else does it AS good.",
+   "verified": true,
+   "image": "images/cards/brave-hero.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "burgle",
+   "name": "Burgle",
+   "banner": "grey",
+   "kind": "Starter",
+   "cost": 0,
+   "resources": [
+    "skill"
+   ],
+   "effects": [],
+   "dragon": false,
+   "copies": 24,
+   "tags": [
+    "man",
+    "treasure chest",
+    "purple cape",
+    "starter"
+   ],
+   "flavour": "If they wanted to keep it, they would have nailed it down.",
+   "verified": true,
+   "image": "images/cards/burgle.webp"
+  },
+  {
+   "id": "charlatan",
+   "name": "Charlatan",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 4,
+   "points": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Discard a card to draw two cards."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "man",
+    "blue cape",
+    "moustache",
+    "arms spread",
+    "magician"
+   ],
+   "flavour": "Most people are dazzled and amazed by his sleight of hand. A few think it's just a cheap trick.",
+   "verified": true,
+   "image": "images/cards/charlatan.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "corrupt-advisor",
+   "name": "Corrupt Advisor",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 4,
+   "points": 2,
+   "resources": [
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "danger",
+     "text": "Pull +1 cube for dragon attacks."
+    },
+    {
+     "type": "play",
+     "text": "Each other player gets +1 Clank! If you have a crown, they get +2 Clank! instead."
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "woman",
+    "fur collar",
+    "cane",
+    "grey hair",
+    "long dress"
+   ],
+   "flavour": "Uneasy lies the head that wears a crown. She's why.",
+   "verified": true,
+   "image": "images/cards/corrupt-advisor.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "crystal-compass",
+   "name": "Crystal Compass",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 6,
+   "points": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Draw two cards. You don't have to stop in Crystal Caves this turn."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "compass",
+    "gold",
+    "table",
+    "stone"
+   ],
+   "flavour": "A regular compass points in just one direction. This one points to where you need to go.",
+   "verified": true,
+   "image": "images/cards/crystal-compass.webp"
+  },
+  {
+   "id": "crystal-kobold",
+   "name": "Crystal Kobold",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Fight this only in a Crystal Cave or Wayshrine."
+    },
+    {
+     "type": "defeat",
+     "text": "+2 :skill:"
+    }
+   ],
+   "dragon": true,
+   "copies": 2,
+   "tags": [
+    "ice lizard",
+    "blue kobold",
+    "dagger",
+    "crystal"
+   ],
+   "flavour": "Thought by some to be only rumor, some dungeon lords prefer them to regular kobolds.",
+   "verified": true,
+   "image": "images/cards/crystal-kobold.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "curator",
+   "name": "Curator",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 5,
+   "points": 2,
+   "resources": [
+    "skill",
+    "skill",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Draw a card for each artifact you have."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "old woman",
+    "scrolls",
+    "glasses",
+    "museum"
+   ],
+   "flavour": "There's a rumor she once got lost in her own museum. But to be fair, the collection is quite extensive.",
+   "verified": true,
+   "image": "images/cards/curator.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "darkened-alcove",
+   "name": "Darkened Alcove",
+   "banner": "purple",
+   "kind": "Device",
+   "cost": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "use",
+     "text": "-2 Clank!"
+    }
+   ],
+   "dragon": true,
+   "copies": 2,
+   "tags": [
+    "dark doorway",
+    "candles",
+    "shadow",
+    "alcove"
+   ],
+   "flavour": "\"I'm not cowering, I'm reformulating my plan.\"",
+   "verified": true,
+   "image": "images/cards/darkened-alcove.webp",
+   "subtype": "Device"
+  },
+  {
+   "id": "diversion",
+   "name": "Diversion",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 5,
+   "points": 2,
+   "resources": [
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "arrive",
+     "text": "Put 3 dragon cubes back in the bag."
+    },
+    {
+     "type": "acquire",
+     "text": "Free a prisoner."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "window",
+    "climbing out",
+    "smoke",
+    "legs"
+   ],
+   "flavour": "A good escape plan is part distraction and part reaction.",
+   "verified": true,
+   "image": "images/cards/diversion.webp"
+  },
+  {
+   "id": "divining-rod",
+   "name": "Divining Rod",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 4,
+   "points": 2,
+   "resources": [
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "If you generate 6 :skill: or more this turn, :heart:."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "glowing rod",
+    "stick",
+    "green light",
+    "table"
+   ],
+   "flavour": "It works best after you wash your hands. But if you already have the water, then you don't really need to use it.",
+   "verified": true,
+   "image": "images/cards/divining-rod.webp"
+  },
+  {
+   "id": "double-cross",
+   "name": "Double Cross",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 6,
+   "points": 3,
+   "resources": [
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "-2 Clank!"
+    },
+    {
+     "type": "acquire",
+     "text": "Each other player gets +2 Clank!"
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "hooded figure",
+    "cave crack",
+    "dark cloak"
+   ],
+   "flavour": "When a single cross just won't do.",
+   "verified": true,
+   "image": "images/cards/double-cross.webp"
+  },
+  {
+   "id": "dusty-map",
+   "name": "Dusty Map",
+   "banner": "purple",
+   "kind": "Device",
+   "cost": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "use",
+     "text": "Place a new tile anywhere. (Choose the location for the tile before revealing it, but THEN choose its orientation as usual.)"
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "map",
+    "hands",
+    "old paper",
+    "glowing"
+   ],
+   "flavour": "\"There's something up ahead...\"",
+   "verified": true,
+   "image": "images/cards/dusty-map.webp",
+   "subtype": "Device"
+  },
+  {
+   "id": "elven-sword",
+   "name": "Elven Sword",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 4,
+   "points": 2,
+   "resources": [
+    "sword",
+    "sword"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Draw a card."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "sword",
+    "blade",
+    "table",
+    "stone"
+   ],
+   "flavour": "Many elves seem to prefer the dagger, but the sword certainly has its uses.",
+   "verified": true,
+   "image": "images/cards/elven-sword.webp"
+  },
+  {
+   "id": "empurror",
+   "name": "Empurror",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 1,
+   "points": 1,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Choose one (or all three, if you have an artifact): -2 Clank! -OR- +:gold: -OR- You don't have to stop in Crystal Caves this turn."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "cat",
+    "white cat",
+    "kitten",
+    "lying down"
+   ],
+   "flavour": "He's sort of the catacombs mascot.",
+   "verified": true,
+   "image": "images/cards/empurror.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "expensive-taste",
+   "name": "Expensive Taste",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 6,
+   "points": "?",
+   "resources": [
+    "skill",
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+2 :gold:. Worth 5 points if you have a crown and a gem."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "crown",
+    "gems",
+    "display case",
+    "jewels"
+   ],
+   "flavour": "The best things in life cost a fortune.",
+   "verified": true,
+   "image": "images/cards/expensive-taste.webp"
+  },
+  {
+   "id": "expert-guide",
+   "name": "Expert Guide",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 5,
+   "points": 2,
+   "resources": [
+    "skill",
+    "skill",
+    "boot",
+    "boot"
+   ],
+   "effects": [],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "woman",
+    "backpack",
+    "guide",
+    "forest",
+    "braid"
+   ],
+   "flavour": "\"Sure, I can take you there. But which route do you want to take? Fastest, safest, scenic, profitable...?\"",
+   "verified": true,
+   "image": "images/cards/expert-guide.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "explore",
+   "name": "Explore",
+   "banner": "yellow",
+   "kind": "Reserve",
+   "cost": 3,
+   "resources": [
+    "skill",
+    "skill",
+    "boot"
+   ],
+   "effects": [],
+   "dragon": false,
+   "copies": 15,
+   "tags": [
+    "woman",
+    "torch",
+    "hood",
+    "yellow",
+    "reserve"
+   ],
+   "flavour": "You never know what wonders may be waiting around the corner.",
+   "verified": true,
+   "image": "images/cards/explore.webp"
+  },
+  {
+   "id": "fiery-quartz",
+   "name": "Fiery Quartz",
+   "banner": "blue",
+   "kind": "Gem",
+   "cost": 6,
+   "points": 5,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "-2 Clank! Draw a card."
+    },
+    {
+     "type": "acquire",
+     "text": "+2 Clank!"
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "orange crystal",
+    "yellow gem",
+    "cube"
+   ],
+   "verified": true,
+   "image": "images/cards/fiery-quartz.webp",
+   "subtype": "Gem"
+  },
+  {
+   "id": "flamboyance",
+   "name": "Flamboyance",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 2,
+   "points": 1,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Draw a card. If you make 2 or more Clank! this turn, +2 :skill:."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "woman",
+    "hat",
+    "sunflower",
+    "pink feather",
+    "smiling"
+   ],
+   "flavour": "The bigger the confidence, the bigger the haul. At least, that's the theory.",
+   "verified": true,
+   "image": "images/cards/flamboyance.webp"
+  },
+  {
+   "id": "floating-skull",
+   "name": "Floating Skull",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 6,
+   "points": 2,
+   "resources": [
+    "skill",
+    "skill",
+    "sword"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "If you have a crown, teleport to an adjacent room."
+    },
+    {
+     "type": "acquire",
+     "text": "Teleport to an adjacent room."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "skull",
+    "flying",
+    "glowing",
+    "white flame"
+   ],
+   "flavour": "\"It wants us to follow.\" \"Are we sure that's a good idea?\"",
+   "verified": true,
+   "image": "images/cards/floating-skull.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "goblin",
+   "name": "Goblin",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "defeat",
+     "text": "+:gold:. (Don't discard after fighting.)"
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "goblin",
+    "yellow",
+    "bag of gold",
+    "small",
+    "reserve"
+   ],
+   "flavour": "They may be short, but they're not in short supply.",
+   "verified": true,
+   "image": "images/cards/goblin.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "golden-flute",
+   "name": "Golden Flute",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 1,
+   "points": 1,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+:gold:, +1 Clank! You may buy one item from the Market this turn for 5 :gold: (even if you're not in a Market room)."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "flute",
+    "gold",
+    "table",
+    "instrument"
+   ],
+   "flavour": "An inspired instrument for the flaunting flautist.",
+   "verified": true,
+   "image": "images/cards/golden-flute.webp"
+  },
+  {
+   "id": "grand-theft",
+   "name": "Grand Theft",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 6,
+   "points": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Take a lockpick -OR- Spend a lockpick to use a device or acquire a card in the dungeon row."
+    },
+    {
+     "type": "acquire",
+     "text": "You may put this on top of your deck."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "thief",
+    "gold pile",
+    "sack",
+    "hood",
+    "treasure"
+   ],
+   "verified": true,
+   "image": "images/cards/grand-theft.webp"
+  },
+  {
+   "id": "imp-familiar",
+   "name": "Imp Familiar",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 2,
+   "points": 1,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Take a lockpick -OR- Spend a lockpick to draw two cards."
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "imp",
+    "red demon",
+    "wings",
+    "horns",
+    "flying"
+   ],
+   "flavour": "Friends in high places are nice. So are friends who can reach them.",
+   "verified": true,
+   "image": "images/cards/imp-familiar.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "keymaster",
+   "name": "Keymaster",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "defeat",
+     "text": "Take a lockpick."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "orc",
+    "green",
+    "key",
+    "red fur",
+    "armor"
+   ],
+   "flavour": "When the Warden's around, he's more of a key underling.",
+   "verified": true,
+   "image": "images/cards/keymaster.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "librarian",
+   "name": "Librarian",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 4,
+   "points": 1,
+   "resources": [
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "-2 Clank! If you have a Secret Tome in your play area or discard pile, draw two cards."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "old man",
+    "books",
+    "glasses",
+    "white robe",
+    "bald"
+   ],
+   "flavour": "He'll help you out... if you keep it strictly hush-hush.",
+   "verified": true,
+   "image": "images/cards/librarian.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "lie-in-wait",
+   "name": "Lie in Wait",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 3,
+   "points": 1,
+   "resources": [
+    "skill",
+    "skill",
+    "sword"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "If you're in a Crystal Cave, -2 Clank!"
+    },
+    {
+     "type": "acquire",
+     "text": "You may put this on top of your deck."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "white figure",
+    "ice",
+    "camouflage",
+    "crystal cave"
+   ],
+   "flavour": "This way is not very sporting.",
+   "verified": true,
+   "image": "images/cards/lie-in-wait.webp"
+  },
+  {
+   "id": "lightstick",
+   "name": "Lightstick",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 3,
+   "points": 1,
+   "resources": [
+    "skill",
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+1 Clank!"
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "glowing stick",
+    "light",
+    "table",
+    "stone"
+   ],
+   "flavour": "It's a trade-off: you can see everything, and everything can see you.",
+   "verified": true,
+   "image": "images/cards/lightstick.webp"
+  },
+  {
+   "id": "locked-trunk",
+   "name": "Locked Trunk",
+   "banner": "purple",
+   "kind": "Device",
+   "cost": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "You must spend a lockpick to use."
+    },
+    {
+     "type": "use",
+     "text": "Take a major secret."
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "chest",
+    "chains",
+    "padlock",
+    "trunk"
+   ],
+   "flavour": "\"What's in the box?!\"",
+   "verified": true,
+   "image": "images/cards/locked-trunk.webp",
+   "subtype": "Device"
+  },
+  {
+   "id": "lute",
+   "name": "Lute",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 6,
+   "points": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+1 Clank! Draw two cards. For each Clank! you make this turn, +:gold:."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "lute",
+    "instrument",
+    "strings",
+    "table"
+   ],
+   "flavour": "A sound investment.",
+   "verified": true,
+   "image": "images/cards/lute.webp"
+  },
+  {
+   "id": "marble-guardian",
+   "name": "Marble Guardian",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "defeat",
+     "text": "Place a new tile next to your current one. Choose: Teleport to any room on the new tile -OR- +2 :gold:."
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "statue",
+    "white stone",
+    "golem",
+    "marble",
+    "big"
+   ],
+   "flavour": "Wherever it came from, that's where you're going.",
+   "verified": true,
+   "image": "images/cards/marble-guardian.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "mercenary",
+   "name": "Mercenary",
+   "banner": "yellow",
+   "kind": "Companion",
+   "cost": 2,
+   "resources": [
+    "skill",
+    "sword",
+    "sword"
+   ],
+   "effects": [],
+   "dragon": false,
+   "copies": 15,
+   "tags": [
+    "woman",
+    "sword",
+    "yellow armor",
+    "reserve"
+   ],
+   "flavour": "\"I could help you out. But what's in it for me?\"",
+   "verified": true,
+   "image": "images/cards/mercenary.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "ogre-merchant",
+   "name": "Ogre Merchant",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 4,
+   "resources": [],
+   "effects": [
+    {
+     "type": "defeat",
+     "text": "+5 :gold: -OR- If you're in a Market room, take a Market item (at no cost)."
+    }
+   ],
+   "dragon": true,
+   "copies": 2,
+   "tags": [
+    "ogre",
+    "green",
+    "backpack",
+    "merchant",
+    "big"
+   ],
+   "flavour": "He doesn't haggle, he clobbers.",
+   "verified": true,
+   "image": "images/cards/ogre-merchant.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "payoff",
+   "name": "Payoff",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 1,
+   "resources": [
+    "skill",
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Trash this card."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "hands",
+    "paper",
+    "coins",
+    "handing over",
+    "bribe"
+   ],
+   "flavour": "Any day now...",
+   "verified": true,
+   "image": "images/cards/payoff.webp"
+  },
+  {
+   "id": "pillage",
+   "name": "Pillage",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 2,
+   "resources": [
+    "sword",
+    "sword",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "If you gain at least 3 :gold: this turn, draw a card."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "barbarian",
+    "axe",
+    "smashing",
+    "gold coins",
+    "beard"
+   ],
+   "flavour": "You should see how mad he gets when he doesn't find anything.",
+   "verified": true,
+   "image": "images/cards/pillage.webp"
+  },
+  {
+   "id": "rebel-general",
+   "name": "Rebel General",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 5,
+   "points": 2,
+   "resources": [
+    "skill",
+    "skill",
+    "sword",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "If you have another companion in your play area, draw a card."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "woman",
+    "purple armor",
+    "hammer",
+    "forest"
+   ],
+   "flavour": "She's heard every bad joke about her rank... generally speaking.",
+   "verified": true,
+   "image": "images/cards/rebel-general.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "rebel-paladin",
+   "name": "Rebel Paladin",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 4,
+   "points": 1,
+   "resources": [
+    "skill",
+    "sword"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "If you have another companion in your play area, draw a card. If you have an artifact, draw a card."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "paladin",
+    "shield",
+    "mace",
+    "gold armor",
+    "woman"
+   ],
+   "flavour": "Her faith is her true armor. Her armor is more of an insurance policy.",
+   "verified": true,
+   "image": "images/cards/rebel-paladin.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "rebel-scribe",
+   "name": "Rebel Scribe",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 1,
+   "points": 1,
+   "resources": [
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "If you have another companion in your play area, draw a card."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "old man",
+    "scrolls",
+    "writing",
+    "sitting",
+    "quill"
+   ],
+   "flavour": "A dungeon excursion this profitable should be in an official chronicle.",
+   "verified": true,
+   "image": "images/cards/rebel-scribe.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "rebel-thief",
+   "name": "Rebel Thief",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 3,
+   "points": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Take a lockpick. If you have another companion in your play area, draw a card."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "thief",
+    "hood",
+    "dagger",
+    "man",
+    "grey"
+   ],
+   "flavour": "\"If it's locked up, then you know it's worth taking.\"",
+   "verified": true,
+   "image": "images/cards/rebel-thief.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "remove-traps",
+   "name": "Remove Traps",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 2,
+   "points": 1,
+   "resources": [
+    "skill",
+    "sword",
+    "sword"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Replace a card in the dungeon row. (If the new card has a dragon attack symbol, ignore it.)"
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "stone face",
+    "hands",
+    "trap",
+    "gem eye"
+   ],
+   "flavour": "\"Honey? Do you think their treasure is better looking than mine?\"",
+   "verified": true,
+   "image": "images/cards/remove-traps.webp"
+  },
+  {
+   "id": "riot",
+   "name": "Riot",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 3,
+   "resources": [
+    "sword",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+1 Clank! If you have freed three or more prisoners, you may trash a card in your play area or discard pile."
+    },
+    {
+     "type": "acquire",
+     "text": "Free a prisoner."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "goblin",
+    "fight",
+    "prisoner",
+    "bars",
+    "brawl"
+   ],
+   "verified": true,
+   "image": "images/cards/riot.webp"
+  },
+  {
+   "id": "robbery",
+   "name": "Robbery",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 5,
+   "points": 1,
+   "resources": [
+    "sword",
+    "sword"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+2 :gold:. If you're in a Market room, teleport to an adjacent room."
+    },
+    {
+     "type": "acquire",
+     "text": "You may put this on top of your deck."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "thief",
+    "axe",
+    "hood",
+    "green",
+    "orc hand"
+   ],
+   "verified": true,
+   "image": "images/cards/robbery.webp"
+  },
+  {
+   "id": "rose-quartz",
+   "name": "Rose Quartz",
+   "banner": "blue",
+   "kind": "Gem",
+   "cost": 5,
+   "points": 4,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "-2 Clank! Draw a card."
+    },
+    {
+     "type": "acquire",
+     "text": "+2 Clank!"
+    }
+   ],
+   "dragon": true,
+   "copies": 2,
+   "tags": [
+    "pink gem",
+    "orange oval",
+    "crystal"
+   ],
+   "verified": true,
+   "image": "images/cards/rose-quartz.webp",
+   "subtype": "Gem"
+  },
+  {
+   "id": "scavenger",
+   "name": "Scavenger",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 3,
+   "points": 1,
+   "resources": [
+    "skill",
+    "skill"
+   ],
+   "effects": [
+    {
+     "type": "acquire",
+     "text": "Take a minor secret."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "old man",
+    "beard",
+    "potion bottle",
+    "rags"
+   ],
+   "flavour": "\"What fool throws away a potion bottle that's still half full?\"",
+   "verified": true,
+   "image": "images/cards/scavenger.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "scramble",
+   "name": "Scramble",
+   "banner": "grey",
+   "kind": "Starter",
+   "cost": 0,
+   "resources": [
+    "skill",
+    "boot"
+   ],
+   "effects": [],
+   "dragon": false,
+   "copies": 4,
+   "tags": [
+    "woman",
+    "crouching",
+    "arrows",
+    "trap",
+    "red hair",
+    "starter"
+   ],
+   "flavour": "If they wanted to catch you, they would have built a better trap.",
+   "verified": true,
+   "image": "images/cards/scramble.webp"
+  },
+  {
+   "id": "secret-tome",
+   "name": "Secret Tome",
+   "banner": "yellow",
+   "kind": "Reserve",
+   "cost": 7,
+   "points": 7,
+   "resources": [],
+   "effects": [],
+   "dragon": false,
+   "copies": 12,
+   "tags": [
+    "book",
+    "orange book",
+    "glowing",
+    "reserve"
+   ],
+   "flavour": "You'll have time to read it once you've escaped the dragon.",
+   "verified": true,
+   "image": "images/cards/secret-tome.webp"
+  },
+  {
+   "id": "shadow-walk",
+   "name": "Shadow Walk",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 2,
+   "points": 1,
+   "resources": [
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Trash a Burgle in your play area or discard pile."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "feet",
+    "shadow",
+    "smoke",
+    "walking",
+    "dark"
+   ],
+   "flavour": "Nothing but wisps and whispers.",
+   "verified": true,
+   "image": "images/cards/shadow-walk.webp"
+  },
+  {
+   "id": "sidestep",
+   "name": "Sidestep",
+   "banner": "grey",
+   "kind": "Starter",
+   "cost": 0,
+   "resources": [
+    "boot"
+   ],
+   "effects": [],
+   "dragon": false,
+   "copies": 4,
+   "tags": [
+    "boots",
+    "ledge",
+    "brown boots",
+    "starter"
+   ],
+   "flavour": "If they wanted you to stay out, they would have blocked the path.",
+   "verified": true,
+   "image": "images/cards/sidestep.webp"
+  },
+  {
+   "id": "skeletal-ape",
+   "name": "Skeletal Ape",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "defeat",
+     "text": "+3 :gold:, +3 :skill:, +3 Clank!"
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "skeleton",
+    "ape",
+    "monkey",
+    "bones",
+    "screaming"
+   ],
+   "flavour": "It beats its rib cage three times before attacking.",
+   "verified": true,
+   "image": "images/cards/skeletal-ape.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "skeleton",
+   "name": "Skeleton",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 1,
+   "resources": [],
+   "effects": [
+    {
+     "type": "defeat",
+     "text": "+2 :gold:, +1 Clank!"
+    }
+   ],
+   "dragon": false,
+   "copies": 3,
+   "tags": [
+    "skeleton",
+    "sword",
+    "bones",
+    "pink"
+   ],
+   "flavour": "Today's catacombs explorer is tomorrow's catacombs guard.",
+   "verified": true,
+   "image": "images/cards/skeleton.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "skeleton-priest",
+   "name": "Skeleton Priest",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "arrive",
+     "text": "All players get +1 Clank!"
+    },
+    {
+     "type": "defeat",
+     "text": ":heart:, +1 Clank!"
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "skeleton",
+    "priest",
+    "mitre",
+    "red robe",
+    "staff"
+   ],
+   "flavour": "His ministrations will completely change your death.",
+   "verified": true,
+   "image": "images/cards/skeleton-priest.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "skeleton-warlock",
+   "name": "Skeleton Warlock",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "defeat",
+     "text": "Take a Secret Tome, +1 Clank!"
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "skeleton",
+    "wizard",
+    "blue robe",
+    "magic",
+    "lightning"
+   ],
+   "flavour": "Which is older, him or the spellbook?",
+   "verified": true,
+   "image": "images/cards/skeleton-warlock.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "skulker",
+   "name": "Skulker",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 4,
+   "points": 1,
+   "resources": [
+    "boot",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Ignore monsters in tunnels this turn."
+    },
+    {
+     "type": "acquire",
+     "text": "Ignore monsters in tunnels this turn."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "archer",
+    "hood",
+    "bow",
+    "arrows",
+    "grey"
+   ],
+   "flavour": "Skulking runs in his family. Well... creeps, actually.",
+   "verified": true,
+   "image": "images/cards/skulker.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "smash-and-grab",
+   "name": "Smash and Grab",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 3,
+   "points": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+2 Clank! Draw two cards."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "hand",
+    "broken glass",
+    "red gem",
+    "grabbing"
+   ],
+   "flavour": "All that sneaking around and picking locks and hiding in shadows is just so much WORK!",
+   "verified": true,
+   "image": "images/cards/smash-and-grab.webp"
+  },
+  {
+   "id": "smoky-quartz",
+   "name": "Smoky Quartz",
+   "banner": "blue",
+   "kind": "Gem",
+   "cost": 4,
+   "points": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "-2 Clank! Draw a card."
+    },
+    {
+     "type": "acquire",
+     "text": "+2 Clank!"
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "black gem",
+    "dark crystal",
+    "teardrop"
+   ],
+   "verified": true,
+   "image": "images/cards/smoky-quartz.webp",
+   "subtype": "Gem"
+  },
+  {
+   "id": "sneak-attack",
+   "name": "Sneak Attack",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 3,
+   "points": 1,
+   "resources": [
+    "sword",
+    "sword",
+    "sword"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "-2 Clank!"
+    },
+    {
+     "type": "acquire",
+     "text": "+:sword:"
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "rogue",
+    "dagger",
+    "hood",
+    "blue",
+    "sneaking"
+   ],
+   "flavour": "\"It's quiet. Too quiet...\" And too late.",
+   "verified": true,
+   "image": "images/cards/sneak-attack.webp"
+  },
+  {
+   "id": "souldrinker",
+   "name": "Souldrinker",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 6,
+   "points": 3,
+   "resources": [
+    "sword",
+    "sword",
+    "sword",
+    "sword"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "If you defeat a monster in the dungeon row this turn, :heart:."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "sword",
+    "red blade",
+    "glowing",
+    "jagged",
+    "table"
+   ],
+   "flavour": "\"Mmmm. Hints of corruption, deceit, and... lavender?\"",
+   "verified": true,
+   "image": "images/cards/souldrinker.webp"
+  },
+  {
+   "id": "spectral-rider",
+   "name": "Spectral Rider",
+   "banner": "blue",
+   "kind": "Companion",
+   "cost": 4,
+   "points": 2,
+   "resources": [
+    "skill",
+    "skill",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "If you're on a haunted tile, you may teleport to any room on a different haunted tile."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "ghost",
+    "horse",
+    "rider",
+    "headless",
+    "blue flame"
+   ],
+   "flavour": "\"It lost its own head. Are we confident about its sense of direction?\"",
+   "verified": true,
+   "image": "images/cards/spectral-rider.webp",
+   "subtype": "Companion"
+  },
+  {
+   "id": "stumble",
+   "name": "Stumble",
+   "banner": "grey",
+   "kind": "Starter",
+   "cost": 0,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+1 Clank!"
+    }
+   ],
+   "dragon": false,
+   "copies": 8,
+   "tags": [
+    "legs",
+    "running",
+    "tripping",
+    "boots",
+    "starter"
+   ],
+   "flavour": "If you wanted to get away, you would have kept quiet.",
+   "verified": true,
+   "image": "images/cards/stumble.webp"
+  },
+  {
+   "id": "sudden-movement",
+   "name": "Sudden Movement",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 3,
+   "points": 1,
+   "resources": [
+    "skill",
+    "boot",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "arrive",
+     "text": "Each player alone on a square tile must rotate that tile to a new orientation."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "feet",
+    "moving platform",
+    "gears",
+    "boots"
+   ],
+   "flavour": "It's better to KNOW your map is now worthless, isn't it?",
+   "verified": true,
+   "image": "images/cards/sudden-movement.webp"
+  },
+  {
+   "id": "swindle",
+   "name": "Swindle",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 3,
+   "points": 1,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "+3 :gold:"
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "hands",
+    "cards",
+    "gold coins",
+    "purple sleeve",
+    "gambling"
+   ],
+   "flavour": "You can hardly call it swindling when they just give you their money.",
+   "verified": true,
+   "image": "images/cards/swindle.webp"
+  },
+  {
+   "id": "the-warden",
+   "name": "The Warden",
+   "banner": "red",
+   "kind": "Monster",
+   "cost": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "danger",
+     "text": "Pull +1 cube for dragon attacks."
+    },
+    {
+     "type": "deep",
+     "text": "Fight only in the Depths."
+    },
+    {
+     "type": "defeat",
+     "text": "Free two Prisoners."
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "orc",
+    "green",
+    "fat",
+    "spear",
+    "bald",
+    "prison"
+   ],
+   "flavour": "Heartless master of Umbrok Vessna's prisons.",
+   "verified": true,
+   "image": "images/cards/the-warden.webp",
+   "subtype": "Monster"
+  },
+  {
+   "id": "thieves-shrine",
+   "name": "Thieves' Shrine",
+   "banner": "purple",
+   "kind": "Device",
+   "cost": 4,
+   "resources": [],
+   "effects": [
+    {
+     "type": "arrive",
+     "text": "Put 3 dragon cubes back in the bag."
+    },
+    {
+     "type": "use",
+     "text": "+2 :gold: -OR- Trash up to two Burgles, each from your play area or discard pile."
+    }
+   ],
+   "dragon": false,
+   "copies": 2,
+   "tags": [
+    "shrine",
+    "statue",
+    "blue glow",
+    "hooded statue",
+    "candles"
+   ],
+   "verified": true,
+   "image": "images/cards/thieves-shrine.webp",
+   "subtype": "Device"
+  },
+  {
+   "id": "thirst-for-adventure",
+   "name": "Thirst for Adventure",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 7,
+   "points": "?",
+   "resources": [
+    "boot",
+    "boot",
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Worth 2 points for each artifact and each monkey idol you have."
+    },
+    {
+     "type": "acquire",
+     "text": "+3 :boot:"
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "climber",
+    "rope",
+    "purple scarf",
+    "cliff"
+   ],
+   "flavour": "Nothing quenches a thirst quite like treasure.",
+   "verified": true,
+   "image": "images/cards/thirst-for-adventure.webp"
+  },
+  {
+   "id": "underground-river",
+   "name": "Underground River",
+   "banner": "purple",
+   "kind": "Device",
+   "cost": 2,
+   "resources": [],
+   "effects": [
+    {
+     "type": "use",
+     "text": ":heart: -OR- :boot:"
+    }
+   ],
+   "dragon": true,
+   "copies": 2,
+   "tags": [
+    "river",
+    "cave",
+    "water",
+    "blue",
+    "stream"
+   ],
+   "flavour": "Assuming you're not claustrophobic, it's surprisingly relaxing.",
+   "verified": true,
+   "image": "images/cards/underground-river.webp",
+   "subtype": "Device"
+  },
+  {
+   "id": "waystone",
+   "name": "Waystone",
+   "banner": "blue",
+   "kind": "Card",
+   "cost": 1,
+   "points": 1,
+   "resources": [
+    "boot"
+   ],
+   "effects": [
+    {
+     "type": "play",
+     "text": "You may trash this to teleport from one Wayshrine to another."
+    }
+   ],
+   "dragon": false,
+   "copies": 1,
+   "tags": [
+    "stone",
+    "amulet",
+    "necklace",
+    "gold pendant",
+    "table"
+   ],
+   "flavour": "These relics were once common in the catacombs, but they're increasingly rare thanks to how one taps their power.",
+   "verified": true,
+   "image": "images/cards/waystone.webp"
+  },
+  {
+   "id": "white-tourmaline",
+   "name": "White Tourmaline",
+   "banner": "blue",
+   "kind": "Gem",
+   "cost": 4,
+   "points": 3,
+   "resources": [],
+   "effects": [
+    {
+     "type": "play",
+     "text": "Draw a card. When a Ghost would damage you, you may discard this to prevent that and draw a card."
+    },
+    {
+     "type": "acquire",
+     "text": "+2 Clank!"
+    }
+   ],
+   "dragon": true,
+   "copies": 2,
+   "tags": [
+    "white crystal",
+    "gem",
+    "pale",
+    "rock"
+   ],
+   "verified": true,
+   "image": "images/cards/white-tourmaline.webp",
+   "subtype": "Gem"
+  },
+  {
+   "id": "wishing-well",
+   "name": "Wishing Well",
+   "banner": "purple",
+   "kind": "Device",
+   "cost": 0,
+   "resources": [],
+   "effects": [
+    {
+     "type": "danger",
+     "text": "Pull +1 cube for dragon attacks."
+    },
+    {
+     "type": "play",
+     "text": "You must spend 3 :gold: to use."
+    },
+    {
+     "type": "use",
+     "text": "Draw two cards."
+    }
+   ],
+   "dragon": true,
+   "copies": 1,
+   "tags": [
+    "well",
+    "bucket",
+    "rope",
+    "stone well"
+   ],
+   "flavour": "Be careful what you wish for...",
+   "verified": true,
+   "image": "images/cards/wishing-well.webp",
+   "subtype": "Device"
+  }
+ ]
+}
