@@ -57,7 +57,7 @@ An image value is either an `https://…` link or a relative path inside the mod
 | `format` | Always `1`. |
 | `id` | Lowercase letters, digits, `-`, `_`, `.`. Saved progress is kept per id: never change it. |
 | `name`, `version` | Shown in the Library. Raise `version` (`1.0.1`, `1.1.0`…) for every update. |
-| `minAppVersion` | `"3.0.0"`, or `"3.2.0"` when the module uses `hub`, gallery `groups` / `tileSubtitle` / `searchKeyboard`, `inZone`, `moveZone` / `clearZones` or several flows, or `"3.3.0"` for an expansion (`expands`, see Expansions) or a `backImageField`. |
+| `minAppVersion` | `"3.0.0"`, or `"3.2.0"` when the module uses `hub`, gallery `groups` / `tileSubtitle` / `searchKeyboard`, `inZone`, `moveZone` / `clearZones` or several flows, `"3.3.0"` for an expansion (`expands`, see Expansions) or a `backImageField`, or `"3.3.3"` for an `italic` section. |
 | `icon` | Round game icon (square picture works best). |
 | `players`, `source` | Free text. |
 | `collections` | Lists of items, see below. |
@@ -115,7 +115,8 @@ Tapping an item opens its sheet: picture, name, subtitle, then:
   only its `label` (the item has no value for it) is left out.
 - `effects`: for items with a list of `{"type": …, "text": …}` effects. Each effect shows its
   type's symbol and label above the text. List rows on boards show these effects too.
-- `sections`: labeled text blocks from a path (a string or a list of strings). List rows show
+- `sections`: labeled text blocks from a path (a string or a list of strings); `"italic": true` (3.3.3)
+  draws the block in italics (flavour text, quotes), also inside `details`. List rows show
   the first section when there are no `effects`.
 - `secondary`: a small grey line (template).
 - `details` (drag-up details): extra text a player only sometimes wants, such as rulings for

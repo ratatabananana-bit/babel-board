@@ -50,14 +50,17 @@ class EffectsSpec {
 
 /// A labeled block of text on the sheet (`sheet.sections[]`, `sheet.details.sections[]`).
 class SheetSectionSpec {
-  const SheetSectionSpec({required this.path, this.label = ''});
+  const SheetSectionSpec({required this.path, this.label = '', this.italic = false});
 
   final String path;
   final String label;
 
+  /// Draw the text in italics (flavour text, quotes). Since 3.3.3.
+  final bool italic;
+
   static SheetSectionSpec fromJson(Map<String, dynamic> j, String where) {
     final f = Fields(j, where);
-    return SheetSectionSpec(path: f.text('path'), label: f.optText('label') ?? '');
+    return SheetSectionSpec(path: f.text('path'), label: f.optText('label') ?? '', italic: f.optBool('italic') ?? false);
   }
 }
 

@@ -273,7 +273,7 @@ class ItemSheet extends StatelessWidget {
       for (final v in values)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: SymbolText(v, style: T.effect.copyWith(color: p.text)),
+          child: SymbolText(v, style: T.effect.copyWith(color: p.text, fontStyle: s.italic ? FontStyle.italic : null)),
         ),
       const SizedBox(height: 6),
     ];

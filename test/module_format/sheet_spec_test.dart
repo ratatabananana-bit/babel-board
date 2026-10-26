@@ -194,4 +194,28 @@ void main() {
       failsAt('sheet.zones'),
     );
   });
+  test('a section can ask for italic text (sheet.sections and details.sections)', () {
+    final s = SheetSpec.fromJson({
+      'sections': [
+        {'label': 'Flavour', 'path': 'flavour', 'italic': true},
+      ],
+      'details': {
+        'sections': [
+          {'path': 'story', 'italic': true},
+          {'path': 'rulings'},
+        ],
+      },
+    }, 'sheet');
+    expect(s.sections.single.italic, isTrue);
+    expect(s.detailSections[0].italic, isTrue);
+    expect(s.detailSections[1].italic, isFalse);
+    expect(
+      () => SheetSpec.fromJson({
+        'sections': [
+          {'path': 'x', 'italic': 'yes'},
+        ],
+      }, 'sheet'),
+      failsAt('sheet.sections[0].italic'),
+    );
+  });
 }

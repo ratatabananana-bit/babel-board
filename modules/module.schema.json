@@ -112,7 +112,7 @@
           "items": {
             "type": "object",
             "required": ["label", "path"],
-            "properties": { "label": { "type": "string" }, "path": { "type": "string" } }
+            "properties": { "label": { "type": "string" }, "path": { "type": "string" }, "italic": { "type": "boolean", "description": "3.3.3: draw the text in italics (flavour, quotes)." } }
           }
         },
         "secondary": { "type": "string" },
@@ -133,7 +133,7 @@
               "items": {
                 "type": "object",
                 "required": ["path"],
-                "properties": { "label": { "type": "string" }, "path": { "type": "string" } }
+                "properties": { "label": { "type": "string" }, "path": { "type": "string" }, "italic": { "type": "boolean", "description": "3.3.3: draw the text in italics (flavour, quotes)." } }
               }
             }
           }

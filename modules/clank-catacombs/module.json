@@ -3,7 +3,7 @@
   "id": "clank-catacombs",
   "name": "Clank! Catacombs",
   "version": "1.0.0",
-  "minAppVersion": "3.2.0",
+  "minAppVersion": "3.3.3",
   "icon": "images/icon.webp",
   "players": "2-4",
   "source": "Clank! Catacombs rulebook and Token Reference Guide (Dire Wolf Digital, 2022); card text read from scans of the English cards",
@@ -38,9 +38,9 @@
         },
         "verifiedPath": "verified",
         "details": {
-          "hint": "Flavour",
+          "hint": "Notes",
           "sections": [
-            { "label": "Flavour text", "path": "flavour" },
+            { "label": "Flavour", "path": "flavour", "italic": true },
             { "label": "Rulings", "path": "rulings" }
           ]
         }
@@ -162,6 +162,170 @@
       }
     },
     {
+      "id": "rules",
+      "label": "Rules",
+      "icon": "book",
+      "block": {
+        "type": "hub",
+        "title": "Rules",
+        "children": [
+          {
+            "type": "entry",
+            "label": "Goal and setup",
+            "icon": "flag",
+            "summary": "What you are trying to do, how the table is laid out",
+            "block": {
+              "type": "text",
+              "title": "Goal and setup",
+              "paragraphs": [
+                "Two goals: get an Artifact and escape the dragon by returning to the Crypt on the starting tile, and score more points than the others with your Artifact and loot.",
+                "You start with a 10-card deck (6 Burgle, 2 Stumble, 1 Sidestep, 1 Scramble), 30 cubes of your colour, 3 Lockpicks and your pawn on the Crypt. You hold five cards at all times: you draw five at the end of every turn, so your hand is ready when your turn comes."
+              ],
+              "bullets": [
+                "Board: Clank! board with the Health Meters and the Rage Track; the Dragon marker starts on the space showing the number of players.",
+                "Tiles: the 22 dark Depths tiles are shuffled; 2 of the 6 safety tiles go back in the box unseen and the other 4 sit on top of the stack, so the first four tiles found are safe.",
+                "Bank: Gold (1, 5, 10) and Lockpicks (not limited), 5 Ghost cubes, the Dragon bag with 24 black cubes, the 7 Artifacts in a stack (5 on top, 20 at the bottom), 11 major secrets, 20 minor secrets and 20 Prisoners each shuffled face down, the Market Board with 2 Backpacks, 2 Blood Amulets, 3 Burglar's Kits and 3 Crowns (10 on top, then 9, then 8).",
+                "Starting tile in the middle, either side up; the 3 Monkey Idols on the Monkey Shrine; one Mastery token per player near the Crypt.",
+                "Reserve: the Goblin, 15 Mercenary, 15 Explore, 12 Secret Tome. Dungeon Deck shuffled; 6 cards face up as the Dungeon Row, swapping out any with a Dragon Attack mark until none shows.",
+                "First player: the sneakiest, or random. Starting Clank!: first player 3 cubes into the Clank! area, second 2, third 1, fourth 0.",
+                "Any ARRIVE text already showing in the Row happens before the first turn."
+              ]
+            }
+          },
+          {
+            "type": "entry",
+            "label": "Your turn",
+            "icon": "run",
+            "summary": "Play five cards, spend Skill, Swords and Boots, end the turn",
+            "block": {
+              "type": "text",
+              "title": "Your turn",
+              "paragraphs": [
+                "On your turn you play all five cards from your hand into your play area, in any order, and take as many actions as your resources allow, in any order. Then you end your turn."
+              ],
+              "bullets": [
+                "Cards give Skill (acquire cards, use devices), Swords (fight monsters, cover Monster icons) and Boots (move). They pool across all cards played this turn and can be split across actions; whatever is unspent at the end of the turn is lost.",
+                "Gold goes straight from the Bank to your supply and stays. It is also 1 point each at the end.",
+                "Clank!: for each +1, move a cube from your supply to the Clank! area (nothing happens if your supply is empty). For each -1, take one of your cubes back out of the Clank! area. Negative Clank! that has nothing to remove can still cancel Clank! you make later this turn, then it is lost.",
+                "Draw a card: from your own deck. When the deck is empty, shuffle your discard pile (never the play area) into a new deck.",
+                "Discard means from your hand, unplayed, with no effect. If a card asks you to discard a card to get something, you must really have one to discard.",
+                "Trash: the card leaves the game (back in the box). A trashed Burgle is never drawn again.",
+                "Conditions such as \"if you have another companion in your play area\" count whatever you have played so far this turn, in any order.",
+                "End of turn, in order: play area to discard pile and draw five; refill the Dungeon Row to six cards and do each new card's ARRIVE text; if any new card shows the Dragon Attack mark, the dragon attacks once.",
+                "You may end your turn with actions unused; nothing forces you to move or buy."
+              ]
+            }
+          },
+          {
+            "type": "entry",
+            "label": "Cards and the Dungeon Row",
+            "icon": "cards",
+            "summary": "Acquire, use, fight; Acquire, Arrive, Danger texts",
+            "block": {
+              "type": "text",
+              "title": "Cards and the Dungeon Row",
+              "bullets": [
+                "Blue cards: pay the Skill cost (lower right) to acquire one from the Dungeon Row into your discard pile. Do its ACQUIRE text at once; its main text works when you later play it from your hand.",
+                "Yellow Reserve cards (Mercenary 2, Explore 3, Secret Tome 7): acquire the same way, from the Reserve stacks. The Goblin (red, 2 Swords) is also in the Reserve: fight it for a Gold; it is never discarded and can be fought again and again.",
+                "Purple devices: pay the Skill cost, do the USE text right away, then put the card in the Dungeon discard pile. Some devices also need a Lockpick or Gold (Locked Trunk, Wishing Well).",
+                "Red monsters: spend Swords equal to the cost, take the DEFEAT reward, then put the monster in the Dungeon discard pile. A restriction line (Crystal Kobold, The Warden's Deep) must be met first.",
+                "Taken cards are not replaced until the end of your turn, so nobody sees new cards during your actions.",
+                "ARRIVE: happens the moment the card is revealed in the Row, before any Dragon Attack from the same refill.",
+                "DANGER: while the card sits in the Row, every Dragon Attack pulls one more cube from the bag.",
+                "Dragon Attack mark on the right edge: only a card newly added to the Row triggers an attack, and only one attack however many marks appear at once. A card that stays in the Row does not trigger again.",
+                "If the Dungeon Deck cannot refill the Row, the game ends at once and everyone still in the dungeon is knocked out.",
+                "Points in the top right corner count at the end for every card in your deck, hand and discard pile. A \"?\" means the value depends on a condition printed on the card.",
+                "Card text beats the rulebook when they disagree."
+              ]
+            }
+          },
+          {
+            "type": "entry",
+            "label": "Moving and tiles",
+            "icon": "grid",
+            "summary": "Boots, tunnel icons, discovering tiles, special rooms",
+            "block": {
+              "type": "text",
+              "title": "Moving and tiles",
+              "bullets": [
+                "One Boot moves you along one tunnel to the next room. You may stop in any room and keep moving later in the turn.",
+                "Footprints: that tunnel costs two Boots. Monster icon: one damage per icon unless you spend one Sword per icon; you cannot choose damage you cannot take (no cubes left, or it would knock you out). Lock: spend a Lockpick and place it on the icon; it stays unlocked for everyone. One-way arrow: only in the arrow's direction.",
+                "Discovering a tile: when you leave a tile through a tunnel with nothing beyond, take the top tile of the stack and place it touching that edge, in any orientation you like (its tunnel must meet yours). Along the long sides of the starting tile a new tile lines up with the top half or the bottom half. The new tile's icons on your tunnel apply to this move.",
+                "Dusty Map and Marble Guardian place tiles out of turn order; Animated Wall and Sudden Movement rotate tiles that already lie there.",
+                "Portal: a tunnel ending in a portal does not stop there; you come out of any other portal on any tile, for the same single Boot. Tunnel icons on both ends still apply.",
+                "Teleport (cards): move straight to the named room, no Boots, ignoring tunnel icons and arrows. You stay exhausted if you entered a Crystal Cave this turn. You may teleport off a tile edge to discover a new tile.",
+                "Crystal Cave: entering exhausts you for the rest of the turn (no more Boots, teleport still allowed). Crystal Kobolds can only be fought from a Crystal Cave or Wayshrine.",
+                "Haunted tile: four Depths tiles carry a ghost mark. Adding one to the dungeon puts a Ghost cube from the Bank into the Clank! area.",
+                "Wayshrine: once per Wayshrine, as a special action while you are there, put a cube from your supply on an empty space and take Gold equal to the number of Wayshrines you have marked this game (1, then 2, then 3). Four spaces per Wayshrine; those cubes never become Clank!.",
+                "Rewards (minor secret, Monkey Idol, Gold, Healing) are given when you enter the room, once per room per turn; coming back on a later turn gives it again.",
+                "Locked features: Chest (a random major secret), Library (a Secret Tome into your discard pile, free), Prison (two random Prisoners). Spend a Lockpick to cover the feature; each can be picked once per game, and only while something remains in the Bank for it.",
+                "Market: in a Market room buy any Market Board item for 7 Gold, as often as you like.",
+                "Artifact room: when the tile is first placed, the top Artifact from the Bank goes there (\"+\" takes the second, \"++\" the third). Taking it is an action at any point of your turn; the Dragon marker moves up one. One Artifact only, two with a Backpack.",
+                "The Depths are the 22 dark tiles plus the top half of the starting tile."
+              ]
+            }
+          },
+          {
+            "type": "entry",
+            "label": "Clank!, the dragon and health",
+            "icon": "star",
+            "summary": "Noise, Dragon Attacks, ghosts, damage and healing",
+            "block": {
+              "type": "text",
+              "title": "Clank!, the dragon and health",
+              "bullets": [
+                "Clank! cubes wait in the Clank! area of the board. A Dragon Attack moves all of them into the Dragon bag, where they stay for the rest of the game.",
+                "Dragon Attack: shake the bag and draw as many cubes as the Rage Track space shows, plus one per DANGER card in the Row. Black cubes go to the Bank (out of the bag). A coloured cube is one damage to that player. Undrawn cubes stay in the bag for later attacks.",
+                "Ghost cubes: white. Drawn in an attack, every player takes one damage, then the ghost goes back to the Clank! area and will be in the bag again next time. A player with no cubes left marks ghost damage with a black cube from the Bank.",
+                "Rage: the Dragon marker moves up one space for every Artifact taken, for a Dragon Egg and for the Adventurer prisoner. Higher rage means more cubes per attack.",
+                "Damage goes on your Health Meter with cubes of your colour (those drawn from the bag, or from your supply for other damage). A full meter knocks you out.",
+                "Healing takes a cube off your meter back into your supply, where it can become Clank! again.",
+                "If the Dragon bag is empty after an attack, the game ends at once and everyone still inside is knocked out."
+              ]
+            }
+          },
+          {
+            "type": "entry",
+            "label": "Loot: secrets, prisoners, market",
+            "icon": "star",
+            "summary": "What the tokens are worth and when they trigger",
+            "block": {
+              "type": "text",
+              "title": "Loot",
+              "paragraphs": ["Every token is listed with its exact text in the Tokens tab. The rules that cut across them:"],
+              "bullets": [
+                "Minor secrets come from reward rooms and the Scavenger; major secrets from Chests, the Puzzle Box and the Locked Trunk. Reveal them at once; \"immediately\" effects happen now, keepable ones stay in your supply until used.",
+                "Prisoners come two at a time from a Prison, or one from Diversion, Riot and The Warden. Keep them face up; several score only with a condition (Mayor needs a Mastery token, Prince and Princess a Crown, Sorceress two Secret Tomes, Primatologist a Monkey Idol). Brave Hero, Riot and the Warrior count how many you freed. The Discount Coupon is not a Prisoner.",
+                "Market items cost 7 Gold each in a Market room (5 with the Golden Flute, anywhere). Crowns are taken from the top: 10, then 9, then 8. A Crown powers Prince, Princess, Corrupt Advisor, Floating Skull and Expensive Taste.",
+                "Monkey Idols: the Monkey Shrine room gives one on entering; the Golden Monkey Bot counts as one. Worth 5 (the Bot 3). Not Artifacts.",
+                "Gold tokens (Treasure 2, Greater Treasure 5) can be spent like Gold or kept for points.",
+                "Lockpicks are not limited: use any marker if the box runs out."
+              ]
+            }
+          },
+          {
+            "type": "entry",
+            "label": "Escaping, out players, scoring",
+            "icon": "list",
+            "summary": "How the game ends and who wins",
+            "block": {
+              "type": "text",
+              "title": "Escaping, out players, scoring",
+              "bullets": [
+                "Escape: arrive at the Crypt holding an Artifact. Finish your turn, then before refilling the Row remove your pawn and take a Mastery token (20 points). You cannot return to the Crypt without an Artifact.",
+                "Knocked out: your Health Meter is full. Lay your pawn on its side.",
+                "Out players (escaped or knocked out) take no more turns in the normal sense: no cards, no Clank!, no damage from the bag, and cards that affect all players skip them. Each time their turn comes they put all Clank! cubes into the bag and draw exactly four (six with two players), ignoring the Rage Track and DANGER cards, and the other players take that damage.",
+                "The game ends when every player has escaped or been knocked out, when the Dragon bag is empty after an attack, or when the Dungeon Deck cannot refill the Row.",
+                "Scoring: a player without an Artifact, or knocked out in the Depths, scores 0. Everyone else adds the Artifact's value, all Gold, every other token (prisoners, secrets, market items, Monkey Idols, Mastery 20) and the points on the cards in their deck, hand and discard pile.",
+                "Most points wins. Tie: the more valuable Artifact.",
+                "\"Each player\" effects, when order matters (rotating tiles), start with the player whose turn it is and go clockwise, skipping players who are out."
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "id": "turn",
       "label": "Turn",
       "icon": "flag",
@@ -172,18 +336,21 @@
         "cyclic": true,
         "newGameText": "Goes back to the first step. Nothing else is stored for this game.",
         "reminders": [
-          "You must play all five cards each turn, in any order. Unused Skill, Swords and Boots are lost at the end of the turn.",
-          "Discard means from your hand, unplayed. If a card says discard to get something, you must really discard one.",
-          "Room rewards (minor secret, idol, gold, healing) come once per turn per room; re-enter on a later turn for another.",
-          "A Crystal Cave exhausts you for the turn even if you teleport out of it afterwards.",
-          "One-way tunnels only go with the arrow. Teleporting ignores tunnel icons and arrows; the Catacombs Map lets you walk against arrows.",
-          "Every Lock icon in a tunnel costs its own Lockpick. The icon stays covered: unlocked for everyone, all game.",
-          "You cannot take damage on purpose (a Monster tunnel without Swords) if you have no cubes in your supply, or if it would knock you out.",
-          "The Goblin in the Reserve is never discarded; anyone may fight it several times a turn.",
-          "\"Each player\" effects: if order matters (rotating tiles), start with the player whose turn it is and go clockwise, skipping players who are out.",
-          "The Depths are the 22 dark tiles plus the top half of the starting tile. Knocked out in the Depths, or without an Artifact: 0 points.",
-          "Only new cards in the Dungeon Row trigger a Dragon Attack, and only one attack however many marks appear. Each Danger card in the Row adds one cube to every attack.",
-          "You can take an Artifact at any point in your turn, not only on entering the room. Never a second one without a Backpack."
+          "Turn: play all five cards, in any order; unused Skill, Swords and Boots are lost at the end of the turn.",
+          "Turn: discard means from your hand, unplayed; to discard for a benefit you must really have a card to discard.",
+          "Turn: draws come from your deck; an empty deck is refilled by shuffling the discard pile, never the play area.",
+          "Row: taken cards are not replaced until the end of your turn.",
+          "Row: only a new card with the Dragon Attack mark triggers an attack, one attack per refill; each DANGER card in the Row adds a cube to every attack.",
+          "Row: the Goblin in the Reserve is never discarded and can be fought several times a turn.",
+          "Moving: Footprints cost two Boots; each Monster icon is one damage or one Sword; each Lock icon costs its own Lockpick and stays open for everyone.",
+          "Moving: one-way tunnels only go with the arrow; teleporting ignores icons and arrows; the Catacombs Map lets you walk against arrows.",
+          "Moving: a Crystal Cave exhausts you for the turn, even if you teleport out afterwards.",
+          "Moving: you cannot choose damage you cannot take (no cubes in your supply, or it would knock you out).",
+          "Rooms: rewards come once per turn per room; re-enter on a later turn for another.",
+          "Rooms: you may take an Artifact at any point in your turn; never a second one without a Backpack.",
+          "Dragon: a drawn Ghost cube hurts every player and then returns to the Clank! area.",
+          "End: the Depths are the 22 dark tiles plus the top half of the starting tile; knocked out there, or without an Artifact, you score 0.",
+          "End: \"each player\" effects go clockwise from the current player, skipping players who are out."
         ],
         "setup": {
           "id": "setup",
@@ -210,6 +377,26 @@
           ]
         },
         "children": [
+          {
+            "type": "step",
+            "id": "start",
+            "title": "Start of turn",
+            "short": "Start",
+            "summary": "Before you play: check your hand, the Row and your supplies. First turn of a game? Open Setup from the menu.",
+            "listTitle": "Before playing",
+            "how": [
+              "You already hold five cards: they were drawn at the end of your last turn (or in setup). There is no draw at the start of a turn.",
+              "Look at the Dungeon Row: which cards are new since your last turn, which DANGER cards are sitting there, whether anything there needs a Crystal Cave, Wayshrine or the Depths.",
+              "Check your supply: cubes left (each is a possible Clank!), Lockpicks, Gold, kept secrets and potions you may want to use this turn.",
+              "Check your pawn: which tile you are on, whether you are in the Depths, where the nearest Artifact, Market or Wayshrine is.",
+              "Setting up a new game: the ⋮ menu at the top right has the full Setup checklist (board, tiles, bank, starting decks, first player, starting Clank!)."
+            ],
+            "checklist": [
+              { "id": "start.hand", "text": "Five cards in hand", "sub": "Drawn at the end of your last turn; no draw now" },
+              { "id": "start.row", "text": "Read the Dungeon Row", "sub": "New cards, DANGER cards, what you can afford" },
+              { "id": "start.supply", "text": "Cubes, Lockpicks, Gold, potions ready", "sub": "Potions and keepable secrets can be used any time in your turn" }
+            ]
+          },
           {
             "type": "step",
             "id": "play",

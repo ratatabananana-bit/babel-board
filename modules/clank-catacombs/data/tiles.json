@@ -36,7 +36,7 @@
   },
   {
    "id": "one-way",
-   "name": "One-way arrow",
+   "name": "One-way",
    "kind": "Tunnel icons",
    "text": "An arrow-shaped tunnel can only be used in the direction of the arrow. Teleporting ignores this; the Catacombs Map major secret lets you go against it.",
    "tags": [
@@ -71,7 +71,7 @@
   },
   {
    "id": "artifact-plus",
-   "name": "Artifact room with + or ++",
+   "name": "Artifact + / ++",
    "kind": "Rooms",
    "text": "Place the Artifact one (+) or two (++) down from the top of the stack instead of the top one. If fewer remain below the top, place the highest-valued Artifact that remains.",
    "tags": [
@@ -117,9 +117,9 @@
   },
   {
    "id": "chest",
-   "name": "Chest (locked)",
+   "name": "Chest",
    "kind": "Rooms",
-   "text": "While in the room, spend a Lockpick to cover the Chest and take a random major secret from the Bank. Not possible when no major secrets remain. Each feature can be picked once per game.",
+   "text": "Locked feature. While in the room, spend a Lockpick to cover the Chest and take a random major secret from the Bank. Not possible when no major secrets remain. Each feature can be picked once per game.",
    "tags": [
     "treasure chest",
     "padlock",
@@ -129,9 +129,9 @@
   },
   {
    "id": "library",
-   "name": "Library (locked)",
+   "name": "Library",
    "kind": "Rooms",
-   "text": "While in the room, spend a Lockpick to cover the Library and acquire a Secret Tome from the Reserve into your discard pile, for free. Not possible when no Secret Tomes remain.",
+   "text": "Locked feature. While in the room, spend a Lockpick to cover the Library and acquire a Secret Tome from the Reserve into your discard pile, for free. Not possible when no Secret Tomes remain.",
    "tags": [
     "book",
     "padlock",
@@ -141,9 +141,9 @@
   },
   {
    "id": "prison",
-   "name": "Prison (locked)",
+   "name": "Prison",
    "kind": "Rooms",
-   "text": "While in the room, spend a Lockpick to cover the Prison and free two Prisoners: take two random Prisoner tokens face up into your supply (keep them for scoring). Not possible when no Prisoners remain; one remaining can still be freed.",
+   "text": "Locked feature. While in the room, spend a Lockpick to cover the Prison and free two Prisoners: take two random Prisoner tokens face up into your supply (keep them for scoring). Not possible when no Prisoners remain; one remaining can still be freed.",
    "tags": [
     "bars",
     "red badge",
@@ -189,9 +189,9 @@
   },
   {
    "id": "reward-minor-secret",
-   "name": "Reward: minor secret",
+   "name": "Minor secret",
    "kind": "Rooms",
-   "text": "Entering the room gives one random minor secret from the Bank, revealed at once. Rewards come once per turn per room; re-enter on a later turn for another. No reward when the Bank is empty.",
+   "text": "Reward room. Entering gives one random minor secret from the Bank, revealed at once. Rewards come once per turn per room; re-enter on a later turn for another. No reward when the Bank is empty.",
    "tags": [
     "question mark",
     "grey circle"
@@ -200,9 +200,9 @@
   },
   {
    "id": "reward-monkey-idol",
-   "name": "Reward: Monkey Idol",
+   "name": "Monkey Idol",
    "kind": "Rooms",
-   "text": "Take one Monkey Idol from the room into your personal supply (5 points at the end).",
+   "text": "Reward room. Take one Monkey Idol from the room into your personal supply (5 points at the end).",
    "tags": [
     "monkey",
     "orange",
@@ -212,9 +212,9 @@
   },
   {
    "id": "reward-gold",
-   "name": "Reward: Gold",
+   "name": "Gold",
    "kind": "Rooms",
-   "text": "Take the amount of Gold shown from the Bank, once per turn per room.",
+   "text": "Reward room. Take the amount of Gold shown from the Bank, once per turn per room.",
    "tags": [
     "gold coin",
     "1"
@@ -223,9 +223,9 @@
   },
   {
    "id": "reward-healing",
-   "name": "Reward: Healing",
+   "name": "Healing",
    "kind": "Rooms",
-   "text": "Heal 1 damage: take a cube of your colour back from your Health Meter into your supply. Once per turn per room.",
+   "text": "Reward room. Heal 1 damage: take a cube of your colour back from your Health Meter into your supply. Once per turn per room.",
    "tags": [
     "red heart"
    ],
@@ -233,7 +233,7 @@
   },
   {
    "id": "start-a-top",
-   "name": "Starting tile, side A: upper half",
+   "name": "Start A, top",
    "kind": "Starting tile",
    "text": "The upper half of the starting tile is in the Depths (you score 0 if knocked out there). Shown here: Wayshrine, Monkey Shrine, tunnels with Monster icons.",
    "tags": [
@@ -246,7 +246,7 @@
   },
   {
    "id": "start-a-bottom",
-   "name": "Starting tile, side A: lower half",
+   "name": "Start A, bottom",
    "kind": "Starting tile",
    "text": "The Crypt (start and escape room), a reward room and a Crystal Cave behind locked tunnels. Tiles placed along the long edges line up with either the top or the bottom half.",
    "tags": [
@@ -259,7 +259,7 @@
   },
   {
    "id": "start-b-top",
-   "name": "Starting tile, side B: upper half",
+   "name": "Start B, top",
    "kind": "Starting tile",
    "text": "The other side of the starting tile; either side may be used. Its upper half is in the Depths too.",
    "tags": [
@@ -271,7 +271,7 @@
   },
   {
    "id": "start-b-bottom",
-   "name": "Starting tile, side B: lower half",
+   "name": "Start B, bottom",
    "kind": "Starting tile",
    "text": "Side B, lower half, with the Crypt.",
    "tags": [

@@ -6,7 +6,7 @@ features. The authoritative format is `modules/MODULE_SPEC.md`; the code map is
 `docs/ARCHITECTURE.md`. **Keep this file current: any change to blocks, sheet settings,
 saved state, zones, filters, limits or tools must be reflected here in the same commit.**
 
-Last synced with: app 3.3.2, module format 1, 2026-10-26.
+Last synced with: app 3.3.3, module format 1, 2026-10-26.
 
 ## 1. Data model
 
@@ -25,7 +25,7 @@ Picture (tap to zoom; with a back picture, a flip button turns it over, here and
 
 - `chips`: pill facts. `symbol` + `text` templates, `symbols` path (row of icons), `label`. A chip with a label but no value for this item is hidden; chip text longer than the sheet ends in "…" (one line).
 - `effects`: list of `{type, text}` with per-type label, symbol and one-line help. Also what list rows show.
-- `sections`: labelled text blocks from a path (string or list).
+- `sections`: labelled text blocks from a path (string or list); `italic: true` draws one in italics (flavour text), in the sheet or in `details`.
 - `secondary`: small grey template line (e.g. the native-language name).
 - `verifiedPath`: `"verified": false` on an item shows a warning on its sheet; validator counts them.
 - `details`: drag-up hidden area with its own `sections` and a `hint` label (rulings, flavour, spoilers).
@@ -124,6 +124,7 @@ branching scripts. Those still need new block types or a bigger state model.
 
 ## 9. Change log of capabilities
 
+- 3.3.3: sheet sections (and details sections) take `italic: true`; the Clank! Catacombs module is the first with a Rules `hub` of categorised `text` entries.
 - 3.3.2: an update redraws pictures already on screen (they stayed the old version until a restart); repository icon links carry the version.
 - 3.3.1: release builds may use the internet: repositories, install-from-link and image links work outside debug builds.
 - 3.3.0: expansions (`expands`): an overlay module merged into its base game; tab `id`.
