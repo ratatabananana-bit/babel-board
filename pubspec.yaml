@@ -42,3 +42,15 @@ flutter:
           weight: 700
         - asset: assets/fonts/Figtree-800.ttf
           weight: 800
+        - asset: assets/fonts/Figtree-400i.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/Figtree-500i.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Figtree-600i.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/Figtree-700i.ttf
+          weight: 700
+          style: italic
