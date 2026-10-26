@@ -57,3 +57,6 @@ app.*.map.json
 
 # Gradle output inside the android project
 /android/build/
+
+# Source material for modules (publisher art, TTS saves, rulebook renders): never committed
+Workshop Item/
