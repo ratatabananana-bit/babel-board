@@ -31,7 +31,8 @@
             "symbols": "resources"
           },
           {
-            "symbol": "copies#{copies}"
+            "symbol": "copies",
+            "text": "× {copies}"
           }
         ],
         "effects": {
