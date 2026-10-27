@@ -45,7 +45,7 @@ with the name under it), `cardAspect` (width ÷ height, default 0.716), `backIma
 the field with a second picture, e.g. a card back or a tile's other side; the sheet can flip to it), `sheet`.
 
 `sheet` (the item's detail view), all optional:
-- `chips`: `[{"symbol": "{field}", "text": "Cost {cost}", "symbols": "pathToListOfSymbolNames", "label": "Sells"}]` or `{"symbol": "cost#{cost}"}` (the value drawn on the symbol, 3.3.3)
+- `chips`: `[{"symbol": "{field}", "text": "Cost {cost}", "symbols": "pathToListOfSymbolNames", "label": "Sells"}]` or `{"symbol": "cost#{cost}"}` (the value drawn on the symbol, 3.3.3); chip `text` draws `:name:` symbols (3.3.4)
 - `effects`: `{"path": "effects", "typeLabels": {"instant": "Instant"}, "typeSymbols": {"instant": "symbolName"}, "typeHelp": {"instant": "When it triggers"}}` for items with `effects: [{"type": …, "text": …}]`
 - `sections`: `[{"label": "Ability", "path": "abilities"}]` (string or list of strings); add `"italic": true` for flavour text (needs `minAppVersion` "3.3.3")
 - `secondary`: a small grey template line

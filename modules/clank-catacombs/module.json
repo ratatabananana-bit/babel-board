@@ -2,8 +2,8 @@
   "format": 1,
   "id": "clank-catacombs",
   "name": "Clank! Catacombs",
-  "version": "1.0.4",
-  "minAppVersion": "3.3.3",
+  "version": "1.0.5",
+  "minAppVersion": "3.3.4",
   "icon": "images/icon.webp",
   "players": "2-4",
   "source": "Clank! Catacombs rulebook and Token Reference Guide (Dire Wolf Digital, 2022); card text read from scans of the English cards",
@@ -88,7 +88,6 @@
             "text": "{group}"
           },
           {
-            "label": "Points",
             "text": "{points}"
           }
         ],
@@ -200,7 +199,7 @@
         ],
         "sections": {
           "path": "cost",
-          "label": "COST {value}",
+          "label": "COST / SWORDS {value}",
           "onlyWhenFiltered": false,
           "rail": true,
           "railRange": [

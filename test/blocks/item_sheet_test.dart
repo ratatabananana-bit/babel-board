@@ -154,8 +154,32 @@ void main() {
     );
     await tester.tap(find.bySemanticsLabel('Imp'));
     await tester.pumpAndSettle();
-    final line = find.byWidgetPredicate((w) => w is SymbolText && w.text == 'Fire');
+    final line = find.descendant(
+      of: find.byKey(const Key('detailsReveal')),
+      matching: find.byWidgetPredicate((w) => w is SymbolText && w.text == 'Fire'),
+    );
     expect(line, findsOneWidget);
     expect(tester.widget<SymbolText>(line).style?.fontStyle, FontStyle.italic);
+  });
+
+  testWidgets('chip text draws inline symbols like any other text', (tester) async {
+    await pumpModules(
+      tester,
+      load: () async => [
+        await miniWithBacks(
+          nessie: {'pts': '5 if you hold a crown'},
+          chips: [
+            {'text': 'Pay :stone_red#{cost}: now'},
+          ],
+        ),
+      ],
+    );
+    await openSheet(tester, 'Imp');
+    final chipText = find.byWidgetPredicate((w) => w is SymbolText && w.text == 'Pay :stone_red#2: now');
+    expect(chipText, findsOneWidget, reason: 'the chip template fills and goes through SymbolText');
+    final icon = find.descendant(of: chipText, matching: find.byType(SymbolImage));
+    expect(icon, findsOneWidget);
+    expect(tester.widget<SymbolImage>(icon).name, 'stone_red#2');
+    expect(find.textContaining(':stone_red', findRichText: true), findsNothing);
   });
 }

@@ -197,7 +197,7 @@ class ItemSheet extends StatelessWidget {
       if (t.isNotEmpty) {
         if (children.isNotEmpty) children.add(const SizedBox(width: 6));
         // A pill is one line: text longer than the sheet ends in "…" instead of overflowing.
-        children.add(Flexible(child: Text(t, maxLines: 1, overflow: TextOverflow.ellipsis)));
+        children.add(Flexible(child: SymbolText(t, maxLines: 1, overflow: TextOverflow.ellipsis)));
       }
     }
     if (c.symbols != null) {

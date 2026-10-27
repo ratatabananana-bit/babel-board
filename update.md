@@ -1,4 +1,4 @@
-# Updates: Clank! Catacombs module, app 3.3.3
+# Updates: Clank! Catacombs module, app 3.3.3 and 3.3.4
 
 What changed between 2026-10-26 and 2026-10-27, newest last. App releases are at
 https://github.com/ratatabananana-bit/babel-board/releases and modules at
@@ -9,12 +9,12 @@ Vale of Eternity: Curse, app 3.3.0 to 3.3.2) is in the git history of this file.
 
 | Thing | Version | Where |
 |---|---|---|
-| Babel Board app | 3.3.3 (Latest release, arm64 and arm32 APKs) | `babel-board` master, tag `v3.3.3` |
-| Clank! Catacombs | 1.0.4 | modules repository |
+| Babel Board app | 3.3.4 (Latest release, arm64 and arm32 APKs) | `babel-board` master, tag `v3.3.4` |
+| Clank! Catacombs | 1.0.5 (needs app 3.3.4) | modules repository |
 | Vale of Eternity | 2.1.1 | modules repository |
 | Vale of Eternity: Curse | 1.0.4 | modules repository |
 | Magical Athlete | 1.0.0 | modules repository |
-| Tests | 368 passing, analyzer clean | `flutter test` |
+| Tests | 369 passing, analyzer clean | `flutter test` |
 
 ## App 3.3.3
 
@@ -34,7 +34,13 @@ Vale of Eternity: Curse, app 3.3.0 to 3.3.2) is in the git history of this file.
 
 Spec, schema, `AI_INSTRUCTIONS.md` and `docs/CAPABILITIES.md` describe all of it.
 
-## Clank! Catacombs 1.0.0
+## App 3.3.4
+
+- **Symbols in chips.** A chip's `text` template now goes through the symbol renderer, so a
+  field holding `:points#5: if you have a Crown` shows the gem inside the pill. Needed so the
+  token sheets in Clank! show points the same way the card text does.
+
+## Clank! Catacombs 1.0.0 to 1.0.5
 
 Base game, lookup only (no zones, no tracking). Five tabs: Cards, Tokens, Tiles, Rules (hub
 of categorised text), Turn (flow with a start-of-turn step and categorised reminders).
@@ -55,6 +61,10 @@ of categorised text), Turn (flow with a start-of-turn step and categorised remin
   gold, points, skill, sword, boot, heart, dragon, mastery, arrive, danger, ghost cubes,
   footprints, lock, portal, artifact room, crystal cave, healing, logo), 5 designer banners,
   17 rulebook crops, 1 placeholder (copies card icon).
+- 1.0.1 to 1.0.5: every point, gold, cost, sword, boot and skill amount in token text, tile
+  text, the Rules hub, the Turn flow and the token points chip is drawn on its symbol; plain
+  blue cards are labelled Blue; tiles search by kind; the cost rail reads "COST / SWORDS N"
+  because a monster row's number is swords.
 - Sources and scripts live outside the repo in `E:\AI\BabelBoard\Workshop Item\clank-catacombs-src`
   (gitignored): `scripts/cards_src.js`, `tokens_src.js`, `tiles_src.js` generate the data;
   `check.js` asserts it; `crops.json` + `make_images.js` cut the rulebook pictures;
@@ -66,7 +76,6 @@ of categorised text), Turn (flow with a start-of-turn step and categorised remin
 - Skill diamond carries a printed 1; four cards overlay 2, 3 or 6 on it (owner: leave for now).
 - Copies card icon is a flat placeholder; monster and one-way tunnel icons, the Artifacts
   stack and the single Lockpick are still rulebook crops.
-- The cost rail labels monster rows "COST N" (it is swords for them).
 - Banner icons sit small in the dock buttons (the designer's file has margins).
 - The module ships publisher scans: personal use only, like the Vale module.
 

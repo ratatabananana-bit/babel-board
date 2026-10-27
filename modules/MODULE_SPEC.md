@@ -57,7 +57,7 @@ An image value is either an `https://…` link or a relative path inside the mod
 | `format` | Always `1`. |
 | `id` | Lowercase letters, digits, `-`, `_`, `.`. Saved progress is kept per id: never change it. |
 | `name`, `version` | Shown in the Library. Raise `version` (`1.0.1`, `1.1.0`…) for every update. |
-| `minAppVersion` | `"3.0.0"`, or `"3.2.0"` when the module uses `hub`, gallery `groups` / `tileSubtitle` / `searchKeyboard`, `inZone`, `moveZone` / `clearZones` or several flows, `"3.3.0"` for an expansion (`expands`, see Expansions) or a `backImageField`, or `"3.3.3"` for an `italic` section or `*italic*` runs or `:name#3:` numbered symbols in text. |
+| `minAppVersion` | `"3.0.0"`, or `"3.2.0"` when the module uses `hub`, gallery `groups` / `tileSubtitle` / `searchKeyboard`, `inZone`, `moveZone` / `clearZones` or several flows, `"3.3.0"` for an expansion (`expands`, see Expansions) or a `backImageField`, or `"3.3.3"` for an `italic` section or `*italic*` runs or `:name#3:` numbered symbols in text, `"3.3.4"` for symbols inside chip `text`. |
 | `icon` | Round game icon (square picture works best). |
 | `players`, `source` | Free text. |
 | `collections` | Lists of items, see below. |
@@ -110,7 +110,8 @@ Tapping an item opens its sheet: picture, name, subtitle, then:
 }
 ```
 
-- `chips`: small pills. `symbol` is a template naming a symbol; `text` a template; `symbols`
+- `chips`: small pills. `symbol` is a template naming a symbol; `text` a template (its result
+  draws `:name:` symbols since 3.3.4, so a field holding `:points#5:` shows the gem); `symbols`
   a path to a list of symbol names drawn in a row; `label` plain text. A chip that would show
   only its `label` (the item has no value for it) is left out.
 - `effects`: for items with a list of `{"type": …, "text": …}` effects. Each effect shows its

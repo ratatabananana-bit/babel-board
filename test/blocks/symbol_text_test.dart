@@ -14,7 +14,7 @@ void main() {
     await pumpModules(tester);
     await tester.tap(find.bySemanticsLabel('Imp'));
     await tester.pumpAndSettle();
-    final effect = find.descendant(of: find.byType(ItemSheet), matching: find.byType(SymbolText)).first;
+    final effect = find.byWidgetPredicate((w) => w is SymbolText && w.text.contains(':stone_red:'));
     // The marker itself is never shown; unknown names stay as written.
     expect(find.textContaining(':stone_red:', findRichText: true), findsNothing);
     expect(find.textContaining(':unknown:', findRichText: true), findsOneWidget);
