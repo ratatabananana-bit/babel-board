@@ -16,16 +16,41 @@
       "cardAspect": 0.72,
       "sheet": {
         "chips": [
-          { "symbol": "banner_{banner}", "text": "{kind}" },
-          { "text": "Cost {cost}" },
-          { "label": "Points", "text": "{points}" },
-          { "label": "Gives", "symbols": "resources" },
-          { "label": "Copies", "text": "{copies}" }
+          {
+            "symbol": "banner_{banner}",
+            "text": "{kind}"
+          },
+          {
+            "text": "Cost {cost}"
+          },
+          {
+            "label": "Points",
+            "text": "{points}"
+          },
+          {
+            "label": "Gives",
+            "symbols": "resources"
+          },
+          {
+            "label": "Copies",
+            "text": "{copies}"
+          }
         ],
         "effects": {
           "path": "effects",
-          "typeLabels": { "play": "When played", "acquire": "Acquire", "arrive": "Arrive", "danger": "Danger", "use": "Use", "defeat": "Defeat", "deep": "Deep" },
-          "typeSymbols": { "play": "fx_play", "acquire": "fx_acquire", "arrive": "fx_arrive", "danger": "fx_danger", "use": "fx_use", "defeat": "fx_defeat", "deep": "fx_deep" },
+          "typeLabels": {
+            "play": "When played",
+            "acquire": "Acquire",
+            "arrive": "Arrive",
+            "danger": "Danger",
+            "use": "Use",
+            "defeat": "Defeat",
+            "deep": "Deep"
+          },
+          "typeSymbols": {
+            "arrive": "fx_arrive",
+            "danger": "fx_danger"
+          },
           "typeHelp": {
             "play": "Happens when you play the card from your hand.",
             "acquire": "Once, the moment you take the card from the Dungeon Row (not when you play it later).",
@@ -40,8 +65,15 @@
         "details": {
           "hint": "Notes",
           "sections": [
-            { "label": "Flavour", "path": "flavour", "italic": true },
-            { "label": "Rulings", "path": "rulings" }
+            {
+              "label": "Flavour",
+              "path": "flavour",
+              "italic": true
+            },
+            {
+              "label": "Rulings",
+              "path": "rulings"
+            }
           ]
         }
       }
@@ -53,12 +85,23 @@
       "imageShape": "square",
       "sheet": {
         "chips": [
-          { "text": "{group}" },
-          { "label": "Points", "text": "{points}" }
+          {
+            "text": "{group}"
+          },
+          {
+            "label": "Points",
+            "text": "{points}"
+          }
         ],
         "sections": [
-          { "label": "Effect", "path": "text" },
-          { "label": "Keep or return", "path": "keep" }
+          {
+            "label": "Effect",
+            "path": "text"
+          },
+          {
+            "label": "Keep or return",
+            "path": "keep"
+          }
         ],
         "verifiedPath": "verified"
       }
@@ -70,7 +113,10 @@
       "imageShape": "square",
       "sheet": {
         "sections": [
-          { "label": "What it does", "path": "text" }
+          {
+            "label": "What it does",
+            "path": "text"
+          }
         ]
       }
     }
@@ -94,13 +140,8 @@
     "banner_red": "images/symbols/banner_red.webp",
     "banner_yellow": "images/symbols/banner_yellow.webp",
     "banner_grey": "images/symbols/banner_grey.webp",
-    "fx_play": "images/symbols/fx_play.webp",
-    "fx_acquire": "images/symbols/fx_acquire.webp",
     "fx_arrive": "images/symbols/fx_arrive.webp",
-    "fx_danger": "images/symbols/fx_danger.webp",
-    "fx_use": "images/symbols/fx_use.webp",
-    "fx_defeat": "images/symbols/fx_defeat.webp",
-    "fx_deep": "images/symbols/fx_deep.webp"
+    "fx_danger": "images/symbols/fx_danger.webp"
   },
   "zones": [],
   "tabs": [
@@ -111,7 +152,12 @@
       "block": {
         "type": "gallery",
         "collection": "cards",
-        "search": ["name", "effects.text", "tags", "kind"],
+        "search": [
+          "name",
+          "effects.text",
+          "tags",
+          "kind"
+        ],
         "tileName": true,
         "noun": "cards",
         "searchHint": "Name, text, or what you see",
@@ -122,15 +168,44 @@
             "position": "bottom",
             "allLabel": "All cards",
             "options": [
-              { "value": "blue", "label": "Blue", "symbol": "banner_blue" },
-              { "value": "purple", "label": "Device", "symbol": "banner_purple" },
-              { "value": "red", "label": "Monster", "symbol": "banner_red" },
-              { "value": "yellow", "label": "Reserve", "symbol": "banner_yellow" },
-              { "value": "grey", "label": "Starter", "symbol": "banner_grey" }
+              {
+                "value": "blue",
+                "label": "Blue",
+                "symbol": "banner_blue"
+              },
+              {
+                "value": "purple",
+                "label": "Device",
+                "symbol": "banner_purple"
+              },
+              {
+                "value": "red",
+                "label": "Monster",
+                "symbol": "banner_red"
+              },
+              {
+                "value": "yellow",
+                "label": "Reserve",
+                "symbol": "banner_yellow"
+              },
+              {
+                "value": "grey",
+                "label": "Starter",
+                "symbol": "banner_grey"
+              }
             ]
           }
         ],
-        "sections": { "path": "cost", "label": "COST {value}", "onlyWhenFiltered": false, "rail": true, "railRange": [0, 8] }
+        "sections": {
+          "path": "cost",
+          "label": "COST {value}",
+          "onlyWhenFiltered": false,
+          "rail": true,
+          "railRange": [
+            0,
+            8
+          ]
+        }
       }
     },
     {
@@ -140,11 +215,19 @@
       "block": {
         "type": "gallery",
         "collection": "tokens",
-        "search": ["name", "text", "tags", "group"],
+        "search": [
+          "name",
+          "text",
+          "tags",
+          "group"
+        ],
         "tileName": false,
         "noun": "tokens",
         "searchHint": "Prisoner, secret, market item",
-        "sections": { "path": "group", "label": "{value}" }
+        "sections": {
+          "path": "group",
+          "label": "{value}"
+        }
       }
     },
     {
@@ -154,11 +237,18 @@
       "block": {
         "type": "gallery",
         "collection": "tiles",
-        "search": ["name", "text", "tags"],
+        "search": [
+          "name",
+          "text",
+          "tags"
+        ],
         "tileName": false,
         "noun": "icons",
         "searchHint": "Tunnel or room icon",
-        "sections": { "path": "kind", "label": "{value}" }
+        "sections": {
+          "path": "kind",
+          "label": "{value}"
+        }
       }
     },
     {
@@ -292,7 +382,9 @@
             "block": {
               "type": "text",
               "title": "Loot",
-              "paragraphs": ["Every token is listed with its exact text in the Tokens tab. The rules that cut across them:"],
+              "paragraphs": [
+                "Every token is listed with its exact text in the Tokens tab. The rules that cut across them:"
+              ],
               "bullets": [
                 "Minor secrets come from reward rooms and the Scavenger; major secrets from Chests, the Puzzle Box and the Locked Trunk. Reveal them at once; \"immediately\" effects happen now, keepable ones stay in your supply until used.",
                 "Prisoners come two at a time from a Prison, or one from Diversion, Riot and The Warden. Keep them face up; several score only with a condition (Mayor needs a Mastery token, Prince and Princess a Crown, Sorceress two Secret Tomes, Primatologist a Monkey Idol). Brave Hero, Riot and the Warrior count how many you freed. The Discount Coupon is not a Prisoner.",
@@ -365,15 +457,50 @@
             "Reserve: the Goblin and three stacks (15 Mercenary, 15 Explore, 12 Secret Tome). Shuffle the Dungeon Deck and deal 6 face up as the Dungeon Row, replacing any card with a Dragon Attack mark until none shows; shuffle those back in."
           ],
           "checklist": [
-            { "id": "setup.board", "text": "Board, Dragon marker on the player-count space", "sub": "Rage Track space 2 / 3 / 4 for 2 / 3 / 4 players" },
-            { "id": "setup.tiles", "text": "Tile stack: 22 Depths shuffled, 4 of 6 safety tiles on top", "sub": "2 safety tiles back in the box, unseen" },
-            { "id": "setup.bank", "text": "Bank: gold, lockpicks, ghosts, dragon bag, artifacts 5 to 20, secrets, prisoners, market" },
-            { "id": "setup.start", "text": "Starting tile, Monkey Idols on the shrine, Mastery tokens by the Crypt", "sub": "One Mastery token per player; extras to the box" },
-            { "id": "setup.row", "text": "Reserve + Dungeon Row of 6 with no Dragon Attack mark" },
-            { "id": "setup.players", "text": "Each player: colour, 30 cubes, pawn on the Crypt, 3 Lockpicks", "sub": "10-card deck: 6 Burgle, 2 Stumble, 1 Sidestep, 1 Scramble. Shuffle, draw 5." },
-            { "id": "setup.first", "text": "First player: the sneakiest (or random). Starting Clank!: 3 / 2 / 1 / 0", "sub": "First player puts 3 cubes in the Clank! area, second 2, third 1, fourth 0" },
-            { "id": "setup.arrive", "text": "Resolve any ARRIVE text already in the Row before the first turn" },
-            { "id": "setup.app", "text": "Start the tracker in the app", "action": { "type": "newGame" } }
+            {
+              "id": "setup.board",
+              "text": "Board, Dragon marker on the player-count space",
+              "sub": "Rage Track space 2 / 3 / 4 for 2 / 3 / 4 players"
+            },
+            {
+              "id": "setup.tiles",
+              "text": "Tile stack: 22 Depths shuffled, 4 of 6 safety tiles on top",
+              "sub": "2 safety tiles back in the box, unseen"
+            },
+            {
+              "id": "setup.bank",
+              "text": "Bank: gold, lockpicks, ghosts, dragon bag, artifacts 5 to 20, secrets, prisoners, market"
+            },
+            {
+              "id": "setup.start",
+              "text": "Starting tile, Monkey Idols on the shrine, Mastery tokens by the Crypt",
+              "sub": "One Mastery token per player; extras to the box"
+            },
+            {
+              "id": "setup.row",
+              "text": "Reserve + Dungeon Row of 6 with no Dragon Attack mark"
+            },
+            {
+              "id": "setup.players",
+              "text": "Each player: colour, 30 cubes, pawn on the Crypt, 3 Lockpicks",
+              "sub": "10-card deck: 6 Burgle, 2 Stumble, 1 Sidestep, 1 Scramble. Shuffle, draw 5."
+            },
+            {
+              "id": "setup.first",
+              "text": "First player: the sneakiest (or random). Starting Clank!: 3 / 2 / 1 / 0",
+              "sub": "First player puts 3 cubes in the Clank! area, second 2, third 1, fourth 0"
+            },
+            {
+              "id": "setup.arrive",
+              "text": "Resolve any ARRIVE text already in the Row before the first turn"
+            },
+            {
+              "id": "setup.app",
+              "text": "Start the tracker in the app",
+              "action": {
+                "type": "newGame"
+              }
+            }
           ]
         },
         "children": [
@@ -392,9 +519,21 @@
               "Setting up a new game: the ⋮ menu at the top right has the full Setup checklist (board, tiles, bank, starting decks, first player, starting Clank!)."
             ],
             "checklist": [
-              { "id": "start.hand", "text": "Five cards in hand", "sub": "Drawn at the end of your last turn; no draw now" },
-              { "id": "start.row", "text": "Read the Dungeon Row", "sub": "New cards, DANGER cards, what you can afford" },
-              { "id": "start.supply", "text": "Cubes, Lockpicks, Gold, potions ready", "sub": "Potions and keepable secrets can be used any time in your turn" }
+              {
+                "id": "start.hand",
+                "text": "Five cards in hand",
+                "sub": "Drawn at the end of your last turn; no draw now"
+              },
+              {
+                "id": "start.row",
+                "text": "Read the Dungeon Row",
+                "sub": "New cards, DANGER cards, what you can afford"
+              },
+              {
+                "id": "start.supply",
+                "text": "Cubes, Lockpicks, Gold, potions ready",
+                "sub": "Potions and keepable secrets can be used any time in your turn"
+              }
             ]
           },
           {
@@ -412,9 +551,20 @@
               "A card's condition counts whatever order you play things in: Rebel General draws if another companion is in your play area, before or after."
             ],
             "checklist": [
-              { "id": "play.all", "text": "Play every card in your hand", "sub": "Any order; you may act between plays" },
-              { "id": "play.clank", "text": "Clank! cubes in or out as the cards say" },
-              { "id": "play.look", "text": "Look up any card you cannot read", "sub": "Cards tab: banner colour, cost, picture" }
+              {
+                "id": "play.all",
+                "text": "Play every card in your hand",
+                "sub": "Any order; you may act between plays"
+              },
+              {
+                "id": "play.clank",
+                "text": "Clank! cubes in or out as the cards say"
+              },
+              {
+                "id": "play.look",
+                "text": "Look up any card you cannot read",
+                "sub": "Cards tab: banner colour, cost, picture"
+              }
             ]
           },
           {
@@ -436,10 +586,26 @@
               "Rooms give their reward (minor secret, Monkey Idol, Gold, Healing) when you enter, once per turn per room."
             ],
             "checklist": [
-              { "id": "act.acquire", "text": "Acquire / use / fight from the Row", "sub": "Taken cards are not replaced until the end of your turn" },
-              { "id": "act.move", "text": "Move, discover tiles, pick locks", "sub": "Tiles tab explains every icon" },
-              { "id": "act.loot", "text": "Artifact, market, chest, library, prison, wayshrine", "sub": "Artifact: Dragon marker up one" },
-              { "id": "act.tokens", "text": "Read any token you drew", "sub": "Tokens tab: prisoners, secrets, market items" }
+              {
+                "id": "act.acquire",
+                "text": "Acquire / use / fight from the Row",
+                "sub": "Taken cards are not replaced until the end of your turn"
+              },
+              {
+                "id": "act.move",
+                "text": "Move, discover tiles, pick locks",
+                "sub": "Tiles tab explains every icon"
+              },
+              {
+                "id": "act.loot",
+                "text": "Artifact, market, chest, library, prison, wayshrine",
+                "sub": "Artifact: Dragon marker up one"
+              },
+              {
+                "id": "act.tokens",
+                "text": "Read any token you drew",
+                "sub": "Tokens tab: prisoners, secrets, market items"
+              }
             ]
           },
           {
@@ -457,10 +623,23 @@
               "Health: a full Health Meter knocks you out. Healing takes a cube back from the meter into your supply."
             ],
             "checklist": [
-              { "id": "end.discard", "text": "Play area to discard pile, draw 5" },
-              { "id": "end.refill", "text": "Refill the Row to 6, do ARRIVE texts" },
-              { "id": "end.dragon", "text": "Dragon Attack if a new card shows the mark", "sub": "Clank! cubes into the bag; draw rage number + Danger cards; black aside, colour = damage, ghost = all take 1" },
-              { "id": "end.escape", "text": "Escaped at the Crypt with an Artifact? Remove your pawn before refilling, take a Mastery token (+20)" }
+              {
+                "id": "end.discard",
+                "text": "Play area to discard pile, draw 5"
+              },
+              {
+                "id": "end.refill",
+                "text": "Refill the Row to 6, do ARRIVE texts"
+              },
+              {
+                "id": "end.dragon",
+                "text": "Dragon Attack if a new card shows the mark",
+                "sub": "Clank! cubes into the bag; draw rage number + Danger cards; black aside, colour = damage, ghost = all take 1"
+              },
+              {
+                "id": "end.escape",
+                "text": "Escaped at the Crypt with an Artifact? Remove your pawn before refilling, take a Mastery token (+20)"
+              }
             ]
           },
           {
@@ -476,8 +655,14 @@
               "Skip this step while nobody is out. The game ends when every player has escaped or been knocked out."
             ],
             "checklist": [
-              { "id": "out.bag", "text": "Out player's turn: Clank! cubes into the bag, draw 4 (6 with 2 players)" },
-              { "id": "out.all", "text": "Everyone escaped or knocked out? Go to Scoring" }
+              {
+                "id": "out.bag",
+                "text": "Out player's turn: Clank! cubes into the bag, draw 4 (6 with 2 players)"
+              },
+              {
+                "id": "out.all",
+                "text": "Everyone escaped or knocked out? Go to Scoring"
+              }
             ]
           },
           {
@@ -494,11 +679,30 @@
               "Most points wins the title Greatest Thief in the Realm. Tie: the more valuable Artifact."
             ],
             "checklist": [
-              { "id": "score.artifact", "text": "Artifact value (none = 0 points total)" },
-              { "id": "score.gold", "text": "Gold, 1 point each" },
-              { "id": "score.tokens", "text": "Tokens: prisoners, secrets, market items, idols, Mastery 20", "sub": "Conditional prisoners: Mayor needs a Mastery token, Prince/Princess a Crown, Sorceress two Secret Tomes, Primatologist a Monkey Idol" },
-              { "id": "score.cards", "text": "Card points (top right) from deck, hand and discard" },
-              { "id": "score.new", "text": "New game in the app", "action": { "type": "newGame" } }
+              {
+                "id": "score.artifact",
+                "text": "Artifact value (none = 0 points total)"
+              },
+              {
+                "id": "score.gold",
+                "text": "Gold, 1 point each"
+              },
+              {
+                "id": "score.tokens",
+                "text": "Tokens: prisoners, secrets, market items, idols, Mastery 20",
+                "sub": "Conditional prisoners: Mayor needs a Mastery token, Prince/Princess a Crown, Sorceress two Secret Tomes, Primatologist a Monkey Idol"
+              },
+              {
+                "id": "score.cards",
+                "text": "Card points (top right) from deck, hand and discard"
+              },
+              {
+                "id": "score.new",
+                "text": "New game in the app",
+                "action": {
+                  "type": "newGame"
+                }
+              }
             ]
           }
         ]
