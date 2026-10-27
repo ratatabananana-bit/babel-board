@@ -251,7 +251,8 @@ matching its `filter`.
 ```
 
 `style`: `mini` (small picture, name, effects; `columns` per row), `rows` (full width with
-all text), `thumbs` (pictures only). `removable` adds an ✕ on rows. `filter` narrows the list.
+all text), `thumbs` (pictures only). Effect lines lead with the type's symbol, or (3.3.5) its
+label when the type has no symbol. `removable` adds an ✕ on rows. `filter` narrows the list.
 
 ### `flow`
 

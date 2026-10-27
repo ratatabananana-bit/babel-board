@@ -1,4 +1,4 @@
-# Updates: Clank! Catacombs module, app 3.3.3 and 3.3.4
+# Updates: Clank! Catacombs module, app 3.3.3 to 3.3.5
 
 What changed between 2026-10-26 and 2026-10-27, newest last. App releases are at
 https://github.com/ratatabananana-bit/babel-board/releases and modules at
@@ -9,12 +9,12 @@ Vale of Eternity: Curse, app 3.3.0 to 3.3.2) is in the git history of this file.
 
 | Thing | Version | Where |
 |---|---|---|
-| Babel Board app | 3.3.4 (Latest release, arm64 and arm32 APKs) | `babel-board` master, tag `v3.3.4` |
-| Clank! Catacombs | 1.0.5 (needs app 3.3.4) | modules repository |
+| Babel Board app | 3.3.5 (Latest release, arm64 and arm32 APKs) | `babel-board` master, tag `v3.3.5` |
+| Clank! Catacombs | 1.1.0 (needs app 3.3.4; lane labels need 3.3.5) | modules repository |
 | Vale of Eternity | 2.1.1 | modules repository |
 | Vale of Eternity: Curse | 1.0.4 | modules repository |
 | Magical Athlete | 1.0.0 | modules repository |
-| Tests | 369 passing, analyzer clean | `flutter test` |
+| Tests | 370 passing, analyzer clean | `flutter test` |
 
 ## App 3.3.3
 
@@ -40,10 +40,20 @@ Spec, schema, `AI_INSTRUCTIONS.md` and `docs/CAPABILITIES.md` describe all of it
   field holding `:points#5: if you have a Crown` shows the gem inside the pill. Needed so the
   token sheets in Clank! show points the same way the card text does.
 
-## Clank! Catacombs 1.0.0 to 1.0.5
+## App 3.3.5
 
-Base game, lookup only (no zones, no tracking). Five tabs: Cards, Tokens, Tiles, Rules (hub
-of categorised text), Turn (flow with a start-of-turn step and categorised reminders).
+- **Lane rows name the effect type.** In a board lane, an effect whose type has no symbol
+  now starts with its label ("Defeat: ", "When played: "), so a tracked Clank! card reads
+  right without opening it. Modules whose every type has a symbol (Vale) are unchanged.
+
+## Clank! Catacombs 1.0.0 to 1.1.0
+
+Base game. Six tabs: Cards, Tokens, Tiles, Mine, Rules (hub of categorised text), Turn (flow
+with a start-of-turn step and categorised reminders). Mine (1.1.0) tracks three zones: My deck
+(acquired cards, one entry per card), Watched (Row cards to keep an eye on), Trashed. The card
+sheet offers all three and swipes left to My deck, right to Watched. Lanes show each card's
+effect text. No hand or resource tracking: the hand changes every turn and the app has no
+counters.
 
 - **Cards (77 unique, 101 printed).** TTS Workshop scans at 504 x 700. Found without families:
   a filter dock of five banner buttons (Blue, Device, Monster, Reserve, Starter) with the

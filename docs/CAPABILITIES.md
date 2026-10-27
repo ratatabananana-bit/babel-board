@@ -6,7 +6,7 @@ features. The authoritative format is `modules/MODULE_SPEC.md`; the code map is
 `docs/ARCHITECTURE.md`. **Keep this file current: any change to blocks, sheet settings,
 saved state, zones, filters, limits or tools must be reflected here in the same commit.**
 
-Last synced with: app 3.3.4, module format 1, 2026-10-27.
+Last synced with: app 3.3.5, module format 1, 2026-10-27.
 
 ## 1. Data model
 
@@ -124,6 +124,7 @@ branching scripts. Those still need new block types or a bigger state model.
 
 ## 9. Change log of capabilities
 
+- 3.3.5: board lane rows (`mini` and `rows`) lead each effect with its type label ("Defeat: ") when the type has no `typeSymbols` entry, so a tracked card's lines stay readable without the sheet.
 - 3.3.4: chip `text` goes through the symbol renderer, so `"text": "{points}"` shows `:points#5:` as the gem and a chip can mix words and symbols.
 - 3.3.3: filter dock options with a `symbol` draw the picture flat (no disc, no ring; unselected ones dimmed), so banner- or badge-shaped symbols keep their shape. Sheet sections (and details sections) take `italic: true`; `*…*` in any text draws an italic run (symbols inside it still work); `:name#3:` and chip `symbol` templates like `cost#{cost}` draw a number centred on a symbol (one blank picture per kind instead of one per value); the Clank! Catacombs module is the first with a Rules `hub` of categorised `text` entries.
 - 3.3.2: an update redraws pictures already on screen (they stayed the old version until a restart); repository icon links carry the version.

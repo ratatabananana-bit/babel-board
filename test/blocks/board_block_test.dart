@@ -128,7 +128,9 @@ void main() {
     expect(find.text('Lane B cleared'), findsNothing);
     expect(find.byKey(const Key('clear-b')), findsOneWidget, reason: 'Clear stays, dimmed');
     expect(
-      tester.widget<InkWell>(find.descendant(of: find.byKey(const Key('clear-b')), matching: find.byType(InkWell))).onTap,
+      tester
+          .widget<InkWell>(find.descendant(of: find.byKey(const Key('clear-b')), matching: find.byType(InkWell)))
+          .onTap,
       isNull,
       reason: 'an empty lane has nothing to clear',
     );
@@ -226,5 +228,14 @@ void main() {
     await tester.tap(find.text('Imp'));
     await tester.pumpAndSettle();
     expect(find.text('Cost 2'), findsOneWidget);
+  });
+
+  testWidgets('a lane row names the effect type when the type has no symbol', (tester) async {
+    await pumpModules(tester, tab: 'Board', prefs: prefsWith({'imp': 'a', 'undine': 'b'}));
+    // Undine's effect is 'permanent', which has a label but no symbol: the label leads the line.
+    expect(find.text('Permanent: '), findsOneWidget);
+    expect(find.textContaining('Keep one more stone', findRichText: true), findsOneWidget);
+    // Imp's 'instant' has a symbol: the symbol leads, no label text.
+    expect(find.text('Instant: '), findsNothing);
   });
 }

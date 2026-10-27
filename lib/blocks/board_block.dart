@@ -612,10 +612,7 @@ class _Lane {
     }
 
     return [
-      SliverPersistentHeader(
-        pinned: true,
-        delegate: _PinnedHeader(headerH, asTarget(header, dashed: !open)),
-      ),
+      SliverPersistentHeader(pinned: true, delegate: _PinnedHeader(headerH, asTarget(header, dashed: !open))),
       if (open) SliverToBoxAdapter(child: asTarget(body, dashed: true)),
       const SliverToBoxAdapter(child: SizedBox(height: 8)),
     ];
@@ -661,7 +658,14 @@ List<Widget> _detailLines(BuildContext context, Item item, CollectionSpec spec, 
                     child: SymbolImage(symbol, size: size + 3),
                   ),
                   const SizedBox(width: 5),
-                ],
+                ]
+                // No symbol for this type: its label leads the line, so "Defeat:" and
+                // "When played:" stay apart in a lane without opening the sheet.
+                else if (e.typeLabels[raw['type']] case final label?)
+                  Text(
+                    '$label: ',
+                    style: TextStyle(fontSize: size, height: 1.3, fontWeight: FontWeight.w700, color: p.text2),
+                  ),
                 Expanded(
                   child: SymbolText(
                     '${raw['text'] ?? ''}',
