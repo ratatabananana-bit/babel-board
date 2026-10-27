@@ -2,7 +2,7 @@
   "format": 1,
   "id": "clank-catacombs",
   "name": "Clank! Catacombs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "minAppVersion": "3.3.3",
   "icon": "images/icon.webp",
   "players": "2-4",
@@ -391,7 +391,7 @@
               "bullets": [
                 "Minor secrets come from reward rooms and the Scavenger; major secrets from Chests, the Puzzle Box and the Locked Trunk. Reveal them at once; \"immediately\" effects happen now, keepable ones stay in your supply until used.",
                 "Prisoners come two at a time from a Prison, or one from Diversion, Riot and The Warden. Keep them face up; several score only with a condition (Mayor needs a Mastery token, Prince and Princess a Crown, Sorceress two Secret Tomes, Primatologist a Monkey Idol). Brave Hero, Riot and the Warrior count how many you freed. The Discount Coupon is not a Prisoner.",
-                "Market items cost :gold#7: each in a Market room (5 with the Golden Flute, anywhere). Crowns are taken from the top: :points#10:, then :points#9:, then :points#8:. A Crown powers Prince, Princess, Corrupt Advisor, Floating Skull and Expensive Taste.",
+                "Market items cost :gold#7: each in a Market room (:gold#5: with the Golden Flute, anywhere). Crowns are taken from the top: :points#10:, then :points#9:, then :points#8:. A Crown powers Prince, Princess, Corrupt Advisor, Floating Skull and Expensive Taste.",
                 "Monkey Idols: the Monkey Shrine room gives one on entering; the Golden Monkey Bot counts as one. Worth :points#5: (the Bot :points#3:). Not Artifacts.",
                 "Gold tokens (Treasure :gold#2:, Greater Treasure :gold#5:) can be spent like Gold or kept for points.",
                 "Lockpicks are not limited: use any marker if the box runs out."
