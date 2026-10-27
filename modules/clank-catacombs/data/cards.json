@@ -14,7 +14,7 @@
     },
     {
      "type": "defeat",
-     "text": "+:boot:. If you use a portal this turn, +:boot:."
+     "text": "+:boot:\nIf you use a portal this turn, +:boot:."
     }
    ],
    "dragon": false,
@@ -135,7 +135,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+1 Clank! If you make 2 or more Clank! this turn, :heart::heart:."
+     "text": "+1 Clank!\nIf you make 2 or more Clank! this turn, :heart::heart:."
     }
    ],
    "dragon": false,
@@ -162,7 +162,7 @@
    "effects": [
     {
      "type": "use",
-     "text": "Choose TWO: +2 :gold: -OR- Trash a card in your play area or discard pile -OR- Take a lockpick."
+     "text": "Choose TWO:\n+2 :gold: -OR- Trash a card in your play area or discard pile -OR- Take a lockpick."
     }
    ],
    "dragon": false,
@@ -189,7 +189,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Draw a card. When a Ghost would damage you, you may discard this to prevent that and draw a card."
+     "text": "Draw a card.\nWhen a Ghost would damage you, you may discard this to prevent that and draw a card."
     },
     {
      "type": "acquire",
@@ -252,7 +252,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+3 Clank! If you have a monkey idol, you don't have to stop in Crystal Caves this turn."
+     "text": "+3 Clank!\nIf you have a monkey idol, you don't have to stop in Crystal Caves this turn."
     }
    ],
    "dragon": true,
@@ -367,7 +367,7 @@
     },
     {
      "type": "play",
-     "text": "Each other player gets +1 Clank! If you have a crown, they get +2 Clank! instead."
+     "text": "Each other player gets +1 Clank!\nIf you have a crown, they get +2 Clank! instead."
     }
    ],
    "dragon": true,
@@ -395,7 +395,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Draw two cards. You don't have to stop in Crystal Caves this turn."
+     "text": "Draw two cards.\nYou don't have to stop in Crystal Caves this turn."
     }
    ],
    "dragon": false,
@@ -657,7 +657,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Choose one (or all three, if you have an artifact): -2 Clank! -OR- +:gold: -OR- You don't have to stop in Crystal Caves this turn."
+     "text": "Choose one (or all three, if you have an artifact):\n-2 Clank! -OR- +:gold: -OR- You don't have to stop in Crystal Caves this turn."
     }
    ],
    "dragon": false,
@@ -688,7 +688,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+2 :gold:. Worth 5 points if you have a crown and a gem."
+     "text": "+2 :gold:\nWorth 5 points if you have a crown and a gem."
     }
    ],
    "dragon": false,
@@ -767,7 +767,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "-2 Clank! Draw a card."
+     "text": "-2 Clank!\nDraw a card."
     },
     {
      "type": "acquire",
@@ -796,7 +796,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Draw a card. If you make 2 or more Clank! this turn, +2 :skill:."
+     "text": "Draw a card.\nIf you make 2 or more Clank! this turn, +2 :skill:."
     }
    ],
    "dragon": false,
@@ -885,7 +885,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+:gold:, +1 Clank! You may buy one item from the Market this turn for 5 :gold: (even if you're not in a Market room)."
+     "text": "+:gold:, +1 Clank!\nYou may buy one item from the Market this turn for 5 :gold: (even if you're not in a Market room)."
     }
    ],
    "dragon": false,
@@ -999,7 +999,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "-2 Clank! If you have a Secret Tome in your play area or discard pile, draw two cards."
+     "text": "-2 Clank!\nIf you have a Secret Tome in your play area or discard pile, draw two cards."
     }
    ],
    "dragon": false,
@@ -1121,7 +1121,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+1 Clank! Draw two cards. For each Clank! you make this turn, +:gold:."
+     "text": "+1 Clank!\nDraw two cards.\nFor each Clank! you make this turn, +:gold:."
     }
    ],
    "dragon": false,
@@ -1146,7 +1146,7 @@
    "effects": [
     {
      "type": "defeat",
-     "text": "Place a new tile next to your current one. Choose: Teleport to any room on the new tile -OR- +2 :gold:."
+     "text": "Place a new tile next to your current one. Choose:\nTeleport to any room on the new tile -OR- +2 :gold:."
     }
    ],
    "dragon": true,
@@ -1321,7 +1321,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "If you have another companion in your play area, draw a card. If you have an artifact, draw a card."
+     "text": "If you have another companion in your play area, draw a card.\nIf you have an artifact, draw a card."
     }
    ],
    "dragon": false,
@@ -1379,7 +1379,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Take a lockpick. If you have another companion in your play area, draw a card."
+     "text": "Take a lockpick.\nIf you have another companion in your play area, draw a card."
     }
    ],
    "dragon": false,
@@ -1411,7 +1411,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Replace a card in the dungeon row. (If the new card has a dragon attack symbol, ignore it.)"
+     "text": "Replace a card in the dungeon row.\n(If the new card has a dragon attack symbol, ignore it.)"
     }
    ],
    "dragon": false,
@@ -1439,7 +1439,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+1 Clank! If you have freed three or more prisoners, you may trash a card in your play area or discard pile."
+     "text": "+1 Clank!\nIf you have freed three or more prisoners, you may trash a card in your play area or discard pile."
     },
     {
      "type": "acquire",
@@ -1472,7 +1472,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+2 :gold:. If you're in a Market room, teleport to an adjacent room."
+     "text": "+2 :gold:\nIf you're in a Market room, teleport to an adjacent room."
     },
     {
      "type": "acquire",
@@ -1502,7 +1502,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "-2 Clank! Draw a card."
+     "text": "-2 Clank!\nDraw a card."
     },
     {
      "type": "acquire",
@@ -1804,7 +1804,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+2 Clank! Draw two cards."
+     "text": "+2 Clank!\nDraw two cards."
     }
    ],
    "dragon": false,
@@ -1830,7 +1830,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "-2 Clank! Draw a card."
+     "text": "-2 Clank!\nDraw a card."
     },
     {
      "type": "acquire",
@@ -2197,7 +2197,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Draw a card. When a Ghost would damage you, you may discard this to prevent that and draw a card."
+     "text": "Draw a card.\nWhen a Ghost would damage you, you may discard this to prevent that and draw a card."
     },
     {
      "type": "acquire",
