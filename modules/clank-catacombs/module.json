@@ -2,7 +2,7 @@
   "format": 1,
   "id": "clank-catacombs",
   "name": "Clank! Catacombs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "minAppVersion": "3.3.3",
   "icon": "images/icon.webp",
   "players": "2-4",
@@ -242,7 +242,8 @@
         "search": [
           "name",
           "text",
-          "tags"
+          "tags",
+          "kind"
         ],
         "tileName": false,
         "noun": "icons",
@@ -276,7 +277,7 @@
               "bullets": [
                 "Board: Clank! board with the Health Meters and the Rage Track; the Dragon marker starts on the space showing the number of players.",
                 "Tiles: the 22 dark Depths tiles are shuffled; 2 of the 6 safety tiles go back in the box unseen and the other 4 sit on top of the stack, so the first four tiles found are safe.",
-                "Bank: Gold (1, 5, 10) and Lockpicks (not limited), 5 Ghost cubes, the Dragon bag with 24 black cubes, the 7 Artifacts in a stack (5 on top, 20 at the bottom), 11 major secrets, 20 minor secrets and 20 Prisoners each shuffled face down, the Market Board with 2 Backpacks, 2 Blood Amulets, 3 Burglar's Kits and 3 Crowns (10 on top, then 9, then 8).",
+                "Bank: Gold (1, 5, 10) and Lockpicks (not limited), 5 Ghost cubes, the Dragon bag with 24 black cubes, the 7 Artifacts in a stack (5 on top, 20 at the bottom), 11 major secrets, 20 minor secrets and 20 Prisoners each shuffled face down, the Market Board with 2 Backpacks, 2 Blood Amulets, 3 Burglar's Kits and 3 Crowns (:points#10: on top, then :points#9:, then :points#8:).",
                 "Starting tile in the middle, either side up; the 3 Monkey Idols on the Monkey Shrine; one Mastery token per player near the Crypt.",
                 "Reserve: the Goblin, 15 Mercenary, 15 Explore, 12 Secret Tome. Dungeon Deck shuffled; 6 cards face up as the Dungeon Row, swapping out any with a Dragon Attack mark until none shows.",
                 "First player: the sneakiest, or random. Starting Clank!: first player 3 cubes into the Clank! area, second 2, third 1, fourth 0.",
@@ -297,7 +298,7 @@
               ],
               "bullets": [
                 "Cards give Skill (acquire cards, use devices), Swords (fight monsters, cover Monster icons) and Boots (move). They pool across all cards played this turn and can be split across actions; whatever is unspent at the end of the turn is lost.",
-                "Gold goes straight from the Bank to your supply and stays. It is also 1 point each at the end.",
+                "Gold goes straight from the Bank to your supply and stays. It is also :points#1: each at the end.",
                 "Clank!: for each +1, move a cube from your supply to the Clank! area (nothing happens if your supply is empty). For each -1, take one of your cubes back out of the Clank! area. Negative Clank! that has nothing to remove can still cancel Clank! you make later this turn, then it is lost.",
                 "Draw a card: from your own deck. When the deck is empty, shuffle your discard pile (never the play area) into a new deck.",
                 "Discard means from your hand, unplayed, with no effect. If a card asks you to discard a card to get something, you must really have one to discard.",
@@ -318,7 +319,7 @@
               "title": "Cards and the Dungeon Row",
               "bullets": [
                 "Blue cards: pay the Skill cost (lower right) to acquire one from the Dungeon Row into your discard pile. Do its ACQUIRE text at once; its main text works when you later play it from your hand.",
-                "Yellow Reserve cards (Mercenary 2, Explore 3, Secret Tome 7): acquire the same way, from the Reserve stacks. The Goblin (red, 2 Swords) is also in the Reserve: fight it for a Gold; it is never discarded and can be fought again and again.",
+                "Yellow Reserve cards (Mercenary :cost#2:, Explore :cost#3:, Secret Tome :cost#7:): acquire the same way, from the Reserve stacks. The Goblin (red, :fight#2:) is also in the Reserve: fight it for :gold#1:; it is never discarded and can be fought again and again.",
                 "Purple devices: pay the Skill cost, do the USE text right away, then put the card in the Dungeon discard pile. Some devices also need a Lockpick or Gold (Locked Trunk, Wishing Well).",
                 "Red monsters: spend Swords equal to the cost, take the DEFEAT reward, then put the monster in the Dungeon discard pile. A restriction line (Crystal Kobold, The Warden's Deep) must be met first.",
                 "Taken cards are not replaced until the end of your turn, so nobody sees new cards during your actions.",
@@ -390,9 +391,9 @@
               "bullets": [
                 "Minor secrets come from reward rooms and the Scavenger; major secrets from Chests, the Puzzle Box and the Locked Trunk. Reveal them at once; \"immediately\" effects happen now, keepable ones stay in your supply until used.",
                 "Prisoners come two at a time from a Prison, or one from Diversion, Riot and The Warden. Keep them face up; several score only with a condition (Mayor needs a Mastery token, Prince and Princess a Crown, Sorceress two Secret Tomes, Primatologist a Monkey Idol). Brave Hero, Riot and the Warrior count how many you freed. The Discount Coupon is not a Prisoner.",
-                "Market items cost :gold#7: each in a Market room (5 with the Golden Flute, anywhere). Crowns are taken from the top: 10, then 9, then 8. A Crown powers Prince, Princess, Corrupt Advisor, Floating Skull and Expensive Taste.",
-                "Monkey Idols: the Monkey Shrine room gives one on entering; the Golden Monkey Bot counts as one. Worth 5 (the Bot 3). Not Artifacts.",
-                "Gold tokens (Treasure 2, Greater Treasure 5) can be spent like Gold or kept for points.",
+                "Market items cost :gold#7: each in a Market room (5 with the Golden Flute, anywhere). Crowns are taken from the top: :points#10:, then :points#9:, then :points#8:. A Crown powers Prince, Princess, Corrupt Advisor, Floating Skull and Expensive Taste.",
+                "Monkey Idols: the Monkey Shrine room gives one on entering; the Golden Monkey Bot counts as one. Worth :points#5: (the Bot :points#3:). Not Artifacts.",
+                "Gold tokens (Treasure :gold#2:, Greater Treasure :gold#5:) can be spent like Gold or kept for points.",
                 "Lockpicks are not limited: use any marker if the box runs out."
               ]
             }
@@ -406,11 +407,11 @@
               "type": "text",
               "title": "Escaping, out players, scoring",
               "bullets": [
-                "Escape: arrive at the Crypt holding an Artifact. Finish your turn, then before refilling the Row remove your pawn and take a Mastery token (20 points). You cannot return to the Crypt without an Artifact.",
+                "Escape: arrive at the Crypt holding an Artifact. Finish your turn, then before refilling the Row remove your pawn and take a Mastery token (:points#20:). You cannot return to the Crypt without an Artifact.",
                 "Knocked out: your Health Meter is full. Lay your pawn on its side.",
                 "Out players (escaped or knocked out) take no more turns in the normal sense: no cards, no Clank!, no damage from the bag, and cards that affect all players skip them. Each time their turn comes they put all Clank! cubes into the bag and draw exactly four (six with two players), ignoring the Rage Track and DANGER cards, and the other players take that damage.",
                 "The game ends when every player has escaped or been knocked out, when the Dragon bag is empty after an attack, or when the Dungeon Deck cannot refill the Row.",
-                "Scoring: a player without an Artifact, or knocked out in the Depths, scores 0. Everyone else adds the Artifact's value, all Gold, every other token (prisoners, secrets, market items, Monkey Idols, Mastery 20) and the points on the cards in their deck, hand and discard pile.",
+                "Scoring: a player without an Artifact, or knocked out in the Depths, scores 0. Everyone else adds the Artifact's value, all Gold, every other token (prisoners, secrets, market items, Monkey Idols, Mastery :points#20:) and the points on the cards in their deck, hand and discard pile.",
                 "Most points wins. Tie: the more valuable Artifact.",
                 "\"Each player\" effects, when order matters (rotating tiles), start with the player whose turn it is and go clockwise, skipping players who are out."
               ]
@@ -454,7 +455,7 @@
           "how": [
             "Clank! board to one side; Dragon marker on the Rage Track space showing the number of players.",
             "Tiles: shuffle the 22 Depths tiles face down. Of the 6 safety tiles, return 2 to the box unseen and put the other 4 on top of the stack.",
-            "Bank: Gold (1, 5, 10) and Lockpicks (not limited), the 5 Ghost cubes, the Dragon bag with its 24 black cubes, the 7 Artifacts face up in a stack with 5 on top and 20 at the bottom, major secrets, minor secrets and Prisoners each shuffled face down, the Market Board with 2 Backpacks, 2 Blood Amulets, 3 Burglar's Kits and 3 Crowns (10 on top, 8 at the bottom).",
+            "Bank: Gold (1, 5, 10) and Lockpicks (not limited), the 5 Ghost cubes, the Dragon bag with its 24 black cubes, the 7 Artifacts face up in a stack with 5 on top and 20 at the bottom, major secrets, minor secrets and Prisoners each shuffled face down, the Market Board with 2 Backpacks, 2 Blood Amulets, 3 Burglar's Kits and 3 Crowns (:points#10: on top, :points#8: at the bottom).",
             "Starting tile in the middle, either side up. The 3 Monkey Idols go on the Monkey Shrine room; Mastery tokens near the Crypt, one per player.",
             "Reserve: the Goblin and three stacks (15 Mercenary, 15 Explore, 12 Secret Tome). Shuffle the Dungeon Deck and deal 6 face up as the Dungeon Row, replacing any card with a Dragon Attack mark until none shows; shuffle those back in."
           ],
@@ -547,7 +548,7 @@
             "listTitle": "Playing",
             "how": [
               "Cards give :skill: Skill (acquire cards, use devices), :sword: Swords (fight monsters, cover Monster tunnel icons) and :boot: Boots (move). They pool across cards and can be split across actions.",
-              "Gold goes from the Bank to your supply; it is also 1 point each at the end.",
+              "Gold goes from the Bank to your supply; it is also :points#1: each at the end.",
               "Clank!: for each +1 move a cube from your supply to the Clank! area (skip if your supply is empty). Negative Clank! takes your cubes back out; leftover negative Clank! can still be used later this turn, then it is lost.",
               "Draws come from your own deck. If it runs out, shuffle your discard pile (not your play area) into a new deck.",
               "A card's condition counts whatever order you play things in: Rebel General draws if another companion is in your play area, before or after."
@@ -640,7 +641,7 @@
               },
               {
                 "id": "end.escape",
-                "text": "Escaped at the Crypt with an Artifact? Remove your pawn before refilling, take a Mastery token (+20)"
+                "text": "Escaped at the Crypt with an Artifact? Remove your pawn before refilling, take a Mastery token (:points#20:)"
               }
             ]
           },
@@ -677,7 +678,7 @@
             "nextLabel": "New game",
             "how": [
               "No Artifact, or knocked out in the Depths (dark tiles or the top half of the starting tile): 0 points.",
-              "Add: the Artifact's value; all Gold (1 each); every other token (prisoners, secrets, market items, Monkey Idols, Mastery 20); the points in the top right corner of every card in your deck, hand and discard pile.",
+              "Add: the Artifact's value; all Gold (:points#1: each); every other token (prisoners, secrets, market items, Monkey Idols, Mastery :points#20:); the points in the top right corner of every card in your deck, hand and discard pile.",
               "Most points wins the title Greatest Thief in the Realm. Tie: the more valuable Artifact."
             ],
             "checklist": [
@@ -687,11 +688,11 @@
               },
               {
                 "id": "score.gold",
-                "text": "Gold, 1 point each"
+                "text": "Gold, :points#1: each"
               },
               {
                 "id": "score.tokens",
-                "text": "Tokens: prisoners, secrets, market items, idols, Mastery 20",
+                "text": "Tokens: prisoners, secrets, market items, idols, Mastery :points#20:",
                 "sub": "Conditional prisoners: Mayor needs a Mastery token, Prince/Princess a Crown, Sorceress two Secret Tomes, Primatologist a Monkey Idol"
               },
               {

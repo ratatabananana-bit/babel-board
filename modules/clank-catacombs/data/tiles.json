@@ -84,7 +84,7 @@
    "id": "crypt",
    "name": "Crypt",
    "kind": "Rooms",
-   "text": "The room you start in, on the starting tile, above the dungeon. Returning here with an Artifact is how you escape: finish your turn, remove your pawn, take a Mastery token (+20). You cannot return empty-handed.",
+   "text": "The room you start in, on the starting tile, above the dungeon. Returning here with an Artifact is how you escape: finish your turn, remove your pawn, take a Mastery token (:points#20:). You cannot return empty-handed.",
    "tags": [
     "green glow",
     "stone slab",
