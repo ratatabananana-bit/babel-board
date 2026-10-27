@@ -2,11 +2,11 @@
   "format": 1,
   "id": "vale-of-eternity-curse",
   "name": "Vale of Eternity: Curse",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "minAppVersion": "3.3.0",
   "icon": "images/icon.webp",
   "players": "2-4",
-  "source": "Card and Summoner text read from the card and tile images on valeofeternity.wiki.gg (Curse Expansion page, 2026-10-25). Rules: the Curse rulebook (Mandoo Games / Renegade Game Studios, 2025), photos on the same page.",
+  "source": "Card and Summoner text read from the card and tile images on valeofeternity.wiki.gg (Curse Expansion page, 2026-10-25). Card pictures: the Vale of Eternity Tabletop Simulator Workshop item (English sheet). Rules: the Curse rulebook (Mandoo Games / Renegade Game Studios, 2025), photos on the same page.",
   "expands": { "id": "vale-of-eternity", "minVersion": "2.1.0" },
   "collections": {
     "cards": {

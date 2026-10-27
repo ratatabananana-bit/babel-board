@@ -11,8 +11,8 @@ Vale of Eternity: Curse, app 3.3.0 to 3.3.2) is in the git history of this file.
 |---|---|---|
 | Babel Board app | 3.3.3 (Latest release, arm64 and arm32 APKs) | `babel-board` master, tag `v3.3.3` |
 | Clank! Catacombs | 1.0.4 | modules repository |
-| Vale of Eternity | 2.1.0 | modules repository |
-| Vale of Eternity: Curse | 1.0.3 | modules repository |
+| Vale of Eternity | 2.1.1 | modules repository |
+| Vale of Eternity: Curse | 1.0.4 | modules repository |
 | Magical Athlete | 1.0.0 | modules repository |
 | Tests | 368 passing, analyzer clean | `flutter test` |
 
@@ -69,6 +69,16 @@ of categorised text), Turn (flow with a start-of-turn step and categorised remin
 - The cost rail labels monster rows "COST N" (it is swords for them).
 - Banner icons sit small in the dock buttons (the designer's file has margins).
 - The module ships publisher scans: personal use only, like the Vale module.
+
+## Vale card pictures from the TTS Workshop item (2026-10-27)
+
+All 98 Vale cards now use the pictures from the Vale of Eternity Tabletop Simulator Workshop
+item (English sheets). Base game (2.1.1): 600 x 838, twice the old 300 x 419, same artwork,
+crisper when zoomed. Curse (1.0.4): the old pictures were soft photo scans; the TTS ones are
+clean renders with sharp text and symbols, 430 x 600. Every card was checked against the old
+picture before the swap. The workshop item also has a third 28-card sheet (Duduri King,
+Rockscale, Taweret…) that no module covers yet. Script: `Workshop Item/vale-src/cards.js`
+(gitignored), which stages the crops and writes old-vs-new contact sheets before `--apply`.
 
 ## Known limits (unchanged)
 

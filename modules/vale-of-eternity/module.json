@@ -2,11 +2,11 @@
   "format": 1,
   "id": "vale-of-eternity",
   "name": "Vale of Eternity",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "minAppVersion": "3.0.0",
   "icon": "images/icon.webp",
   "players": "2-4",
-  "source": "Card text and rulings: valeofeternity.wiki.gg (card images and card pages, 2026-10-18). Rules: official rulebook (Renegade Game Studios)",
+  "source": "Card text and rulings: valeofeternity.wiki.gg (card pages, 2026-10-18). Card pictures: the Vale of Eternity Tabletop Simulator Workshop item (English sheets, 600 x 838). Rules: official rulebook (Renegade Game Studios)",
   "collections": {
     "cards": {
       "items": "data/cards.json",
