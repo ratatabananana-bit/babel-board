@@ -68,4 +68,40 @@ void main() {
     expect(parts, ['Value of your ', #stone_blue, ' counts as ', #stone_purple, '.']);
     expect(parseSymbols('Time: 3:00 :nope:', {'stone_blue'}), ['Time: 3:00 :nope:']);
   });
+
+  test('*text* becomes an italic part; a lone asterisk stays text', () {
+    expect(parseSymbols('Gain *+1 Clank!* now', {}), [
+      'Gain ',
+      Emph(['+1 Clank!']),
+      ' now',
+    ]);
+    expect(parseSymbols('*-2 :clank: here*', {'clank'}), [
+      Emph(['-2 ', #clank, ' here']),
+    ]);
+    expect(parseSymbols('2 * 3 = 6', {}), ['2 * 3 = 6']);
+    expect(parseSymbols('** nothing', {}), ['** nothing']);
+  });
+
+  testWidgets('*text* in item text is drawn in italics, the stars hidden', (tester) async {
+    await pumpModules(
+      tester,
+      edit: (m) {
+        final items = m['collections']['items'] as Map;
+        items['sheet']['secondary'] = 'Then *+1 Clank!* for you';
+      },
+    );
+    await tester.tap(find.bySemanticsLabel('Imp'));
+    await tester.pumpAndSettle();
+    final line = find.byWidgetPredicate((w) => w is SymbolText && w.text == 'Then *+1 Clank!* for you');
+    expect(line, findsOneWidget);
+    expect(find.textContaining('*', findRichText: true), findsNothing);
+    final span = tester.widget<RichText>(find.descendant(of: line, matching: find.byType(RichText)).first).text;
+    final italics = <String>[];
+    span.visitChildren((s) {
+      if (s is TextSpan && s.style?.fontStyle == FontStyle.italic) italics.add(s.text ?? '');
+      return true;
+    });
+    expect(italics, ['+1 Clank!']);
+    expect(span.toPlainText(), 'Then +1 Clank! for you');
+  });
 }

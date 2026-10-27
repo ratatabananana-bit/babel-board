@@ -60,6 +60,7 @@ the field with a second picture, e.g. a card back or a tile's other side; the sh
   elements whose `type` is `active`).
 - Template: text with `{path}` holes: `"Cost {cost}"`.
 - Inline symbols: write `:name:` in any text to show that symbol (declared in `symbols`) inside the line, e.g. `"Earn 2 :stone_red:"`. Use it wherever the printed card shows an icon.
+- Italics: `*…*` in any text draws that run in italics (needs `minAppVersion` "3.3.3"), e.g. `"*+1 Clank!*"` where the card prints it in a different style.
 - Filter: `{"zone": "field", "where": [{"path": "effects.type", "has": "active"}]}`. `zone`
   optional; each rule uses `has` (any value equals), `equals` (exactly one value equals) or, from
   3.2.0, `inZone` (any value is the id of an item tracked in that zone: "cards of the monster types

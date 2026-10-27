@@ -40,11 +40,11 @@
    "effects": [
     {
      "type": "arrive",
-     "text": "All players get +1 Clank!"
+     "text": "All players get *+1 Clank!*"
     },
     {
      "type": "defeat",
-     "text": "Draw two cards, all other players get +1 Clank!"
+     "text": "Draw two cards, all other players get *+1 Clank!*"
     }
    ],
    "dragon": false,
@@ -135,7 +135,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+1 Clank!\nIf you make 2 or more Clank! this turn, :heart::heart:."
+     "text": "*+1 Clank!*\nIf you make 2 or more Clank! this turn, :heart::heart:."
     }
    ],
    "dragon": false,
@@ -193,7 +193,7 @@
     },
     {
      "type": "acquire",
-     "text": "+2 Clank!"
+     "text": "*+2 Clank!*"
     }
    ],
    "dragon": true,
@@ -252,7 +252,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+3 Clank!\nIf you have a monkey idol, you don't have to stop in Crystal Caves this turn."
+     "text": "*+3 Clank!*\nIf you have a monkey idol, you don't have to stop in Crystal Caves this turn."
     }
    ],
    "dragon": true,
@@ -367,7 +367,7 @@
     },
     {
      "type": "play",
-     "text": "Each other player gets +1 Clank!\nIf you have a crown, they get +2 Clank! instead."
+     "text": "Each other player gets *+1 Clank!*\nIf you have a crown, they get *+2 Clank!* instead."
     }
    ],
    "dragon": true,
@@ -481,7 +481,7 @@
    "effects": [
     {
      "type": "use",
-     "text": "-2 Clank!"
+     "text": "*-2 Clank!*"
     }
    ],
    "dragon": true,
@@ -573,11 +573,11 @@
    "effects": [
     {
      "type": "play",
-     "text": "-2 Clank!"
+     "text": "*-2 Clank!*"
     },
     {
      "type": "acquire",
-     "text": "Each other player gets +2 Clank!"
+     "text": "Each other player gets *+2 Clank!*"
     }
    ],
    "dragon": false,
@@ -657,7 +657,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Choose one (or all three, if you have an artifact):\n-2 Clank! -OR- +:gold: -OR- You don't have to stop in Crystal Caves this turn."
+     "text": "Choose one (or all three, if you have an artifact):\n*-2 Clank!* -OR- +:gold: -OR- You don't have to stop in Crystal Caves this turn."
     }
    ],
    "dragon": false,
@@ -767,11 +767,11 @@
    "effects": [
     {
      "type": "play",
-     "text": "-2 Clank!\nDraw a card."
+     "text": "*-2 Clank!*\nDraw a card."
     },
     {
      "type": "acquire",
-     "text": "+2 Clank!"
+     "text": "*+2 Clank!*"
     }
    ],
    "dragon": true,
@@ -885,7 +885,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+:gold:, +1 Clank!\nYou may buy one item from the Market this turn for 5 :gold: (even if you're not in a Market room)."
+     "text": "+:gold:, *+1 Clank!*\nYou may buy one item from the Market this turn for 5 :gold: (even if you're not in a Market room)."
     }
    ],
    "dragon": false,
@@ -999,7 +999,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "-2 Clank!\nIf you have a Secret Tome in your play area or discard pile, draw two cards."
+     "text": "*-2 Clank!*\nIf you have a Secret Tome in your play area or discard pile, draw two cards."
     }
    ],
    "dragon": false,
@@ -1031,7 +1031,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "If you're in a Crystal Cave, -2 Clank!"
+     "text": "If you're in a Crystal Cave, *-2 Clank!*"
     },
     {
      "type": "acquire",
@@ -1065,7 +1065,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+1 Clank!"
+     "text": "*+1 Clank!*"
     }
    ],
    "dragon": false,
@@ -1121,7 +1121,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+1 Clank!\nDraw two cards.\nFor each Clank! you make this turn, +:gold:."
+     "text": "*+1 Clank!*\nDraw two cards.\nFor each Clank! you make this turn, +:gold:."
     }
    ],
    "dragon": false,
@@ -1439,7 +1439,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+1 Clank!\nIf you have freed three or more prisoners, you may trash a card in your play area or discard pile."
+     "text": "*+1 Clank!*\nIf you have freed three or more prisoners, you may trash a card in your play area or discard pile."
     },
     {
      "type": "acquire",
@@ -1502,11 +1502,11 @@
    "effects": [
     {
      "type": "play",
-     "text": "-2 Clank!\nDraw a card."
+     "text": "*-2 Clank!*\nDraw a card."
     },
     {
      "type": "acquire",
-     "text": "+2 Clank!"
+     "text": "*+2 Clank!*"
     }
    ],
    "dragon": true,
@@ -1657,7 +1657,7 @@
    "effects": [
     {
      "type": "defeat",
-     "text": "+3 :gold:, +3 :skill:, +3 Clank!"
+     "text": "+3 :gold:, +3 :skill:, *+3 Clank!*"
     }
    ],
    "dragon": true,
@@ -1684,7 +1684,7 @@
    "effects": [
     {
      "type": "defeat",
-     "text": "+2 :gold:, +1 Clank!"
+     "text": "+2 :gold:, *+1 Clank!*"
     }
    ],
    "dragon": false,
@@ -1710,11 +1710,11 @@
    "effects": [
     {
      "type": "arrive",
-     "text": "All players get +1 Clank!"
+     "text": "All players get *+1 Clank!*"
     },
     {
      "type": "defeat",
-     "text": ":heart:, +1 Clank!"
+     "text": ":heart:, *+1 Clank!*"
     }
    ],
    "dragon": false,
@@ -1741,7 +1741,7 @@
    "effects": [
     {
      "type": "defeat",
-     "text": "Take a Secret Tome, +1 Clank!"
+     "text": "Take a Secret Tome, *+1 Clank!*"
     }
    ],
    "dragon": true,
@@ -1804,7 +1804,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+2 Clank!\nDraw two cards."
+     "text": "*+2 Clank!*\nDraw two cards."
     }
    ],
    "dragon": false,
@@ -1830,11 +1830,11 @@
    "effects": [
     {
      "type": "play",
-     "text": "-2 Clank!\nDraw a card."
+     "text": "*-2 Clank!*\nDraw a card."
     },
     {
      "type": "acquire",
-     "text": "+2 Clank!"
+     "text": "*+2 Clank!*"
     }
    ],
    "dragon": true,
@@ -1863,7 +1863,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "-2 Clank!"
+     "text": "*-2 Clank!*"
     },
     {
      "type": "acquire",
@@ -1957,7 +1957,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+1 Clank!"
+     "text": "*+1 Clank!*"
     }
    ],
    "dragon": false,
@@ -2201,7 +2201,7 @@
     },
     {
      "type": "acquire",
-     "text": "+2 Clank!"
+     "text": "*+2 Clank!*"
     }
    ],
    "dragon": true,
