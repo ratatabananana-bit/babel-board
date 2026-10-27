@@ -194,7 +194,9 @@ A searchable grid of item pictures with a 4/3/2-per-row toggle. Tap opens the it
 
 - `search`: paths searched by the search box. `tileName`: name under each picture (use
   `false` when the name is printed on the picture or the shape is `square`).
-- `filters`: single-select docks at the bottom; tap an option again for "all". Up to ~6
+- `filters`: single-select docks at the bottom; tap an option again for "all". An option with a
+  `symbol` shows that picture as it is (any shape, transparent background; unselected ones are
+  dimmed), one without shows its first letter in a disc. Up to ~6
   options fit as a row; more than 8 options become one button ("Class: Brute") that opens a
   searchable sheet of the options.
 - `sections`: group by a field with sticky headers (`{value}` in the label). `rail` adds a

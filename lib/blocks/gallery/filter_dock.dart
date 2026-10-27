@@ -65,12 +65,13 @@ List<Widget> _options(
           semantics: '${filter.label} ${o.label}',
           selected: selected == o.value,
           onTap: () => onPick(o.value),
+          plain: o.symbol != null,
           child: o.symbol == null
               ? Text(
                   o.label.isEmpty ? '?' : o.label[0],
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: p.text),
                 )
-              : SymbolImage(o.symbol!, size: 40),
+              : SymbolImage(o.symbol!, size: 44),
         ),
   ];
 }
@@ -224,6 +225,7 @@ class _OptionButton extends StatelessWidget {
     required this.selected,
     required this.onTap,
     required this.child,
+    this.plain = false,
   });
 
   static const width = 56.0;
@@ -232,6 +234,10 @@ class _OptionButton extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   final Widget child;
+
+  /// A picture option: drawn as it is, no disc behind it and no ring; the unselected ones
+  /// are dimmed instead. Text options keep the disc, which gives the letter a shape.
+  final bool plain;
 
   @override
   Widget build(BuildContext context) {
@@ -248,21 +254,28 @@ class _OptionButton extends StatelessWidget {
           width: width,
           child: Column(
             children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                width: 46,
-                height: 46,
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: selected ? p.text : Colors.transparent, width: 2.5),
+              if (plain)
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 150),
+                  opacity: selected ? 1 : 0.5,
+                  child: SizedBox(width: 46, height: 46, child: Center(child: child)),
+                )
+              else
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: 46,
+                  height: 46,
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: selected ? p.text : Colors.transparent, width: 2.5),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(color: p.surface2, shape: BoxShape.circle),
+                    alignment: Alignment.center,
+                    child: child,
+                  ),
                 ),
-                child: Container(
-                  decoration: BoxDecoration(color: p.surface2, shape: BoxShape.circle),
-                  alignment: Alignment.center,
-                  child: child,
-                ),
-              ),
               const SizedBox(height: 3),
               FittedBox(
                 fit: BoxFit.scaleDown,

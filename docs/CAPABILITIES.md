@@ -6,7 +6,7 @@ features. The authoritative format is `modules/MODULE_SPEC.md`; the code map is
 `docs/ARCHITECTURE.md`. **Keep this file current: any change to blocks, sheet settings,
 saved state, zones, filters, limits or tools must be reflected here in the same commit.**
 
-Last synced with: app 3.3.3, module format 1, 2026-10-26.
+Last synced with: app 3.3.3, module format 1, 2026-10-27.
 
 ## 1. Data model
 
@@ -124,7 +124,7 @@ branching scripts. Those still need new block types or a bigger state model.
 
 ## 9. Change log of capabilities
 
-- 3.3.3: sheet sections (and details sections) take `italic: true`; the Clank! Catacombs module is the first with a Rules `hub` of categorised `text` entries.
+- 3.3.3: filter dock options with a `symbol` draw the picture flat (no disc, no ring; unselected ones dimmed), so banner- or badge-shaped symbols keep their shape. Sheet sections (and details sections) take `italic: true`; the Clank! Catacombs module is the first with a Rules `hub` of categorised `text` entries.
 - 3.3.2: an update redraws pictures already on screen (they stayed the old version until a restart); repository icon links carry the version.
 - 3.3.1: release builds may use the internet: repositories, install-from-link and image links work outside debug builds.
 - 3.3.0: expansions (`expands`): an overlay module merged into its base game; tab `id`.
