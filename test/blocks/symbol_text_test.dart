@@ -104,4 +104,33 @@ void main() {
     expect(italics, ['+1 Clank!']);
     expect(span.toPlainText(), 'Then +1 Clank! for you');
   });
+
+  test(':name#3: is the symbol with a number; an unknown base stays text', () {
+    expect(parseSymbols('Pay :stone_red#3: now', {'stone_red'}), ['Pay ', Symbol('stone_red#3'), ' now']);
+    expect(parseSymbols('Pay :stone_red#?:', {'stone_red'}), ['Pay ', Symbol('stone_red#?')]);
+    expect(parseSymbols('Pay :nope#3: now', {'stone_red'}), ['Pay :nope#3: now']);
+    expect(parseSymbols('Pay :stone_red#: now', {'stone_red'}), ['Pay :stone_red#: now']);
+  });
+
+  testWidgets(':name#3: draws the number centred on the symbol picture', (tester) async {
+    await pumpModules(
+      tester,
+      edit: (m) {
+        final items = m['collections']['items'] as Map;
+        items['sheet']['secondary'] = 'Pay :stone_red#3: now';
+      },
+    );
+    await tester.tap(find.bySemanticsLabel('Imp'));
+    await tester.pumpAndSettle();
+    final line = find.byWidgetPredicate((w) => w is SymbolText && w.text == 'Pay :stone_red#3: now');
+    expect(line, findsOneWidget);
+    final icon = find.descendant(of: line, matching: find.byType(SymbolImage));
+    expect(icon, findsOneWidget);
+    expect(tester.widget<SymbolImage>(icon).name, 'stone_red#3');
+    final number = find.descendant(of: icon, matching: find.text('3'));
+    expect(number, findsOneWidget);
+    expect(tester.getCenter(number).dx, closeTo(tester.getCenter(icon).dx, 1));
+    expect(tester.getCenter(number).dy, closeTo(tester.getCenter(icon).dy, 1));
+    expect(find.textContaining('#', findRichText: true), findsNothing);
+  });
 }

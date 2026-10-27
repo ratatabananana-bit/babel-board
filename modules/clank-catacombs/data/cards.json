@@ -75,7 +75,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "If you generate 6 :skill: or more this turn, mark a Wayshrine (as though you were there)."
+     "text": "If you generate :skill#6: or more this turn, mark a Wayshrine (as though you were there)."
     }
    ],
    "dragon": false,
@@ -162,7 +162,7 @@
    "effects": [
     {
      "type": "use",
-     "text": "Choose TWO:\n+2 :gold: -OR- Trash a card in your play area or discard pile -OR- Take a lockpick."
+     "text": "Choose TWO:\n+:gold#2: -OR- Trash a card in your play area or discard pile -OR- Take a lockpick."
     }
    ],
    "dragon": false,
@@ -424,7 +424,7 @@
     },
     {
      "type": "defeat",
-     "text": "+2 :skill:"
+     "text": "+:skill#2:"
     }
    ],
    "dragon": true,
@@ -544,7 +544,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "If you generate 6 :skill: or more this turn, :heart:."
+     "text": "If you generate :skill#6: or more this turn, :heart:."
     }
    ],
    "dragon": false,
@@ -657,7 +657,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Choose one (or all three, if you have an artifact):\n*-2 Clank!* -OR- +:gold: -OR- You don't have to stop in Crystal Caves this turn."
+     "text": "Choose one (or all three, if you have an artifact):\n*-2 Clank!* -OR- +:gold#1: -OR- You don't have to stop in Crystal Caves this turn."
     }
    ],
    "dragon": false,
@@ -688,7 +688,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+2 :gold:\nWorth 5 points if you have a crown and a gem."
+     "text": "+:gold#2:\nWorth 5 points if you have a crown and a gem."
     }
    ],
    "dragon": false,
@@ -796,7 +796,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Draw a card.\nIf you make 2 or more Clank! this turn, +2 :skill:."
+     "text": "Draw a card.\nIf you make 2 or more Clank! this turn, +:skill#2:."
     }
    ],
    "dragon": false,
@@ -857,7 +857,7 @@
    "effects": [
     {
      "type": "defeat",
-     "text": "+:gold:. (Don't discard after fighting.)"
+     "text": "+:gold#1:. (Don't discard after fighting.)"
     }
    ],
    "dragon": false,
@@ -885,7 +885,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+:gold:, *+1 Clank!*\nYou may buy one item from the Market this turn for 5 :gold: (even if you're not in a Market room)."
+     "text": "+:gold#1:, *+1 Clank!*\nYou may buy one item from the Market this turn for :gold#5: (even if you're not in a Market room)."
     }
    ],
    "dragon": false,
@@ -1121,7 +1121,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "*+1 Clank!*\nDraw two cards.\nFor each Clank! you make this turn, +:gold:."
+     "text": "*+1 Clank!*\nDraw two cards.\nFor each Clank! you make this turn, +:gold#1:."
     }
    ],
    "dragon": false,
@@ -1146,7 +1146,7 @@
    "effects": [
     {
      "type": "defeat",
-     "text": "Place a new tile next to your current one. Choose:\nTeleport to any room on the new tile -OR- +2 :gold:."
+     "text": "Place a new tile next to your current one. Choose:\nTeleport to any room on the new tile -OR- +:gold#2:."
     }
    ],
    "dragon": true,
@@ -1198,7 +1198,7 @@
    "effects": [
     {
      "type": "defeat",
-     "text": "+5 :gold: -OR- If you're in a Market room, take a Market item (at no cost)."
+     "text": "+:gold#5: -OR- If you're in a Market room, take a Market item (at no cost)."
     }
    ],
    "dragon": true,
@@ -1259,7 +1259,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "If you gain at least 3 :gold: this turn, draw a card."
+     "text": "If you gain at least :gold#3: this turn, draw a card."
     }
    ],
    "dragon": false,
@@ -1472,7 +1472,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+2 :gold:\nIf you're in a Market room, teleport to an adjacent room."
+     "text": "+:gold#2:\nIf you're in a Market room, teleport to an adjacent room."
     },
     {
      "type": "acquire",
@@ -1657,7 +1657,7 @@
    "effects": [
     {
      "type": "defeat",
-     "text": "+3 :gold:, +3 :skill:, *+3 Clank!*"
+     "text": "+:gold#3:, +:skill#3:, *+3 Clank!*"
     }
    ],
    "dragon": true,
@@ -1684,7 +1684,7 @@
    "effects": [
     {
      "type": "defeat",
-     "text": "+2 :gold:, *+1 Clank!*"
+     "text": "+:gold#2:, *+1 Clank!*"
     }
    ],
    "dragon": false,
@@ -2014,7 +2014,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+3 :gold:"
+     "text": "+:gold#3:"
     }
    ],
    "dragon": false,
@@ -2080,7 +2080,7 @@
     },
     {
      "type": "use",
-     "text": "+2 :gold: -OR- Trash up to two Burgles, each from your play area or discard pile."
+     "text": "+:gold#2: -OR- Trash up to two Burgles, each from your play area or discard pile."
     }
    ],
    "dragon": false,
@@ -2115,7 +2115,7 @@
     },
     {
      "type": "acquire",
-     "text": "+3 :boot:"
+     "text": "+:boot#3:"
     }
    ],
    "dragon": true,
@@ -2230,7 +2230,7 @@
     },
     {
      "type": "play",
-     "text": "You must spend 3 :gold: to use."
+     "text": "You must spend :gold#3: to use."
     },
     {
      "type": "use",

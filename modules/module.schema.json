@@ -91,7 +91,7 @@
           "items": {
             "type": "object",
             "properties": {
-              "symbol": { "type": "string", "description": "Template giving a symbol name, e.g. \"{family}\"." },
+              "symbol": { "type": "string", "description": "Template giving a symbol name, e.g. \"{family}\"; \"cost#{cost}\" draws the field value on the symbol (3.3.3)." },
               "text": { "type": "string", "description": "Template, e.g. \"Cost {cost}\"." },
               "symbols": { "type": "string", "description": "Path to a list of symbol names." },
               "label": { "type": "string" }

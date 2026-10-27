@@ -14,7 +14,7 @@ Last synced with: app 3.3.3, module format 1, 2026-10-27.
 |---|---|---|
 | Collections | Any number, each a flat list of JSON objects with free fields and a unique text `id`. Per collection: title, subtitle, image field, `imageShape` card/square, one `cardAspect`, one `sheet`; a second picture per item (`backImageField`: a card back, a tile's other side). | Nested collections, relations between items (an item that *refers* to another), per-item aspect, more than two pictures per item. |
 | Item ids | Unique within a collection. | Zone state is keyed by item id **without** the collection name, so two collections sharing an id share a zone slot. Keep ids unique across the whole module. |
-| Symbols | Named small pictures. `:name:` in any player-facing text draws them inline, one line tall; `*…*` draws a run in italics (3.3.3). Used by chips, filters, effects, checklists, text blocks. | Larger diagrams inline (hex patterns, grids): rendered one line tall only. |
+| Symbols | Named small pictures. `:name:` in any player-facing text draws them inline, one line tall; `*…*` draws a run in italics; `:name#3:` draws the symbol with a number centred on it, also from a chip template `cost#{cost}` (3.3.3). Used by chips, filters, effects, checklists, text blocks. | Larger diagrams inline (hex patterns, grids): rendered one line tall only. |
 | Images | `https` links (downloaded once at install) or files in the zip (`.webp .png .jpg .jpeg`). Missing picture → text-only card. | SVG, animated, remote-at-runtime. |
 | Size limits | Zip 250 MB, unpacked 600 MB, one file 15 MB. Zips install from disk entry by entry, so a big module never sits in memory. | Anything bigger must be split into several modules. |
 | Text | English, `:symbol:` inline, lists of strings for multi-paragraph. Any length. | Rich text (bold, links, tables), images inside text. |
@@ -124,7 +124,7 @@ branching scripts. Those still need new block types or a bigger state model.
 
 ## 9. Change log of capabilities
 
-- 3.3.3: filter dock options with a `symbol` draw the picture flat (no disc, no ring; unselected ones dimmed), so banner- or badge-shaped symbols keep their shape. Sheet sections (and details sections) take `italic: true`; `*…*` in any text draws an italic run (symbols inside it still work); the Clank! Catacombs module is the first with a Rules `hub` of categorised `text` entries.
+- 3.3.3: filter dock options with a `symbol` draw the picture flat (no disc, no ring; unselected ones dimmed), so banner- or badge-shaped symbols keep their shape. Sheet sections (and details sections) take `italic: true`; `*…*` in any text draws an italic run (symbols inside it still work); `:name#3:` and chip `symbol` templates like `cost#{cost}` draw a number centred on a symbol (one blank picture per kind instead of one per value); the Clank! Catacombs module is the first with a Rules `hub` of categorised `text` entries.
 - 3.3.2: an update redraws pictures already on screen (they stayed the old version until a restart); repository icon links carry the version.
 - 3.3.1: release builds may use the internet: repositories, install-from-link and image links work outside debug builds.
 - 3.3.0: expansions (`expands`): an overlay module merged into its base game; tab `id`.

@@ -45,7 +45,7 @@ with the name under it), `cardAspect` (width ÷ height, default 0.716), `backIma
 the field with a second picture, e.g. a card back or a tile's other side; the sheet can flip to it), `sheet`.
 
 `sheet` (the item's detail view), all optional:
-- `chips`: `[{"symbol": "{field}", "text": "Cost {cost}", "symbols": "pathToListOfSymbolNames", "label": "Sells"}]`
+- `chips`: `[{"symbol": "{field}", "text": "Cost {cost}", "symbols": "pathToListOfSymbolNames", "label": "Sells"}]` or `{"symbol": "cost#{cost}"}` (the value drawn on the symbol, 3.3.3)
 - `effects`: `{"path": "effects", "typeLabels": {"instant": "Instant"}, "typeSymbols": {"instant": "symbolName"}, "typeHelp": {"instant": "When it triggers"}}` for items with `effects: [{"type": …, "text": …}]`
 - `sections`: `[{"label": "Ability", "path": "abilities"}]` (string or list of strings); add `"italic": true` for flavour text (needs `minAppVersion` "3.3.3")
 - `secondary`: a small grey template line
@@ -60,6 +60,7 @@ the field with a second picture, e.g. a card back or a tile's other side; the sh
   elements whose `type` is `active`).
 - Template: text with `{path}` holes: `"Cost {cost}"`.
 - Inline symbols: write `:name:` in any text to show that symbol (declared in `symbols`) inside the line, e.g. `"Earn 2 :stone_red:"`. Use it wherever the printed card shows an icon.
+- Numbered symbols: `:gold#3:` draws the gold symbol with a 3 on it; in chips `{"symbol": "cost#{cost}"}` (needs `minAppVersion` "3.3.3"). Use it where the card prints the number inside the icon.
 - Italics: `*…*` in any text draws that run in italics (needs `minAppVersion` "3.3.3"), e.g. `"*+1 Clank!*"` where the card prints it in a different style.
 - Filter: `{"zone": "field", "where": [{"path": "effects.type", "has": "active"}]}`. `zone`
   optional; each rule uses `has` (any value equals), `equals` (exactly one value equals) or, from

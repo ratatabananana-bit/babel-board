@@ -21,19 +21,17 @@
             "text": "{kind}"
           },
           {
-            "text": "Cost {cost}"
+            "symbol": "cost#{cost}"
           },
           {
-            "label": "Points",
-            "text": "{points}"
+            "symbol": "points#{points}"
           },
           {
             "label": "Gives",
             "symbols": "resources"
           },
           {
-            "label": "Copies",
-            "text": "{copies}"
+            "symbol": "copies#{copies}"
           }
         ],
         "effects": {
@@ -141,7 +139,9 @@
     "banner_yellow": "images/symbols/banner_yellow.webp",
     "banner_grey": "images/symbols/banner_grey.webp",
     "fx_arrive": "images/symbols/fx_arrive.webp",
-    "fx_danger": "images/symbols/fx_danger.webp"
+    "fx_danger": "images/symbols/fx_danger.webp",
+    "cost": "images/symbols/cost.webp",
+    "copies": "images/symbols/copies.webp"
   },
   "zones": [],
   "tabs": [

@@ -186,7 +186,8 @@ class ItemSheet extends StatelessWidget {
     if (c.label != null) children.add(Text(c.label!));
     if (c.symbol != null) {
       final name = fillTemplate(c.symbol!, item.data).trim();
-      if (name.isNotEmpty) {
+      // "cost#{cost}" with no cost fills to "cost#": no value, no chip.
+      if (name.isNotEmpty && !name.endsWith('#')) {
         if (children.isNotEmpty) children.add(const SizedBox(width: 4));
         children.add(SymbolImage(name, size: 22));
       }
@@ -273,7 +274,10 @@ class ItemSheet extends StatelessWidget {
       for (final v in values)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: SymbolText(v, style: T.effect.copyWith(color: p.text, fontStyle: s.italic ? FontStyle.italic : null)),
+          child: SymbolText(
+            v,
+            style: T.effect.copyWith(color: p.text, fontStyle: s.italic ? FontStyle.italic : null),
+          ),
         ),
       const SizedBox(height: 6),
     ];
@@ -507,7 +511,10 @@ class _SheetGesturesState extends State<_SheetGestures> with TickerProviderState
                           ),
                           if (widget.hint case final h? when h.isNotEmpty) ...[
                             const SizedBox(width: 2),
-                            Text(h, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.muted)),
+                            Text(
+                              h,
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: p.muted),
+                            ),
                           ],
                         ],
                       ),
@@ -651,8 +658,7 @@ class _ThumbState extends State<_Thumb> {
                   ? _FlippingPicture(item, collection, back: _back, radius: 8)
                   : ItemPicture(item, collection, radius: 8),
             ),
-            if (_flips)
-              Positioned(right: 4, top: 4, child: _FlipButton(onFlip: () => setState(() => _back = !_back))),
+            if (_flips) Positioned(right: 4, top: 4, child: _FlipButton(onFlip: () => setState(() => _back = !_back))),
             const Positioned(right: 4, bottom: 4, child: _RoundBadge(icon: Icons.open_in_full_rounded)),
           ],
         ),

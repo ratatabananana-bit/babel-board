@@ -57,7 +57,7 @@ An image value is either an `https://…` link or a relative path inside the mod
 | `format` | Always `1`. |
 | `id` | Lowercase letters, digits, `-`, `_`, `.`. Saved progress is kept per id: never change it. |
 | `name`, `version` | Shown in the Library. Raise `version` (`1.0.1`, `1.1.0`…) for every update. |
-| `minAppVersion` | `"3.0.0"`, or `"3.2.0"` when the module uses `hub`, gallery `groups` / `tileSubtitle` / `searchKeyboard`, `inZone`, `moveZone` / `clearZones` or several flows, `"3.3.0"` for an expansion (`expands`, see Expansions) or a `backImageField`, or `"3.3.3"` for an `italic` section or `*italic*` runs in text. |
+| `minAppVersion` | `"3.0.0"`, or `"3.2.0"` when the module uses `hub`, gallery `groups` / `tileSubtitle` / `searchKeyboard`, `inZone`, `moveZone` / `clearZones` or several flows, `"3.3.0"` for an expansion (`expands`, see Expansions) or a `backImageField`, or `"3.3.3"` for an `italic` section or `*italic*` runs or `:name#3:` numbered symbols in text. |
 | `icon` | Round game icon (square picture works best). |
 | `players`, `source` | Free text. |
 | `collections` | Lists of items, see below. |
@@ -144,6 +144,10 @@ Tapping an item opens its sheet: picture, name, subtitle, then:
   `"Earn 2 :stone_red:"`. The picture is one line tall and sits in the line like a word. Use it
   where the printed card shows an icon (stones, resources, families) so the text reads like the
   card. A name that isn't in `symbols` is shown as written.
+- **Numbered symbols** (3.3.3): `:name#3:` draws the symbol with "3" centred on it, bold white
+  with a dark rim: a coin with its amount, a points badge with its value, `:cost#?:` for a
+  printed "?". Draw such symbols with a flat, empty centre. In a chip, `"symbol": "cost#{cost}"`
+  does the same from a field; a missing field hides the chip.
 - **Italics** (3.3.3): `*…*` in the same texts draws the run in italics, symbols inside it
   included, e.g. `"Draw a card. *+1 Clank!*"`. A lone `*` is shown as written.
 - **Filter**: `{"zone": "field", "where": [{"path": "effects.type", "has": "active"}]}`.

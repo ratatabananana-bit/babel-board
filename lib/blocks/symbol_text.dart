@@ -5,8 +5,9 @@ import 'package:provider/provider.dart';
 import '../modules/loaded_module.dart';
 import 'item_picture.dart';
 
-/// `*text*` (italics, no line break inside) or `:name:` (a symbol).
-final _marker = RegExp(r'\*([^*\n]+)\*|:([A-Za-z0-9_-]+):');
+/// `*text*` (italics, no line break inside), `:name:` (a symbol) or `:name#3:` (a symbol
+/// with a number drawn on it).
+final _marker = RegExp(r'\*([^*\n]+)\*|:([A-Za-z0-9_-]+)(#[^:\s#]+)?:');
 
 /// A run of parts drawn in italics: `*+1 Clank!*`. Since 3.3.3.
 @immutable
@@ -23,8 +24,9 @@ class Emph {
 }
 
 /// Splits [text] at `:name:` markers whose name is in [known] and at `*…*` runs: plain text
-/// stays a [String], each marker becomes a [Symbol] of its name, each starred run an [Emph]
-/// holding its own parts. Unknown names, and lone or empty stars, are left as written.
+/// stays a [String], each marker becomes a [Symbol] of its name (`name#3` keeps the number),
+/// each starred run an [Emph] holding its own parts. Unknown names, and lone or empty stars,
+/// are left as written.
 List<Object> parseSymbols(String text, Set<String> known) {
   final out = <Object>[];
   var last = 0;
@@ -32,7 +34,7 @@ List<Object> parseSymbols(String text, Set<String> known) {
     final Object part;
     if (m.group(2) != null) {
       if (!known.contains(m.group(2))) continue;
-      part = Symbol(m.group(2)!);
+      part = Symbol(m.group(2)! + (m.group(3) ?? ''));
     } else {
       part = Emph(parseSymbols(m.group(1)!, known));
     }
@@ -88,7 +90,7 @@ class SymbolText extends StatelessWidget {
           // A hairline either side: icons in a row (like a printed cost) don't touch.
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: SymbolImage(_nameOf(p), size: size, label: _nameOf(p).replaceAll('_', ' ')),
+            child: SymbolImage(_nameOf(p), size: size),
           ),
         )
       else if (p is Emph)

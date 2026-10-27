@@ -16,7 +16,8 @@ Color zoneColor(BuildContext context, ZoneSpec z) {
 
 ZoneSpec? zoneSpec(LoadedModule m, String? id) => m.manifest.zones.where((z) => z.id == id).firstOrNull;
 
-/// A named symbol image declared in the module's `symbols`.
+/// A named symbol image declared in the module's `symbols`. `name#3` draws "3" centred on
+/// the picture (a printed coin with its amount, a points badge with its value). Since 3.3.3.
 class SymbolImage extends StatelessWidget {
   const SymbolImage(this.name, {super.key, this.size = 24, this.label});
   final String name;
@@ -26,8 +27,11 @@ class SymbolImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = context.read<LoadedModule>();
-    final img = m.files.image(m.manifest.symbols[name]);
-    final w = img == null
+    final hash = name.indexOf('#');
+    final base = hash < 0 ? name : name.substring(0, hash);
+    final number = hash < 0 ? '' : name.substring(hash + 1);
+    final img = m.files.image(m.manifest.symbols[base]);
+    Widget w = img == null
         ? SizedBox(width: size, height: size)
         : Image(
             image: img,
@@ -36,7 +40,36 @@ class SymbolImage extends StatelessWidget {
             fit: BoxFit.contain,
             errorBuilder: (_, _, _) => SizedBox(width: size, height: size),
           );
-    return label == null ? w : Semantics(label: label, child: w);
+    if (number.isNotEmpty) {
+      // Bold white with a dark rim, so it reads on a gold coin and on a green badge alike.
+      final stroke = (size / 24).clamp(0.6, 2.5);
+      w = SizedBox(
+        width: size,
+        height: size,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            w,
+            Text(
+              number,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: size * (number.length > 1 ? 0.46 : 0.58),
+                height: 1,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                shadows: [
+                  for (final (dx, dy) in const [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)])
+                    Shadow(offset: Offset(dx * stroke, dy * stroke), color: const Color(0xFF14110C)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    final semantics = label ?? '${base.replaceAll('_', ' ')}${number.isEmpty ? '' : ' $number'}';
+    return Semantics(label: semantics, child: w);
   }
 }
 

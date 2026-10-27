@@ -110,4 +110,31 @@ void main() {
     await openSheet(tester, 'Nessie');
     expect(find.text('Curses'), findsOneWidget);
   });
+
+  testWidgets('a chip symbol template ending in #{field} shows the field value on the picture, or hides', (
+    tester,
+  ) async {
+    await pumpModules(
+      tester,
+      load: () async => [
+        await miniWithBacks(
+          nessie: {'pts': 7},
+          chips: [
+            {'symbol': 'stone_red#{cost}'},
+            {'symbol': 'stone_red#{pts}'},
+          ],
+        ),
+      ],
+    );
+    await openSheet(tester, 'Imp');
+    final numbered = find.byWidgetPredicate((w) => w is SymbolImage && w.name.startsWith('stone_red#'));
+    expect(numbered, findsOneWidget, reason: 'Imp has a cost but no pts: one numbered chip');
+    expect(tester.widget<SymbolImage>(numbered).name, 'stone_red#2');
+    expect(find.descendant(of: numbered, matching: find.text('2')), findsOneWidget);
+    await tester.tapAt(const Offset(20, 40));
+    await tester.pumpAndSettle();
+    await openSheet(tester, 'Nessie');
+    expect(numbered, findsNWidgets(2));
+    expect(find.descendant(of: numbered, matching: find.text('7')), findsOneWidget);
+  });
 }
