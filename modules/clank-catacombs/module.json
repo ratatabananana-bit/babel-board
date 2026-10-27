@@ -2,7 +2,7 @@
   "format": 1,
   "id": "clank-catacombs",
   "name": "Clank! Catacombs",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "minAppVersion": "3.3.4",
   "icon": "images/icon.webp",
   "players": "2-4",
@@ -74,6 +74,15 @@
               "path": "rulings"
             }
           ]
+        },
+        "zones": [
+          "deck",
+          "watch",
+          "trash"
+        ],
+        "swipe": {
+          "left": "deck",
+          "right": "watch"
         }
       }
     },
@@ -144,7 +153,35 @@
     "copies": "images/symbols/copies.webp",
     "fight": "images/symbols/fight.webp"
   },
-  "zones": [],
+  "zones": [
+    {
+      "id": "deck",
+      "label": "My deck",
+      "icon": "cards",
+      "accent": "mint",
+      "hint": "Cards you have acquired (one entry per card; starters not needed)",
+      "band": "In deck",
+      "phrase": "Add to my deck"
+    },
+    {
+      "id": "watch",
+      "label": "Watched",
+      "icon": "star",
+      "accent": "amber",
+      "hint": "Row cards you are keeping an eye on",
+      "band": "Watched",
+      "phrase": "Watch this card"
+    },
+    {
+      "id": "trash",
+      "label": "Trashed",
+      "icon": "list",
+      "accent": "violet",
+      "hint": "Left the game: trashed from your deck",
+      "band": "Trashed",
+      "phrase": "Mark as trashed"
+    }
+  ],
   "tabs": [
     {
       "id": "cards",
@@ -251,6 +288,52 @@
           "path": "kind",
           "label": "{value}"
         }
+      }
+    },
+    {
+      "id": "mine",
+      "label": "Mine",
+      "icon": "hand",
+      "badge": "zoneCount",
+      "block": {
+        "type": "board",
+        "title": "Mine",
+        "countLabel": "{count} tracked",
+        "children": [
+          {
+            "type": "zone",
+            "zone": "deck",
+            "list": {
+              "type": "cardList",
+              "collection": "cards",
+              "style": "mini",
+              "columns": 1,
+              "emptyText": "Nothing here yet. Open a card and tap a zone button, or swipe its sheet."
+            }
+          },
+          {
+            "type": "zone",
+            "zone": "watch",
+            "list": {
+              "type": "cardList",
+              "collection": "cards",
+              "style": "mini",
+              "columns": 1,
+              "emptyText": "Nothing here yet. Open a card and tap a zone button, or swipe its sheet."
+            }
+          },
+          {
+            "type": "zone",
+            "zone": "trash",
+            "list": {
+              "type": "cardList",
+              "collection": "cards",
+              "style": "mini",
+              "columns": 1,
+              "emptyText": "Nothing here yet. Open a card and tap a zone button, or swipe its sheet."
+            }
+          }
+        ]
       }
     },
     {
@@ -591,7 +674,7 @@
               {
                 "id": "act.acquire",
                 "text": "Acquire / use / fight from the Row",
-                "sub": "Taken cards are not replaced until the end of your turn"
+                "sub": "Taken cards are not replaced until the end of your turn. Acquired a card? Add it to My deck"
               },
               {
                 "id": "act.move",
@@ -696,7 +779,8 @@
               },
               {
                 "id": "score.cards",
-                "text": "Card points (top right) from deck, hand and discard"
+                "text": "Card points (top right) from deck, hand and discard",
+                "sub": "Mine tab: your deck with each card's points"
               },
               {
                 "id": "score.new",
