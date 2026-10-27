@@ -2,7 +2,7 @@
   "format": 1,
   "id": "clank-catacombs",
   "name": "Clank! Catacombs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "minAppVersion": "3.3.3",
   "icon": "images/icon.webp",
   "players": "2-4",
@@ -351,7 +351,7 @@
                 "Wayshrine: once per Wayshrine, as a special action while you are there, put a cube from your supply on an empty space and take Gold equal to the number of Wayshrines you have marked this game (1, then 2, then 3). Four spaces per Wayshrine; those cubes never become Clank!.",
                 "Rewards (minor secret, Monkey Idol, Gold, Healing) are given when you enter the room, once per room per turn; coming back on a later turn gives it again.",
                 "Locked features: Chest (a random major secret), Library (a Secret Tome into your discard pile, free), Prison (two random Prisoners). Spend a Lockpick to cover the feature; each can be picked once per game, and only while something remains in the Bank for it.",
-                "Market: in a Market room buy any Market Board item for 7 Gold, as often as you like.",
+                "Market: in a Market room buy any Market Board item for :gold#7:, as often as you like.",
                 "Artifact room: when the tile is first placed, the top Artifact from the Bank goes there (\"+\" takes the second, \"++\" the third). Taking it is an action at any point of your turn; the Dragon marker moves up one. One Artifact only, two with a Backpack.",
                 "The Depths are the 22 dark tiles plus the top half of the starting tile."
               ]
@@ -390,7 +390,7 @@
               "bullets": [
                 "Minor secrets come from reward rooms and the Scavenger; major secrets from Chests, the Puzzle Box and the Locked Trunk. Reveal them at once; \"immediately\" effects happen now, keepable ones stay in your supply until used.",
                 "Prisoners come two at a time from a Prison, or one from Diversion, Riot and The Warden. Keep them face up; several score only with a condition (Mayor needs a Mastery token, Prince and Princess a Crown, Sorceress two Secret Tomes, Primatologist a Monkey Idol). Brave Hero, Riot and the Warrior count how many you freed. The Discount Coupon is not a Prisoner.",
-                "Market items cost 7 Gold each in a Market room (5 with the Golden Flute, anywhere). Crowns are taken from the top: 10, then 9, then 8. A Crown powers Prince, Princess, Corrupt Advisor, Floating Skull and Expensive Taste.",
+                "Market items cost :gold#7: each in a Market room (5 with the Golden Flute, anywhere). Crowns are taken from the top: 10, then 9, then 8. A Crown powers Prince, Princess, Corrupt Advisor, Floating Skull and Expensive Taste.",
                 "Monkey Idols: the Monkey Shrine room gives one on entering; the Golden Monkey Bot counts as one. Worth 5 (the Bot 3). Not Artifacts.",
                 "Gold tokens (Treasure 2, Greater Treasure 5) can be spent like Gold or kept for points.",
                 "Lockpicks are not limited: use any marker if the box runs out."
@@ -581,7 +581,7 @@
               "Use a device: pay the Skill cost of a purple card in the Row, do its USE text at once, then put it in the Dungeon discard pile.",
               "Fight a monster: pay the Swords cost of a red card in the Row, take its DEFEAT reward, then put it in the Dungeon discard pile. The Goblin in the Reserve stays and can be fought again and again.",
               "Move: one Boot per tunnel. Footprints need two Boots; each Monster icon deals 1 damage unless you spend a Sword per icon; a Lock icon needs a Lockpick placed on it; arrows are one-way. Leaving a tile edge with nothing beyond discovers a new tile: take the top of the stack, place it in any orientation touching a whole edge (along the starting tile's long sides it lines up with the top or bottom half). Its icons apply to the tunnel you are on.",
-              "Buy from the Market: in a Market room, 7 Gold per item on the Market Board, any number of times.",
+              "Buy from the Market: in a Market room, :gold#7: per item on the Market Board, any number of times.",
               "Take an Artifact: in a room with one, put it in your supply and move the Dragon marker up one space. Only one Artifact (two with a Backpack).",
               "Pick a Chest, Library or Prison: in that room, spend a Lockpick to cover the feature. Chest: a random major secret. Library: a Secret Tome from the Reserve into your discard pile, free. Prison: two random Prisoners face up into your supply.",
               "Wayshrine: once per Wayshrine, put a cube from your supply on a free space and take Gold equal to the number of Wayshrines you have marked this game.",

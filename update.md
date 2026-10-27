@@ -10,7 +10,7 @@ Vale of Eternity: Curse, app 3.3.0 to 3.3.2) is in the git history of this file.
 | Thing | Version | Where |
 |---|---|---|
 | Babel Board app | 3.3.3 (Latest release, arm64 and arm32 APKs) | `babel-board` master, tag `v3.3.3` |
-| Clank! Catacombs | 1.0.1 | modules repository |
+| Clank! Catacombs | 1.0.2 | modules repository |
 | Vale of Eternity | 2.1.0 | modules repository |
 | Vale of Eternity: Curse | 1.0.3 | modules repository |
 | Magical Athlete | 1.0.0 | modules repository |

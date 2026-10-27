@@ -157,7 +157,7 @@
    "id": "market",
    "name": "Market",
    "kind": "Rooms",
-   "text": "While in a Market room you may buy any item on the Market Board for 7 Gold each, as often as you can pay: Backpack, Blood Amulet, Burglar's Kit, Crown.",
+   "text": "While in a Market room you may buy any item on the Market Board for :gold#7: each, as often as you can pay: Backpack, Blood Amulet, Burglar's Kit, Crown.",
    "tags": [
     "market stall",
     "striped awning",
@@ -169,7 +169,7 @@
    "id": "wayshrine",
    "name": "Wayshrine",
    "kind": "Rooms",
-   "text": "While here, once per Wayshrine and as a special action, place a cube from your supply on an empty space around it and take 1 Gold for every Wayshrine you have marked this game (1, then 2, then 3...). Needs a cube in your supply; those cubes never become Clank!. Four spaces per Wayshrine.",
+   "text": "While here, once per Wayshrine and as a special action, place a cube from your supply on an empty space around it and take :gold#1: for every Wayshrine you have marked this game (1, then 2, then 3...). Needs a cube in your supply; those cubes never become Clank!. Four spaces per Wayshrine.",
    "tags": [
     "shrine",
     "four diamonds",
