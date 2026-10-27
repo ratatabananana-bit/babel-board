@@ -62,7 +62,7 @@ class ItemSheet extends StatelessWidget {
       for (final s in sheet.detailSections)
         if (resolvePath(item.data, s.path).map((v) => '$v').where((v) => v.isNotEmpty).toList() case final values
             when values.isNotEmpty)
-          (label: s.label, values: values),
+          (label: s.label, values: values, italic: s.italic),
     ];
 
     final content = Column(
@@ -323,7 +323,7 @@ class _SheetGestures extends StatefulWidget {
     required this.child,
   });
   final String itemId;
-  final List<({String label, List<String> values})> sections;
+  final List<({String label, List<String> values, bool italic})> sections;
 
   /// Label next to the drag-up arrow (from the module), or null for the bare arrow.
   final String? hint;
@@ -612,7 +612,10 @@ class _SheetGesturesState extends State<_SheetGestures> with TickerProviderState
           for (final v in s.values)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: SymbolText(v, style: T.body.copyWith(color: p.text)),
+              child: SymbolText(
+                v,
+                style: T.body.copyWith(color: p.text, fontStyle: s.italic ? FontStyle.italic : null),
+              ),
             ),
         ],
       ],

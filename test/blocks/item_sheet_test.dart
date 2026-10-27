@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vale_helper/blocks/item_picture.dart';
 import 'package:vale_helper/blocks/item_sheet.dart';
+import 'package:vale_helper/blocks/symbol_text.dart';
 import 'package:vale_helper/modules/loaded_module.dart';
 import 'package:vale_helper/modules/module_files.dart';
 
@@ -136,5 +137,25 @@ void main() {
     await openSheet(tester, 'Nessie');
     expect(numbered, findsNWidgets(2));
     expect(find.descendant(of: numbered, matching: find.text('7')), findsOneWidget);
+  });
+
+  testWidgets('an italic details section is drawn in italics in the drag-up notes', (tester) async {
+    await pumpModules(
+      tester,
+      edit: (m) {
+        final items = m['collections']['items'] as Map;
+        items['sheet']['details'] = {
+          'hint': 'Notes',
+          'sections': [
+            {'label': 'Flavour', 'path': 'familyLabel', 'italic': true},
+          ],
+        };
+      },
+    );
+    await tester.tap(find.bySemanticsLabel('Imp'));
+    await tester.pumpAndSettle();
+    final line = find.byWidgetPredicate((w) => w is SymbolText && w.text == 'Fire');
+    expect(line, findsOneWidget);
+    expect(tester.widget<SymbolText>(line).style?.fontStyle, FontStyle.italic);
   });
 }
