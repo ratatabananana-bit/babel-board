@@ -6,6 +6,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 2,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -36,6 +37,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 3,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -67,6 +69,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "skill",
@@ -96,6 +99,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [
     "skill",
@@ -127,6 +131,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "skill",
@@ -158,6 +163,7 @@
    "banner": "purple",
    "kind": "Device",
    "cost": 5,
+   "costSymbol": "cost",
    "resources": [],
    "effects": [
     {
@@ -184,6 +190,7 @@
    "banner": "blue",
    "kind": "Gem",
    "cost": 6,
+   "costSymbol": "cost",
    "points": 5,
    "resources": [],
    "effects": [
@@ -213,6 +220,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 8,
+   "costSymbol": "cost",
    "points": 3,
    "resources": [
     "skill",
@@ -243,6 +251,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 3,
    "resources": [
     "boot",
@@ -272,6 +281,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 5,
+   "costSymbol": "cost",
    "points": "?",
    "resources": [
     "skill",
@@ -305,6 +315,7 @@
    "banner": "grey",
    "kind": "Starter",
    "cost": 0,
+   "costSymbol": "cost",
    "resources": [
     "skill"
    ],
@@ -327,6 +338,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [],
    "effects": [
@@ -355,6 +367,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [
     "skill",
@@ -390,6 +403,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 6,
+   "costSymbol": "cost",
    "points": 3,
    "resources": [],
    "effects": [
@@ -416,6 +430,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 2,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -446,6 +461,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 5,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [
     "skill",
@@ -477,6 +493,7 @@
    "banner": "purple",
    "kind": "Device",
    "cost": 2,
+   "costSymbol": "cost",
    "resources": [],
    "effects": [
     {
@@ -503,6 +520,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 5,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [
     "skill",
@@ -536,6 +554,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [
     "skill",
@@ -565,6 +584,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 6,
+   "costSymbol": "cost",
    "points": 3,
    "resources": [
     "skill",
@@ -597,6 +617,7 @@
    "banner": "purple",
    "kind": "Device",
    "cost": 2,
+   "costSymbol": "cost",
    "resources": [],
    "effects": [
     {
@@ -623,6 +644,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [
     "sword",
@@ -652,6 +674,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 1,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [],
    "effects": [
@@ -679,6 +702,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 6,
+   "costSymbol": "cost",
    "points": "?",
    "resources": [
     "skill",
@@ -709,6 +733,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 5,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [
     "skill",
@@ -737,6 +762,7 @@
    "banner": "yellow",
    "kind": "Reserve",
    "cost": 3,
+   "costSymbol": "cost",
    "resources": [
     "skill",
     "skill",
@@ -762,6 +788,7 @@
    "banner": "blue",
    "kind": "Gem",
    "cost": 6,
+   "costSymbol": "cost",
    "points": 5,
    "resources": [],
    "effects": [
@@ -791,6 +818,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 2,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [],
    "effects": [
@@ -818,6 +846,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 6,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [
     "skill",
@@ -853,6 +882,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 2,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -880,6 +910,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 1,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [],
    "effects": [
@@ -906,6 +937,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 6,
+   "costSymbol": "cost",
    "points": 3,
    "resources": [],
    "effects": [
@@ -936,6 +968,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 2,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [],
    "effects": [
@@ -964,6 +997,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 2,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -991,6 +1025,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "skill",
@@ -1022,6 +1057,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "skill",
@@ -1056,6 +1092,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "skill",
@@ -1086,6 +1123,7 @@
    "banner": "purple",
    "kind": "Device",
    "cost": 3,
+   "costSymbol": "cost",
    "resources": [],
    "effects": [
     {
@@ -1116,6 +1154,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 6,
+   "costSymbol": "cost",
    "points": 3,
    "resources": [],
    "effects": [
@@ -1142,6 +1181,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 3,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -1169,6 +1209,7 @@
    "banner": "yellow",
    "kind": "Companion",
    "cost": 2,
+   "costSymbol": "cost",
    "resources": [
     "skill",
     "sword",
@@ -1194,6 +1235,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 4,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -1221,6 +1263,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 1,
+   "costSymbol": "cost",
    "resources": [
     "skill",
     "skill",
@@ -1251,6 +1294,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 2,
+   "costSymbol": "cost",
    "resources": [
     "sword",
     "sword",
@@ -1281,6 +1325,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 5,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [
     "skill",
@@ -1313,6 +1358,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "skill",
@@ -1344,6 +1390,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 1,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "skill"
@@ -1374,6 +1421,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [],
    "effects": [
@@ -1402,6 +1450,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 2,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "skill",
@@ -1432,6 +1481,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 3,
+   "costSymbol": "cost",
    "resources": [
     "sword",
     "boot"
@@ -1464,6 +1514,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 5,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "sword",
@@ -1497,6 +1548,7 @@
    "banner": "blue",
    "kind": "Gem",
    "cost": 5,
+   "costSymbol": "cost",
    "points": 4,
    "resources": [],
    "effects": [
@@ -1526,6 +1578,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "skill",
@@ -1556,6 +1609,7 @@
    "banner": "grey",
    "kind": "Starter",
    "cost": 0,
+   "costSymbol": "cost",
    "resources": [
     "skill",
     "boot"
@@ -1581,6 +1635,7 @@
    "banner": "yellow",
    "kind": "Reserve",
    "cost": 7,
+   "costSymbol": "cost",
    "points": 7,
    "resources": [],
    "effects": [],
@@ -1602,6 +1657,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 2,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "boot"
@@ -1631,6 +1687,7 @@
    "banner": "grey",
    "kind": "Starter",
    "cost": 0,
+   "costSymbol": "cost",
    "resources": [
     "boot"
    ],
@@ -1653,6 +1710,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 3,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -1680,6 +1738,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 1,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -1706,6 +1765,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 2,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -1737,6 +1797,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 3,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -1764,6 +1825,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "boot",
@@ -1799,6 +1861,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [],
    "effects": [
@@ -1825,6 +1888,7 @@
    "banner": "blue",
    "kind": "Gem",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 3,
    "resources": [],
    "effects": [
@@ -1854,6 +1918,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "sword",
@@ -1889,6 +1954,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 6,
+   "costSymbol": "cost",
    "points": 3,
    "resources": [
     "sword",
@@ -1921,6 +1987,7 @@
    "banner": "blue",
    "kind": "Companion",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 2,
    "resources": [
     "skill",
@@ -1953,6 +2020,7 @@
    "banner": "grey",
    "kind": "Starter",
    "cost": 0,
+   "costSymbol": "cost",
    "resources": [],
    "effects": [
     {
@@ -1979,6 +2047,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "skill",
@@ -2009,6 +2078,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 3,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [],
    "effects": [
@@ -2036,6 +2106,7 @@
    "banner": "red",
    "kind": "Monster",
    "cost": 3,
+   "costSymbol": "fight",
    "resources": [],
    "effects": [
     {
@@ -2072,6 +2143,7 @@
    "banner": "purple",
    "kind": "Device",
    "cost": 4,
+   "costSymbol": "cost",
    "resources": [],
    "effects": [
     {
@@ -2102,6 +2174,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 7,
+   "costSymbol": "cost",
    "points": "?",
    "resources": [
     "boot",
@@ -2136,6 +2209,7 @@
    "banner": "purple",
    "kind": "Device",
    "cost": 2,
+   "costSymbol": "cost",
    "resources": [],
    "effects": [
     {
@@ -2163,6 +2237,7 @@
    "banner": "blue",
    "kind": "Card",
    "cost": 1,
+   "costSymbol": "cost",
    "points": 1,
    "resources": [
     "boot"
@@ -2192,6 +2267,7 @@
    "banner": "blue",
    "kind": "Gem",
    "cost": 4,
+   "costSymbol": "cost",
    "points": 3,
    "resources": [],
    "effects": [
@@ -2222,6 +2298,7 @@
    "banner": "purple",
    "kind": "Device",
    "cost": 0,
+   "costSymbol": "cost",
    "resources": [],
    "effects": [
     {

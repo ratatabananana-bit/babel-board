@@ -21,7 +21,7 @@
             "text": "{kind}"
           },
           {
-            "symbol": "cost#{cost}"
+            "symbol": "{costSymbol}#{cost}"
           },
           {
             "symbol": "points#{points}"
@@ -142,7 +142,8 @@
     "fx_arrive": "images/symbols/fx_arrive.webp",
     "fx_danger": "images/symbols/fx_danger.webp",
     "cost": "images/symbols/cost.webp",
-    "copies": "images/symbols/copies.webp"
+    "copies": "images/symbols/copies.webp",
+    "fight": "images/symbols/fight.webp"
   },
   "zones": [],
   "tabs": [
