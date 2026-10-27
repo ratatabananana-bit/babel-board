@@ -292,7 +292,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Worth 5 points if you have freed three or more Prisoners."
+     "text": "Worth :points#5: if you have freed three or more Prisoners."
     }
    ],
    "dragon": false,
@@ -712,7 +712,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "+:gold#2:\nWorth 5 points if you have a crown and a gem."
+     "text": "+:gold#2:\nWorth :points#5: if you have a crown and a gem."
     }
    ],
    "dragon": false,
@@ -2184,7 +2184,7 @@
    "effects": [
     {
      "type": "play",
-     "text": "Worth 2 points for each artifact and each monkey idol you have."
+     "text": "Worth :points#2: for each artifact and each monkey idol you have."
     },
     {
      "type": "acquire",

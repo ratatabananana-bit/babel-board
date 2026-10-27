@@ -2,7 +2,7 @@
   "format": 1,
   "id": "clank-catacombs",
   "name": "Clank! Catacombs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minAppVersion": "3.3.3",
   "icon": "images/icon.webp",
   "players": "2-4",

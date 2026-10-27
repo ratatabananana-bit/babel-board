@@ -181,7 +181,7 @@
    "id": "monkey-shrine",
    "name": "Monkey Shrine",
    "kind": "Rooms",
-   "text": "On the starting tile. The three Monkey Idols sit here at setup; entering the room takes one (5 points, not an Artifact).",
+   "text": "On the starting tile. The three Monkey Idols sit here at setup; entering the room takes one (:points#5:, not an Artifact).",
    "tags": [
     "three monkey heads",
     "blue",
@@ -204,7 +204,7 @@
    "id": "reward-monkey-idol",
    "name": "Monkey Idol",
    "kind": "Rooms",
-   "text": "Reward room. Take one Monkey Idol from the room into your personal supply (5 points at the end).",
+   "text": "Reward room. Take one Monkey Idol from the room into your personal supply (:points#5: at the end).",
    "tags": [
     "monkey",
     "orange",
