@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -85,7 +86,7 @@ void main() {
     final entry = (index['modules'] as List).single as Map<String, dynamic>;
     expect(entry['id'], 'mini');
     expect(entry['version'], '1.0.0');
-    expect(entry['minAppVersion'], '3.0.0');
+    expect(entry['minAppVersion'], '3.3.6', reason: 'older apps refuse the .nomedia in the zip');
     expect(entry['zip'], 'mini-1.0.0.zip');
     expect(Uri.parse(entry['zip'] as String).hasScheme, isFalse);
     expect(entry['size'], File('${out.path}/mini-1.0.0.zip').lengthSync());
@@ -170,6 +171,22 @@ void main() {
       editManifest(Directory('${modules.path}/mini-plus'), (m) => m['zones'] = [{'id': 'a', 'label': 'A', 'accent': 'red'}]);
       expect(packModules(modules, Directory('${tmp.path}/out2')).exitCode, 1);
     });
+  });
+
+  test('a packed zip carries an empty .nomedia at its root', () {
+    final modules = modulesWith({'mini': Directory('test/fixtures/mini_module')});
+    final out = Directory('${tmp.path}/out');
+    expect(packModules(modules, out).exitCode, 0);
+    final zip = ZipDecoder().decodeBytes(File('${out.path}/mini-1.0.0.zip').readAsBytesSync());
+    final marker = zip.files.where((f) => f.name == '.nomedia');
+    expect(marker, hasLength(1));
+    expect(marker.single.size, 0);
+  });
+
+  test('the index asks for the app that accepts .nomedia, or the module\'s own newer minimum', () {
+    expect(indexMinAppVersion('3.0.0'), '3.3.6');
+    expect(indexMinAppVersion('3.3.6'), '3.3.6');
+    expect(indexMinAppVersion('3.10.0'), '3.10.0');
   });
 
   test('pack --unpacked also writes each module folder for the web preview', () {

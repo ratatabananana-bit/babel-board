@@ -120,16 +120,32 @@ class ModuleStore {
   static const allowedExtensions = {'.json', '.webp', '.png', '.jpg', '.jpeg'};
   static const _maxParallelDownloads = 6;
 
+  /// An empty file with this name tells gallery apps to skip its folder.
+  static const noMediaFile = '.nomedia';
+
   String _p(String a, [String? b, String? c]) =>
       [a, ?b, ?c].join(Platform.pathSeparator).replaceAll('/', Platform.pathSeparator);
+
+  /// Keeps a folder's pictures out of the phone's gallery. Best effort: a game must still
+  /// open on a full disk.
+  void _hideFromGallery(Directory d) {
+    final f = File(_p(d.path, noMediaFile));
+    try {
+      if (!f.existsSync()) f.createSync();
+    } on FileSystemException {
+      // The pictures show in a gallery; nothing else depends on this file.
+    }
+  }
 
   Future<List<InstalledModule>> list() async {
     if (!root.existsSync()) return const [];
     final out = <InstalledModule>[];
     final dirs = root.listSync().whereType<Directory>().toList()..sort((a, b) => a.path.compareTo(b.path));
+    if (dirs.isNotEmpty) _hideFromGallery(root);
     for (final d in dirs) {
       final folder = d.path.split(Platform.pathSeparator).last;
       if (folder.startsWith('.')) continue;
+      _hideFromGallery(d); // Modules from an app older than 3.3.6 have none yet.
       try {
         final layer = await readModuleLayer(DirectoryModuleFiles(d));
         if (layer.isExpansion) {
@@ -179,6 +195,7 @@ class ModuleStore {
     root.createSync(recursive: true);
     final stagingRoot = Directory(_p(root.path, '.staging'))..createSync();
     final staging = Directory(_p(stagingRoot.path, '${DateTime.now().microsecondsSinceEpoch}'))..createSync();
+    _hideFromGallery(staging);
     try {
       final zipped = switch (src) {
         BytesSource(:final bytes) when _isZip(bytes) => _unzip(bytes, staging),
@@ -223,6 +240,7 @@ class ModuleStore {
         rethrow;
       }
       if (old.existsSync()) await old.delete(recursive: true);
+      _hideFromGallery(root);
       await onInstalled?.call(id);
       return InstalledModule(
         id: id,
@@ -391,6 +409,7 @@ class ModuleStore {
       if (!f.isFile) continue;
       final path = safeEntryPath(f.name);
       if (path == null) throw InstallException('Unsafe path inside the zip: "${f.name}"');
+      if (path.split('/').last == noMediaFile) continue; // The store writes its own.
       final ext = path.contains('.') ? path.substring(path.lastIndexOf('.')).toLowerCase() : '';
       if (!allowedExtensions.contains(ext)) {
         throw InstallException('File type not allowed in a module: "$path" (only ${allowedExtensions.join(' ')})');

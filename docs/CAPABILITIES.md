@@ -6,7 +6,7 @@ features. The authoritative format is `modules/MODULE_SPEC.md`; the code map is
 `docs/ARCHITECTURE.md`. **Keep this file current: any change to blocks, sheet settings,
 saved state, zones, filters, limits or tools must be reflected here in the same commit.**
 
-Last synced with: app 3.3.5, module format 1, 2026-10-27.
+Last synced with: app 3.3.6, module format 1, 2026-11-02.
 
 ## 1. Data model
 
@@ -15,7 +15,7 @@ Last synced with: app 3.3.5, module format 1, 2026-10-27.
 | Collections | Any number, each a flat list of JSON objects with free fields and a unique text `id`. Per collection: title, subtitle, image field, `imageShape` card/square, one `cardAspect`, one `sheet`; a second picture per item (`backImageField`: a card back, a tile's other side). | Nested collections, relations between items (an item that *refers* to another), per-item aspect, more than two pictures per item. |
 | Item ids | Unique within a collection. | Zone state is keyed by item id **without** the collection name, so two collections sharing an id share a zone slot. Keep ids unique across the whole module. |
 | Symbols | Named small pictures. `:name:` in any player-facing text draws them inline, one line tall; `*…*` draws a run in italics; `:name#3:` draws the symbol with a number centred on it, also from a chip template `cost#{cost}` (3.3.3). Used by chips, filters, effects, checklists, text blocks. | Larger diagrams inline (hex patterns, grids): rendered one line tall only. |
-| Images | `https` links (downloaded once at install) or files in the zip (`.webp .png .jpg .jpeg`). Missing picture → text-only card. | SVG, animated, remote-at-runtime. |
+| Images | `https` links (downloaded once at install) or files in the zip (`.webp .png .jpg .jpeg`). Missing picture → text-only card. Installed pictures carry `.nomedia`, so they stay out of the phone's gallery. | SVG, animated, remote-at-runtime. |
 | Size limits | Zip 250 MB, unpacked 600 MB, one file 15 MB. Zips install from disk entry by entry, so a big module never sits in memory. | Anything bigger must be split into several modules. |
 | Text | English, `:symbol:` inline, lists of strings for multi-paragraph. Any length. | Rich text (bold, links, tables), images inside text. |
 
@@ -124,6 +124,7 @@ branching scripts. Those still need new block types or a bigger state model.
 
 ## 9. Change log of capabilities
 
+- 3.3.6: the store writes `.nomedia` in its folder and every module folder (existing installs too, on next launch); `tool/pack.dart` adds one to each zip and lists at least `minAppVersion` 3.3.6 in the index, because older apps refuse a zip holding that file.
 - 3.3.5: board lane rows (`mini` and `rows`) lead each effect with its type label ("Defeat: ") when the type has no `typeSymbols` entry, so a tracked card's lines stay readable without the sheet.
 - 3.3.4: chip `text` goes through the symbol renderer, so `"text": "{points}"` shows `:points#5:` as the gem and a chip can mix words and symbols.
 - 3.3.3: filter dock options with a `symbol` draw the picture flat (no disc, no ring; unselected ones dimmed), so banner- or badge-shaped symbols keep their shape. Sheet sections (and details sections) take `italic: true`; `*…*` in any text draws an italic run (symbols inside it still work); `:name#3:` and chip `symbol` templates like `cost#{cost}` draw a number centred on a symbol (one blank picture per kind instead of one per value); the Clank! Catacombs module is the first with a Rules `hub` of categorised `text` entries.

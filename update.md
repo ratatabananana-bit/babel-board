@@ -1,6 +1,6 @@
-# Updates: Clank! Catacombs module, app 3.3.3 to 3.3.5
+# Updates: Clank! Catacombs module, app 3.3.3 to 3.3.6
 
-What changed between 2026-10-26 and 2026-10-27, newest last. App releases are at
+What changed between 2026-10-26 and 2026-11-02, newest last. App releases are at
 https://github.com/ratatabananana-bit/babel-board/releases and modules at
 https://github.com/ratatabananana-bit/babel-board-modules. The previous round (expansions,
 Vale of Eternity: Curse, app 3.3.0 to 3.3.2) is in the git history of this file.
@@ -9,12 +9,12 @@ Vale of Eternity: Curse, app 3.3.0 to 3.3.2) is in the git history of this file.
 
 | Thing | Version | Where |
 |---|---|---|
-| Babel Board app | 3.3.5 (Latest release, arm64 and arm32 APKs) | `babel-board` master, tag `v3.3.5` |
-| Clank! Catacombs | 1.1.0 (needs app 3.3.4; lane labels need 3.3.5) | modules repository |
-| Vale of Eternity | 2.1.1 | modules repository |
-| Vale of Eternity: Curse | 1.0.4 | modules repository |
-| Magical Athlete | 1.0.0 | modules repository |
-| Tests | 370 passing, analyzer clean | `flutter test` |
+| Babel Board app | 3.3.6 (Latest release, arm64 and arm32 APKs) | `babel-board` master, tag `v3.3.6` |
+| Clank! Catacombs | 1.1.1 (repository lists app 3.3.6) | modules repository |
+| Vale of Eternity | 2.1.2 (repository lists app 3.3.6) | modules repository |
+| Vale of Eternity: Curse | 1.0.5 (repository lists app 3.3.6) | modules repository |
+| Magical Athlete | 1.0.1 (repository lists app 3.3.6) | modules repository |
+| Tests | 377 passing; analyzer: one old unused import in `symbol_text_test.dart` | `flutter test` |
 
 ## App 3.3.3
 
@@ -45,6 +45,19 @@ Spec, schema, `AI_INSTRUCTIONS.md` and `docs/CAPABILITIES.md` describe all of it
 - **Lane rows name the effect type.** In a board lane, an effect whose type has no symbol
   now starts with its label ("Defeat: ", "When played: "), so a tracked Clank! card reads
   right without opening it. Modules whose every type has a symbol (Vale) are unchanged.
+
+## App 3.3.6
+
+- **`.nomedia` everywhere.** The owner saw cards in the phone's gallery. The store now writes
+  `.nomedia` in its folder and in each module folder, on install and on every listing, so a
+  phone that updates the app is covered at the next launch with no module update. Every packed
+  zip carries one at its root too, for copies unpacked by hand.
+- Compatibility: apps up to 3.3.5 refuse a zip holding `.nomedia` ("File type not allowed"),
+  so `tool/pack.dart` lists at least 3.3.6 in the index, whatever `module.json` says. Publish
+  the app before the modules.
+- Not confirmed as the cause. The store sits in the app's private `filesDir`, which Android's
+  media scanner cannot reach, so the pictures the gallery shows may be a copy elsewhere on the
+  phone. A gallery photo's details give its path; a loose copy has to be deleted by hand.
 
 ## Clank! Catacombs 1.0.0 to 1.1.0
 

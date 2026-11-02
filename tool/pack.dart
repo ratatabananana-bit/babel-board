@@ -3,15 +3,24 @@
 // Validates every module first; on any error nothing is written and the exit code is 1.
 // Writes <out>/<id>-<version>.zip, <out>/icons/<id>.<ext> and <out>/index.json, with
 // links relative to the index so the app can add the repository token itself.
+// Every zip carries an empty .nomedia, so a copy unpacked on a phone stays out of its gallery.
 // --unpacked also writes <out>/<id>/ (the web preview reads modules unzipped).
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
+import 'package:vale_helper/module_format/validator.dart' show compareVersions;
 
 import 'validate.dart';
 
 const _allowed = {'.json', '.webp', '.png', '.jpg', '.jpeg'};
+
+/// The first app that accepts a `.nomedia` in a zip; older ones refuse the whole module.
+const _noMediaMinApp = '3.3.6';
+
+/// The `minAppVersion` a repository lists for a packed module.
+String indexMinAppVersion(String declared) =>
+    compareVersions(declared, _noMediaMinApp) < 0 ? _noMediaMinApp : declared;
 
 String _ext(String path) {
   final dot = path.lastIndexOf('.');
@@ -84,6 +93,7 @@ ToolResult packModules(
       final bytes = e.value.readAsBytesSync();
       archive.addFile(ArchiveFile(e.key, bytes.length, bytes));
     }
+    archive.addFile(ArchiveFile('.nomedia', 0, const <int>[]));
     final zipName = '$id-$version.zip';
     final zipFile = File('${out.path}/$zipName')..writeAsBytesSync(ZipEncoder().encode(archive));
 
@@ -112,7 +122,7 @@ ToolResult packModules(
       'id': id,
       'name': m['name'],
       'version': version,
-      'minAppVersion': m['minAppVersion'],
+      'minAppVersion': indexMinAppVersion(m['minAppVersion'] as String),
       'zip': zipName,
       'icon': ?icon,
       'size': zipFile.lengthSync(),

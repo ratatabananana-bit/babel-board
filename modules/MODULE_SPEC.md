@@ -25,6 +25,8 @@ Machine-readable schema: `module.schema.json`. Validator: `dart run tool/validat
 - **Zip** (the full form): `module.json` at the root, collections in `data/*.json`
   (each file is `{"items": [...]}`), pictures under `images/`. Allowed file types:
   `.json .webp .png .jpg .jpeg`. Limits: zip 250 MB, unpacked 600 MB, any one file 15 MB.
+  A `.nomedia` file is also accepted (app 3.3.6) and ignored: the app marks every installed
+  module itself, and `tool/pack.dart` adds one to each zip for copies unpacked on a phone.
 - **single JSON** file (the quick form, for an AI chat): the same `module.json`, but each
   collection's `items` is the list itself, and every picture is an `https` link. Links are
   downloaded **once, at install**, and stored with the module, so the game works offline.

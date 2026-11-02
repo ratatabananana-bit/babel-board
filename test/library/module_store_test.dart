@@ -77,6 +77,46 @@ void main() {
     expect(root.listSync().where((e) => e.path.contains('.staging')), isEmpty, reason: 'staging cleaned up');
   });
 
+  group('.nomedia keeps card pictures out of the phone gallery', () {
+    File marker(Directory d) => File('${d.path}/.nomedia');
+
+    test('an install marks the store folder and the module folder', () async {
+      final m = await ModuleStore(root).installBytes(zipOf(miniFiles()));
+      expect(marker(root).existsSync(), isTrue);
+      expect(marker(m.dir!).existsSync(), isTrue);
+      expect(marker(m.dir!).lengthSync(), 0);
+    });
+
+    test('an update keeps the mark on the swapped-in folder', () async {
+      final store = ModuleStore(root);
+      await store.installBytes(zipOf(miniFiles()));
+      final m = miniManifest()..['version'] = '2.0.0';
+      final updated = await store.installBytes(zipOf({...miniFiles(), 'module.json': jsonBytes(m)}));
+      expect(marker(updated.dir!).existsSync(), isTrue);
+    });
+
+    test('listing marks modules installed by an older app', () async {
+      final store = ModuleStore(root);
+      final m = await store.installBytes(zipOf(miniFiles()));
+      marker(root).deleteSync();
+      marker(m.dir!).deleteSync();
+      await store.list();
+      expect(marker(root).existsSync(), isTrue);
+      expect(marker(m.dir!).existsSync(), isTrue);
+    });
+
+    test('a zip that carries its own .nomedia installs', () async {
+      final m = await ModuleStore(root).installBytes(zipOf({...miniFiles(), '.nomedia': const []}));
+      expect(m.id, 'mini');
+      expect(marker(m.dir!).existsSync(), isTrue);
+    });
+
+    test('a failed install leaves the store folder as it was', () async {
+      await expectLater(ModuleStore(root).installBytes(jsonBytes({'format': 1})), throwsA(isA<InstallException>()));
+      expect(marker(root).existsSync(), isFalse);
+    });
+  });
+
   test('review: a zip whose module.json has inline items downloads their image links too', () async {
     final files = miniFiles();
     final m = singleJsonMini();
